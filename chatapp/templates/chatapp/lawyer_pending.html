@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلبك قيد المراجعة — المستشار القانوني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c; --gold-light: #e8c97a;
+            --dark: #f1f5f9; --dark-2: #ffffff; --dark-3: #f8fafc;
+            --text: #0f172a; --text-muted: #64748b;
+            --border: rgba(0,0,0,0.1);
+        }
+        [data-theme="dark"] {
+            --gold: #c9a84c; --gold-light: #e8c97a;
+            --dark: #0a0e1a; --dark-2: #111827; --dark-3: #1a2235;
+            --text: #e6edf3; --text-muted: #8b949e;
+            --border: rgba(255,255,255,0.08);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--dark); color: var(--text);
+            min-height: 100vh; display: flex; align-items: center;
+            justify-content: center; padding: 20px;
+        }
+        .bg { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+        .orb {
+            position:absolute; border-radius:50%; filter:blur(100px); animation:float 20s linear infinite;
+        }
+        .o1 { width:400px;height:400px;background:radial-gradient(#2563eb,transparent);top:-100px;right:-80px;opacity:.06; }
+        .o2 { width:350px;height:350px;background:radial-gradient(#c9a84c,transparent);bottom:-80px;left:-60px;opacity:.06;animation-direction:reverse;animation-duration:26s; }
+        @keyframes float { 0%{transform:translate(0,0)}33%{transform:translate(25px,-35px)}66%{transform:translate(-15px,25px)}100%{transform:translate(0,0)} }
+
+        .card {
+            position:relative; z-index:1;
+            background: var(--dark-2); border-radius: 24px;
+            padding: 52px 48px; max-width: 520px; width: 100%;
+            border: 1px solid var(--border);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: cardIn .6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes cardIn { from{opacity:0;transform:scale(.93) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+        .status-icon {
+            width: 88px; height: 88px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
+            border: 2px solid rgba(201,168,76,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; margin: 0 auto 28px;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); }
+            50%      { box-shadow: 0 0 0 14px rgba(201,168,76,0); }
+        }
+
+        h1 { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
+        .subtitle { font-size: 15px; color: var(--text-muted); line-height: 1.7; margin-bottom: 36px; }
+        .subtitle strong { color: var(--gold); }
+
+        .steps {
+            background: var(--dark-3); border-radius: 16px;
+            padding: 24px; margin-bottom: 32px; text-align: right;
+        }
+        .steps-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .step {
+            display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+        }
+        .step:last-child { margin-bottom: 0; }
+        .step-num {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 700;
+        }
+        .step-done { background: rgba(22,163,74,0.12); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
+        .step-wait { background: rgba(201,168,76,0.12); color: #a16207; border: 1px solid rgba(201,168,76,0.4); animation: stepPulse 2s ease-in-out infinite; }
+        .step-pending { background: var(--surface, rgba(0,0,0,0.04)); color: var(--text-muted); border: 1px solid var(--border); }
+        @keyframes stepPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .step-text h4 { font-size: 14px; color: var(--text); font-weight: 600; }
+        .step-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+        .info-box {
+            background: rgba(47,129,247,0.08); border: 1px solid rgba(47,129,247,0.2);
+            border-radius: 12px; padding: 16px; margin-bottom: 28px;
+            font-size: 13px; color: #79c0ff; text-align: right; line-height: 1.6;
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+        .info-box .ii { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+        .actions { display: flex; flex-direction: column; gap: 10px; }
+        .btn-back {
+            padding: 13px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border: none; color: var(--dark); font-size: 15px; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: all .3s; text-decoration: none;
+            display: block; text-align: center;
+        }
+        .btn-back:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,168,76,0.4); }
+        .btn-logout {
+            padding: 11px; border-radius: 12px; border: 1px solid var(--border);
+            background: none; color: var(--text-muted); font-size: 14px;
+            font-family: inherit; cursor: pointer; transition: all .2s;
+        }
+        .btn-logout:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+        @media(max-width:480px) { .card { padding: 36px 24px; } }
+    </style>
+</head>
+<body>
+<div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
+
+<div class="card">
+    <div class="status-icon">⏳</div>
+    <h1>طلبك قيد المراجعة</h1>
+    <p class="subtitle">
+        شكراً لتسجيلك في المنصة! تم استلام بياناتك وسيتم مراجعتها من قبل الإدارة.<br>
+        ستتمكن من الدخول فور <strong>موافقة الإدارة</strong> على حسابك.
+    </p>
+
+    <div class="steps">
+        <div class="steps-title">مراحل التسجيل</div>
+        <div class="step">
+            <div class="step-num step-done">✓</div>
+            <div class="step-text">
+                <h4>تقديم الطلب</h4>
+                <p>تم استلام بياناتك بنجاح</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num step-wait">⋯</div>
+            <div class="step-text">
+                <h4>مراجعة الإدارة</h4>
+                <p>جارٍ التحقق من بيانات الترخيص</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num step-pending">3</div>
+            <div class="step-text">
+                <h4>تفعيل الحساب</h4>
+                <p>الوصول الكامل للوحة التحكم</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <span class="ii">ℹ️</span>
+        <span>عادةً تستغرق المراجعة من <strong>24 إلى 48 ساعة</strong>. إذا لم تصلك إشعار خلال يومين، تواصل مع الإدارة عبر صفحة الموقع.</span>
+    </div>
+
+    <div class="actions">
+        <a href="/" class="btn-back">العودة لصفحة الدخول</a>
+        <form method="post" action="/logout/" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout" style="width:100%;">تسجيل الخروج</button>
+        </form>
+    </div>
+</div>
+<script>
+(function() {
+    var t = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+</body>
+</html>

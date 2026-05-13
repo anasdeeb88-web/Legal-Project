@@ -1,0 +1,87 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+
+{% block title %}الاستشارات{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>استشاراتي</h1>
+    </div>
+
+    <div class="filters card">
+        <form method="get">
+            <select name="status" onchange="this.form.submit()">
+                <option value="">كل الحالات</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    {% if consultations %}
+    <div class="consultations-list">
+        {% for consultation in consultations %}
+        <div class="consultation-card card">
+            <div class="consultation-header">
+                <div>
+                    <h3>{{ consultation.title }}</h3>
+                    <p class="from-user">من: {{ consultation.user.get_full_name|default:consultation.user.username }}</p>
+                    <p class="time-ago">{{ consultation.created_at|timesince }} مضت</p>
+                </div>
+                <span class="status-badge status-{{ consultation.status }}">{{ consultation.get_status_display }}</span>
+            </div>
+            <p class="desc">{{ consultation.description|truncatewords:40 }}</p>
+            <div class="card-actions">
+                {% if consultation.status == 'pending' %}
+                <button class="btn btn-small" onclick="showReplyForm({{ consultation.id }})">💬 الرد</button>
+                {% endif %}
+                <a href="{% url 'consultation_detail' consultation.id %}" class="btn btn-small btn-outline">عرض</a>
+            </div>
+
+            <div id="reply-form-{{ consultation.id }}" class="reply-form" style="display:none;">
+                <form method="post" action="{% url 'respond_consultation' consultation.id %}">
+                    {% csrf_token %}
+                    <textarea name="response" placeholder="اكتب ردك..." required></textarea>
+                    <select name="status">
+                        <option value="accepted">مقبول</option>
+                        <option value="completed">مكتمل</option>
+                    </select>
+                    <div class="card-actions" style="margin-top:0.5rem;">
+                        <button type="submit" class="btn btn-small">إرسال الرد</button>
+                        <button type="button" class="btn btn-small btn-outline" onclick="hideReplyForm({{ consultation.id }})">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if consultations.has_other_pages %}
+    <div class="pagination">
+        {% if consultations.has_previous %}
+        <a href="?page=1" class="page-link">الأولى</a>
+        <a href="?page={{ consultations.previous_page_number }}" class="page-link">السابقة</a>
+        {% endif %}
+        <span class="current-page">{{ consultations.number }} / {{ consultations.paginator.num_pages }}</span>
+        {% if consultations.has_next %}
+        <a href="?page={{ consultations.next_page_number }}" class="page-link">التالية</a>
+        <a href="?page={{ consultations.paginator.num_pages }}" class="page-link">الأخيرة</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="no-data">
+        <span style="font-size:3rem;">📭</span>
+        <p>لا توجد استشارات</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showReplyForm(id) { document.getElementById('reply-form-' + id).style.display = 'block'; }
+function hideReplyForm(id) { document.getElementById('reply-form-' + id).style.display = 'none'; }
+</script>
+{% endblock %}

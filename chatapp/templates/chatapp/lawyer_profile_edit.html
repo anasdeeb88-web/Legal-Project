@@ -1,0 +1,365 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}تعديل الملف الشخصي{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
+<style>
+.edit-page   { max-width:760px; margin:0 auto; padding:28px 16px 60px; }
+.edit-card   {
+    background:var(--surface,#fff); border-radius:16px; padding:28px 32px;
+    box-shadow:0 2px 12px rgba(0,0,0,.06); border:1px solid var(--border,#f0f0f0);
+    margin-bottom:20px;
+}
+.edit-card h3 {
+    font-size:16px; font-weight:700; color:var(--text,#1a1a2e);
+    margin:0 0 20px; padding-bottom:12px; border-bottom:1px solid var(--border,#f0f0f0);
+}
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:13px; font-weight:600; color:var(--text-muted,#555); margin-bottom:6px; }
+.field input, .field select, .field textarea {
+    width:100%; padding:9px 13px; border:1.5px solid var(--border,#e0e0e0);
+    border-radius:10px; font-size:14px; font-family:inherit;
+    background:var(--surface,#fff); color:var(--text,#1a1a2e);
+    outline:none; transition:border-color .2s; box-sizing:border-box;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+    border-color:var(--primary,#2563eb);
+}
+.field textarea { resize:vertical; min-height:90px; }
+.field-row  { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.chk-row    { display:flex; align-items:center; gap:10px; }
+.chk-row input[type="checkbox"] { width:18px; height:18px; cursor:pointer; accent-color:var(--primary,#2563eb); }
+.chk-row label { font-size:14px; font-weight:500; color:var(--text,#1a1a2e); margin:0; cursor:pointer; }
+
+/* Map picker */
+.map-section h3 { margin-bottom:8px; }
+.map-hint {
+    font-size:13px; color:var(--text-muted,#666); margin-bottom:12px; line-height:1.5;
+}
+.map-hint strong { color:var(--primary,#2563eb); }
+#location-map {
+    width:100%; height:320px; border-radius:12px;
+    border:1.5px solid var(--border,#e0e0e0); overflow:hidden;
+    direction:ltr;
+}
+.coords-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+.coords-row input { background:var(--surface-2,#f8fafc); font-size:13px; color:var(--text-muted,#666); }
+.map-btn-row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.map-btn {
+    padding:7px 14px; border-radius:9px; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; font-family:inherit; transition:opacity .2s;
+}
+.map-btn-primary { background:var(--primary,#2563eb); color:#fff; }
+.map-btn-primary:hover { opacity:.85; }
+.map-btn-outline { background:none; border:1.5px solid var(--primary,#2563eb); color:var(--primary,#2563eb); }
+.map-btn-outline:hover { background:rgba(37,99,235,.06); }
+.loc-status { font-size:12px; color:#059669; font-weight:600; margin-top:8px; min-height:18px; }
+
+/* Actions */
+.actions { display:flex; gap:12px; margin-top:8px; }
+.btn-save { padding:10px 28px; background:var(--primary,#2563eb); color:#fff; border:none; border-radius:11px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+.btn-save:hover { opacity:.85; }
+.btn-cancel { padding:10px 22px; border:1.5px solid var(--border,#ddd); background:none; border-radius:11px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text-muted,#666); text-decoration:none; }
+.btn-cancel:hover { border-color:#999; }
+.save-msg { margin-top:10px; font-size:14px; font-weight:600; }
+.save-ok  { color:#059669; }
+.save-err { color:#dc2626; }
+
+[data-theme="dark"] .coords-row input { background:var(--surface,#1e2530); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-page">
+    <h2 style="font-size:22px;font-weight:800;color:var(--text,#1a1a2e);margin-bottom:20px;">
+        تعديل الملف الشخصي
+    </h2>
+
+    <form id="edit-form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- ── البيانات الشخصية ── -->
+        <div class="edit-card">
+            <h3>👤 البيانات الشخصية</h3>
+            <div class="field-row">
+                <div class="field">
+                    <label>الاسم الأول</label>
+                    <input type="text" name="first_name" value="{{ lawyer_profile.user.first_name }}" required>
+                </div>
+                <div class="field">
+                    <label>الاسم الأخير</label>
+                    <input type="text" name="last_name" value="{{ lawyer_profile.user.last_name }}" required>
+                </div>
+            </div>
+            <div class="field">
+                <label>البريد الإلكتروني</label>
+                <input type="email" name="email" value="{{ lawyer_profile.user.email }}" required>
+            </div>
+        </div>
+
+        <!-- ── معلومات المكتب ── -->
+        <div class="edit-card">
+            <h3>🏢 معلومات المكتب</h3>
+            <div class="field">
+                <label>اسم المكتب</label>
+                <input type="text" name="office_name" value="{{ lawyer_profile.office_name }}">
+            </div>
+            <div class="field">
+                <label>العنوان التفصيلي</label>
+                <input type="text" id="office-address" name="office_address"
+                       value="{{ lawyer_profile.office_address }}" required
+                       placeholder="مثال: دمشق - شارع بغداد - مبنى 12">
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" name="office_phone" value="{{ lawyer_profile.office_phone }}" required>
+                </div>
+                <div class="field">
+                    <label>البريد الإلكتروني للمكتب</label>
+                    <input type="email" name="office_email" value="{{ lawyer_profile.office_email }}" required>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label>التخصص</label>
+                    <select name="specialization" required>
+                        {% for code,name in specializations %}
+                        <option value="{{ code }}" {% if lawyer_profile.specialization == code %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field">
+                    <label>سنوات الخبرة</label>
+                    <input type="number" name="experience_years" value="{{ lawyer_profile.experience_years }}" min="0">
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field">
+                    <label>رسوم الاستشارة (ل.س)</label>
+                    <input type="number" name="consultation_fee" value="{{ lawyer_profile.consultation_fee|floatformat:'0' }}" min="0" step="500">
+                </div>
+                <div class="field">
+                    <label>اللغات</label>
+                    <input type="text" name="languages" value="{{ lawyer_profile.languages }}" placeholder="العربية، الإنجليزية">
+                </div>
+            </div>
+            <div class="field">
+                <label>نبذة عنك</label>
+                <textarea name="description">{{ lawyer_profile.description }}</textarea>
+            </div>
+            <div class="field">
+                <div class="chk-row">
+                    <input type="checkbox" name="is_available" id="is-avail"
+                           {% if lawyer_profile.is_available %}checked{% endif %}>
+                    <label for="is-avail">متاح للحجز الآن</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── موقع المكتب على الخريطة ── -->
+        <div class="edit-card map-section">
+            <h3>📍 موقع مكتبك على الخريطة</h3>
+            <p class="map-hint">
+                <strong>انقر على الخريطة</strong> لتحديد موقع مكتبك بدقة،
+                أو اضغط "حدد موقعي تلقائياً" للاستخدام موقعك الحالي.
+                الموقع يظهر للعملاء في صفحة البحث.
+            </p>
+
+            <div id="location-map"></div>
+
+            <div class="map-btn-row">
+                <button type="button" class="map-btn map-btn-outline" onclick="geocodeAddress()">🔍 حدد الموقع من العنوان</button>
+                <button type="button" class="map-btn map-btn-outline" onclick="useMyLocation()">📍 موقعي الحالي</button>
+                {% if lawyer_profile.latitude and lawyer_profile.longitude %}
+                <button type="button" class="map-btn map-btn-outline" onclick="resetToSaved()">↩ الموقع المحفوظ</button>
+                {% endif %}
+            </div>
+
+            <div class="coords-row">
+                <div class="field" style="margin:0">
+                    <label>خط العرض (Latitude)</label>
+                    <input type="text" id="lat-field" name="latitude"
+                           value="{{ lawyer_profile.latitude|default:'' }}"
+                           placeholder="33.5138" readonly>
+                </div>
+                <div class="field" style="margin:0">
+                    <label>خط الطول (Longitude)</label>
+                    <input type="text" id="lng-field" name="longitude"
+                           value="{{ lawyer_profile.longitude|default:'' }}"
+                           placeholder="36.2765" readonly>
+                </div>
+            </div>
+            <div class="loc-status" id="loc-status">
+                {% if lawyer_profile.latitude %}✅ موقع محفوظ — يمكنك تحديثه بالنقر على الخريطة{% endif %}
+            </div>
+        </div>
+
+        <!-- ── حفظ ── -->
+        <div class="edit-card" style="padding:20px 32px;">
+            <div class="actions">
+                <button type="submit" class="btn-save">💾 حفظ التغييرات</button>
+                <a href="{% url 'lawyer_dashboard' %}" class="btn-cancel">إلغاء</a>
+            </div>
+            <div id="save-msg" class="save-msg"></div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js"></script>
+<script>
+function enableRTLTextPlugin() {
+    const url = 'https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js';
+    if (window.maptilersdk?.setRTLTextPlugin) {
+        window.maptilersdk.setRTLTextPlugin(url, null, true);
+    } else if (window.maplibregl?.setRTLTextPlugin) {
+        window.maplibregl.setRTLTextPlugin(url, null, true);
+    } else if (window.mapboxgl?.setRTLTextPlugin) {
+        window.mapboxgl.setRTLTextPlugin(url, null, true);
+    }
+}
+
+const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
+const SAVED_LAT = {{ lawyer_profile.latitude|default:'null' }};
+const SAVED_LNG = {{ lawyer_profile.longitude|default:'null' }};
+
+let map = null;
+let marker = null;
+
+function initLocationMap() {
+    enableRTLTextPlugin();
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+
+    const startCenter = (SAVED_LAT && SAVED_LNG)
+        ? [SAVED_LNG, SAVED_LAT]
+        : [36.3, 33.5];
+
+    map = new maptilersdk.Map({
+        container : 'location-map',
+        style     : maptilersdk.MapStyle.STREETS,
+        center    : startCenter,
+        zoom      : SAVED_LAT ? 14 : 7,
+        language  : maptilersdk.Language.ENGLISH,
+    });
+
+    // Place saved marker on load
+    map.on('load', () => {
+        if (SAVED_LAT && SAVED_LNG) placeMarker(SAVED_LNG, SAVED_LAT);
+    });
+
+    // Click on map → place marker
+    map.on('click', e => {
+        placeMarker(e.lngLat.lng, e.lngLat.lat);
+    });
+}
+
+function placeMarker(lng, lat) {
+    if (marker) marker.remove();
+
+    const el = document.createElement('div');
+    el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+        <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".28"/></filter>
+        <path filter="url(#sh)" fill="#dc2626"
+            d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 25 17 25S34 29.7 34 17C34 7.6 26.4 0 17 0z"/>
+        <text x="17" y="21" font-size="14" text-anchor="middle" fill="white" font-family="Arial">🏢</text>
+    </svg>`;
+    el.style.cssText = 'cursor:pointer;width:34px;height:42px;';
+
+    marker = new maptilersdk.Marker({ element:el, draggable:true, anchor:'bottom' })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+    // Update fields when dragged
+    marker.on('dragend', () => {
+        const p = marker.getLngLat();
+        setCoords(p.lat, p.lng);
+    });
+
+    setCoords(lat, lng);
+}
+
+function setCoords(lat, lng) {
+    document.getElementById('lat-field').value = lat.toFixed(6);
+    document.getElementById('lng-field').value = lng.toFixed(6);
+    document.getElementById('loc-status').textContent = `✅ الموقع: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
+/* ── Helpers ───────────────────────────────── */
+function geocodeAddress() {
+    const addr = document.getElementById('office-address').value.trim();
+    if (!addr) { alert('أدخل العنوان أولاً'); return; }
+
+    const status = document.getElementById('loc-status');
+    status.textContent = '⏳ جارٍ البحث...';
+
+    // Nominatim free geocoding
+    const q = encodeURIComponent(addr + ' سوريا');
+    fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'ar' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.length) { status.textContent = '❌ لم يُعثر على العنوان، حدد الموقع يدوياً من الخريطة'; return; }
+        const { lat, lon } = data[0];
+        map.flyTo({ center:[+lon, +lat], zoom:15, speed:1.6 });
+        placeMarker(+lon, +lat);
+    })
+    .catch(() => { status.textContent = '❌ خطأ في البحث، حدد الموقع يدوياً'; });
+}
+
+function useMyLocation() {
+    if (!navigator.geolocation) { alert('المتصفح لا يدعم تحديد الموقع'); return; }
+    document.getElementById('loc-status').textContent = '⏳ جارٍ تحديد موقعك...';
+    navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude:lat, longitude:lng } = pos.coords;
+        if (map) map.flyTo({ center:[lng, lat], zoom:15, speed:1.6 });
+        placeMarker(lng, lat);
+    }, () => {
+        document.getElementById('loc-status').textContent = '❌ تعذّر تحديد موقعك';
+    });
+}
+
+function resetToSaved() {
+    if (!SAVED_LAT || !map) return;
+    map.flyTo({ center:[SAVED_LNG, SAVED_LAT], zoom:14 });
+    placeMarker(SAVED_LNG, SAVED_LAT);
+}
+
+/* ── Form Submit via AJAX ─────────────────── */
+document.getElementById('edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-save');
+    const msg = document.getElementById('save-msg');
+    btn.disabled = true;
+    btn.textContent = '⏳ جارٍ الحفظ...';
+    msg.textContent = '';
+
+    try {
+        const resp = await fetch(window.location.href, {
+            method  : 'POST',
+            body    : new FormData(this),
+            headers : { 'X-CSRFToken': '{{ csrf_token }}' },
+        });
+        const data = await resp.json();
+        if (data.success) {
+            msg.textContent = '✅ ' + data.message;
+            msg.className = 'save-msg save-ok';
+        } else {
+            msg.textContent = '❌ ' + (data.error || 'حدث خطأ');
+            msg.className = 'save-msg save-err';
+        }
+    } catch {
+        msg.textContent = '❌ خطأ في الاتصال';
+        msg.className = 'save-msg save-err';
+    }
+    btn.disabled = false;
+    btn.textContent = '💾 حفظ التغييرات';
+});
+
+initLocationMap();
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% load static %}
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>الدردشة — المستشار القانوني السوري</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'chatapp/style.css' %}" />
+</head>
+<body class="page-chat">
+  <header class="navbar">
+    <div class="container nav-inner">
+      <div class="brand">
+        <h1 class="brand-text">المستشار القانوني السوري</h1>
+      </div>
+
+      <nav class="nav-links">
+        <a href="{% url 'index' %}">الرئيسية</a>
+        <a href="{% url 'chat' %}" class="active">الدردشة</a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي">🌙</button>
+        <!-- ✅ صحيح - POST request -->
+        <form method="post" action="{% url 'logout' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline btn-small" style="margin: 0;">
+                🚪 تسجيل الخروج
+            </button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container chat-layout">
+    <aside class="sidebar">
+      <div class="side-card">
+        <h3>نصائح لطرح السؤال</h3>
+        <ol>
+          <li>كن محدداً (نوع الجريمة - ظرفها إن وُجد).</li>
+          <li>اطلب عرض المادة إن أردت النص القانوني حرفيًا.</li>
+          <li>استخدم: «اشرح ببساطة» للحصول على ملخص مبسط.</li>
+        </ol>
+      </div>
+
+      <div class="side-card">
+        <h3>آخر الأسئلة</h3>
+        <ul id="recent-questions">
+          <li>ما عقوبة القتل العمد؟</li>
+          <li>متى يطبق القانون الجديد؟</li>
+        </ul>
+      </div>
+
+      <div class="side-card">
+        <h3>الإجراءات</h3>
+        <button class="btn btn-outline btn-small" onclick="legalAdvisor.exportConversation()">
+          تصدير المحادثة 📥
+        </button>
+        <button class="btn btn-outline btn-small" onclick="legalAdvisor.clearHistory()">
+          مسح المحادثة 🗑️
+        </button>
+      </div>
+    </aside>
+
+    <section class="chat-panel">
+      <div class="chat-header">
+        <h2>شات قانوني — قانون العقوبات السوري</h2>
+        <p class="muted">استند إلى المواد القانونية المرفوعة.</p>
+      </div>
+      
+      <div id="messages" class="messages" aria-live="polite">
+        <div id="welcome-message" class="msg system-msg">
+          <div class="msg-content">
+            <strong>مرحباً!</strong> اطرح سؤالك الآن — على سبيل المثال: "ما عقوبة السرقة؟"
+          </div>
+        </div>
+      </div>
+
+      <form id="ask-form" class="ask-form" autocomplete="off">
+        {% csrf_token %}
+        <input 
+          id="question-input" 
+          type="text" 
+          placeholder="اكتب سؤالك هنا... (مثال: ما عقوبة السرقة؟)" 
+          required 
+        />
+        <button type="submit" class="btn btn-primary">إرسال</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© المستشار القانوني السوري — نظام معلوماتي. لا يغني عن استشارة محامٍ.</p>
+    </div>
+  </footer>
+
+  <script src="{% static 'chatapp/main.js' %}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('ask-form');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          if (typeof legalAdvisor !== 'undefined' && legalAdvisor.sendMessage) {
+            legalAdvisor.sendMessage();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

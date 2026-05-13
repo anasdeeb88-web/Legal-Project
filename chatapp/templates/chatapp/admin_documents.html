@@ -1,0 +1,324 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}إدارة قاعدة البيانات القانونية{% endblock %}
+{% block extra_css %}
+<style>
+.admin-layout { display: flex; min-height: calc(100vh - 64px); }
+.admin-sidebar {
+    width: 220px; background: #1a1a2e; flex-shrink: 0;
+    padding: 24px 0; position: sticky; top: 64px; height: calc(100vh - 64px); overflow-y: auto;
+}
+.admin-nav-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #4a5568; padding: 0 24px; margin-bottom: 8px; }
+.admin-nav-section { margin-bottom: 24px; }
+.admin-nav-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 24px; color: var(--text-subtle); text-decoration: none; font-size: 13px; font-weight: 500;
+    transition: all 0.15s; margin-bottom: 2px;
+}
+.admin-nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
+.admin-nav-link.active { background: rgba(59,130,246,0.2); color: #60a5fa; }
+.admin-content { flex: 1; padding: 28px; background: var(--surface-2); }
+.page-header { margin-bottom: 28px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.page-header-left h1 { font-size: 22px; font-weight: 800; color: var(--text); }
+.page-header-left p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+/* Upload Card */
+.upload-card {
+    background: var(--surface); border-radius: 14px; padding: 24px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 24px;
+}
+.upload-card h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.upload-zone {
+    border: 2px dashed #d1d5db; border-radius: 12px; padding: 32px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+}
+.upload-zone:hover, .upload-zone.dragover { border-color: #007bff; background: rgba(0,123,255,0.03); }
+.upload-zone-icon { font-size: 36px; margin-bottom: 10px; }
+.upload-zone h4 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.upload-zone p { font-size: 13px; color: var(--text-muted); }
+.upload-zone input[type="file"] { display: none; }
+.upload-form-row { display: flex; gap: 12px; margin-top: 16px; }
+.upload-form-row input {
+    flex: 1; padding: 10px 14px; border: 1.5px solid #e0e0e0;
+    border-radius: 10px; font-size: 14px; font-family: inherit; outline: none;
+}
+.upload-form-row input:focus { border-color: #007bff; }
+.btn-upload {
+    padding: 10px 24px; background: var(--primary); border: none;
+    border-radius: 10px; color: white; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: background 0.2s;
+}
+.btn-upload:hover { background: var(--primary-dark); }
+
+/* Filters */
+.filters-bar {
+    background: var(--surface); border-radius: 12px; padding: 16px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 20px;
+    display: flex; gap: 12px; align-items: center;
+}
+.filter-input {
+    flex: 1; padding: 9px 14px; border: 1.5px solid #e0e0e0;
+    border-radius: 10px; font-size: 14px; font-family: inherit; outline: none;
+}
+.filter-input:focus { border-color: #007bff; }
+.btn-filter {
+    padding: 9px 20px; background: var(--primary); border: none;
+    border-radius: 10px; color: white; font-size: 14px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+}
+
+/* Table */
+.table-card {
+    background: var(--surface); border-radius: 14px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); overflow: hidden;
+}
+.table-card-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+}
+.table-card-header h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+table { width: 100%; border-collapse: collapse; }
+thead tr { background: var(--surface-2); }
+th { padding: 12px 16px; text-align: right; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+tr:hover td { background: var(--surface-2); }
+tr:last-child td { border-bottom: none; }
+.doc-title { font-weight: 600; color: var(--text); }
+.doc-meta { font-size: 12px; color: var(--text-subtle); margin-top: 2px; }
+.doc-text-preview { font-size: 12px; color: var(--text-muted); max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.tag-indexed { background: rgba(22,163,74,0.12); color: var(--success); }
+.tag-empty { background: rgba(220,38,38,0.1); color: var(--danger); }
+.btn-action {
+    padding: 5px 12px; border-radius: 7px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: none; text-decoration: none;
+}
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+.empty-state { text-align: center; padding: 48px; color: var(--text-subtle); }
+.empty-state .es-icon { font-size: 48px; margin-bottom: 12px; }
+.pagination-bar { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); }
+.pagination-bar .page-info { font-size: 13px; color: var(--text-muted); }
+.pagination-bar .page-btns { display: flex; gap: 6px; }
+.page-btn { padding: 6px 12px; border-radius: 7px; border: 1px solid #e0e0e0; background: var(--surface); font-size: 13px; cursor: pointer; text-decoration: none; color: var(--text); transition: all 0.2s; }
+.page-btn:hover { border-color: #007bff; color: #007bff; }
+.page-btn.current { background: var(--primary); color: white; border-color: #007bff; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-nav-section">
+            <div class="admin-nav-label">الرئيسي</div>
+            <a href="{% url 'admin_dashboard' %}" class="admin-nav-link">🏠 لوحة التحكم</a>
+            <a href="{% url 'admin_statistics' %}" class="admin-nav-link">📊 الإحصائيات</a>
+        </div>
+        <div class="admin-nav-section">
+            <div class="admin-nav-label">إدارة</div>
+            <a href="{% url 'admin_lawyers' %}" class="admin-nav-link">👨‍⚖️ المحامون</a>
+            <a href="{% url 'admin_feedbacks' %}" class="admin-nav-link">💬 الملاحظات</a>
+            <a href="{% url 'admin_documents' %}" class="admin-nav-link active">📄 قاعدة البيانات</a>
+        </div>
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">النظام</span>
+            <a href="{% url 'admin_rag_status' %}" class="admin-nav-link">🔬 تشخيص RAG</a>
+            <a href="{% url 'admin:index' %}" class="admin-nav-link">🔧 Django Admin</a>
+        </div>
+    </aside>
+
+    <main class="admin-content">
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>📚 قاعدة البيانات القانونية</h1>
+                <p>إدارة الوثائق المفهرسة في نظام RAG — {{ total_docs }} وثيقة</p>
+            </div>
+        </div>
+
+        <!-- رفع وثيقة -->
+        <div class="upload-card">
+            <h3>➕ رفع وثيقة قانونية جديدة</h3>
+            <form method="post" action="{% url 'upload' %}" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" name="file" id="file-input" accept=".pdf,.txt" onchange="onFileSelected(this)">
+                    <div class="upload-zone-icon">📄</div>
+                    <h4>اسحب وأفلت ملف PDF أو TXT هنا</h4>
+                    <p id="file-label">أو اضغط للاختيار — الحد الأقصى 20 MB</p>
+                </div>
+                <div class="upload-form-row">
+                    <input type="text" name="title" placeholder="عنوان الوثيقة (مثال: قانون العقوبات السوري)" required>
+                    <button type="submit" class="btn-upload">رفع وفهرسة ←</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- فلتر البحث -->
+        <div class="filters-bar">
+            <form method="get" style="display:flex;gap:12px;flex:1;">
+                <input type="text" name="q" value="{{ search_query }}" class="filter-input" placeholder="🔍 بحث في الوثائق...">
+                <button type="submit" class="btn-filter">بحث</button>
+                {% if search_query %}<a href="{% url 'admin_documents' %}" class="btn-filter" style="background:#64748b;text-decoration:none;">مسح</a>{% endif %}
+            </form>
+        </div>
+
+        <!-- الجدول -->
+        <div class="table-card">
+            <div class="table-card-header">
+                <h3>الوثائق المفهرسة</h3>
+            </div>
+            {% if documents %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>الوثيقة</th>
+                        <th>المحتوى</th>
+                        <th>رُفعت بواسطة</th>
+                        <th>تاريخ الرفع</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td style="color:#94a3b8;font-size:13px;">#{{ doc.id }}</td>
+                        <td>
+                            <div class="doc-title">{{ doc.title }}</div>
+                            <div class="doc-meta">{{ doc.file.name|truncatechars:40 }}</div>
+                        </td>
+                        <td>
+                            {% if doc.extracted_text %}
+                            <div class="doc-text-preview">{{ doc.extracted_text|truncatechars:80 }}</div>
+                            {% else %}
+                            <span style="color:#94a3b8;font-size:12px;">لا يوجد نص مستخرج</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:13px;color:#64748b;">{{ doc.uploaded_by.username|default:"—" }}</td>
+                        <td style="font-size:13px;color:#64748b;white-space:nowrap;">{{ doc.uploaded_at|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if doc.extracted_text %}
+                            <span class="tag tag-indexed">✓ مفهرسة</span>
+                            {% else %}
+                            <span class="tag tag-empty">⚠ غير مفهرسة</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn-action btn-danger" onclick="deleteDoc({{ doc.id }}, '{{ doc.title|escapejs }}')">
+                                🗑 حذف
+                            </button>
+                            <button class="btn-action" style="background:#dbeafe;color:#1e40af;" onclick="reindexDoc({{ doc.id }}, '{{ doc.title|escapejs }}')">
+                                🔄 إعادة فهرسة
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if documents.has_other_pages %}
+            <div class="pagination-bar">
+                <div class="page-info">الصفحة {{ documents.number }} من {{ documents.paginator.num_pages }}</div>
+                <div class="page-btns">
+                    {% if documents.has_previous %}
+                    <a href="?page={{ documents.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="page-btn">← السابقة</a>
+                    {% endif %}
+                    <span class="page-btn current">{{ documents.number }}</span>
+                    {% if documents.has_next %}
+                    <a href="?page={{ documents.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" class="page-btn">التالية →</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <div class="es-icon">📄</div>
+                <h3>لا توجد وثائق</h3>
+                <p>ارفع وثيقتك الأولى لبدء فهرسة قاعدة البيانات القانونية</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function onFileSelected(input) {
+    const label = document.getElementById('file-label');
+    if (input.files[0]) {
+        label.textContent = '✅ ' + input.files[0].name + ' (' + (input.files[0].size / 1024 / 1024).toFixed(2) + ' MB)';
+    }
+}
+
+// Drag and drop
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+        document.getElementById('file-input').files = e.dataTransfer.files;
+        onFileSelected(document.getElementById('file-input'));
+    }
+});
+
+async function deleteDoc(id, title) {
+    if (!confirm(`حذف الوثيقة "${title}"؟\nسيتم حذفها من قاعدة البيانات ومن Pinecone.`)) return;
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    try {
+        const res  = await fetch(`/documents/${id}/delete/`, {method:'POST', body:formData, headers:{'X-CSRFToken':'{{ csrf_token }}'}});
+        const data = await res.json();
+        if (data.success) {
+            showToast('✅ تم الحذف', 'ok');
+            setTimeout(() => window.location.reload(), 800);
+        } else {
+            showToast('❌ فشل الحذف', 'err');
+        }
+    } catch(e) { showToast('❌ خطأ في الاتصال', 'err'); }
+}
+
+async function reindexDoc(id, title) {
+    if (!confirm(`إعادة فهرسة "${title}"؟\nسيتم إعادة استخراج النص وتحديث Pinecone.`)) return;
+
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = '⏳ جارٍ...';
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    try {
+        const res  = await fetch(`/documents/${id}/reindex/`, {method:'POST', body:formData, headers:{'X-CSRFToken':'{{ csrf_token }}'}});
+        const data = await res.json();
+        if (data.success) {
+            showToast(`✅ فُهرست ${data.chunks} مقطع`, 'ok');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast(`❌ ${data.error}`, 'err');
+            btn.disabled = false;
+            btn.textContent = orig;
+        }
+    } catch(e) {
+        showToast('❌ خطأ في الاتصال', 'err');
+        btn.disabled = false;
+        btn.textContent = orig;
+    }
+}
+
+function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+        padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;
+        color:white;z-index:9999;animation:fadeIn .3s ease;
+        background:${type==='ok'?'#059669':type==='err'?'#dc2626':'#2563eb'};
+        box-shadow:0 4px 16px rgba(0,0,0,.2);`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+</script>
+{% endblock %}

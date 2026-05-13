@@ -1,0 +1,253 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+
+{% block title %}دليل المحامين - المستشار القانوني السوري{% endblock %}
+
+{% block content %}
+<div class="container lawyers-page">
+    <div class="page-header">
+        <h1>دليل المحامين</h1>
+        <p class="subtitle">ابحث عن محامي متخصص في مجالك</p>
+    </div>
+
+    <!-- شريط البحث والفلترة -->
+    <div class="search-filters card">
+        <form method="get" id="search-form">
+            <div class="filters-row">
+                <div class="filter-item">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        placeholder="ابحث عن محامي..." 
+                        value="{{ request.GET.q }}"
+                        class="search-input"
+                    >
+                </div>
+
+                <div class="filter-item">
+                    <select name="specialization" class="filter-select">
+                        <option value="">كل التخصصات</option>
+                        {% for code, name in specializations %}
+                        <option value="{{ code }}" {% if request.GET.specialization == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <input 
+                        type="text" 
+                        name="city" 
+                        placeholder="المدينة" 
+                        value="{{ request.GET.city }}"
+                        class="filter-input"
+                    >
+                </div>
+
+                <div class="filter-item">
+                    <select name="sort" class="filter-select">
+                        <option value="rating">الأعلى تقييماً</option>
+                        <option value="experience">الأكثر خبرة</option>
+                        <option value="price_low">الأقل سعراً</option>
+                        <option value="price_high">الأعلى سعراً</option>
+                    </select>
+                </div>
+
+                <div class="filter-item">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="icon-search"></i> بحث
+                    </button>
+                </div>
+
+                <div class="filter-item">
+                    <button 
+                        type="button" 
+                        class="btn btn-outline" 
+                        onclick="searchNearby()"
+                        id="nearby-btn"
+                    >
+                        <i class="icon-location"></i> قريب مني
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- نتائج البحث -->
+    <div class="lawyers-grid">
+        {% if lawyers_with_distance %}
+            <!-- نتائج البحث الجغرافي -->
+            {% for item in lawyers_with_distance %}
+            <div class="lawyer-card">
+                <div class="lawyer-avatar">
+                    {% if item.lawyer.user.profile.avatar %}
+                    <img src="{{ item.lawyer.user.profile.avatar.url }}" alt="{{ item.lawyer.user.get_full_name }}">
+                    {% else %}
+                    <div class="avatar-placeholder">{{ item.lawyer.user.first_name.0 }}{{ item.lawyer.user.last_name.0 }}</div>
+                    {% endif %}
+                    {% if item.lawyer.is_verified %}
+                    <span class="verified-badge" title="محامي موثق">✓</span>
+                    {% endif %}
+                </div>
+
+                <div class="lawyer-info">
+                    <h3>
+                        <a href="{% url 'lawyer_detail' item.lawyer.id %}">
+                            {{ item.lawyer.user.get_full_name|default:item.lawyer.user.username }}
+                        </a>
+                    </h3>
+                    
+                    <div class="lawyer-meta">
+                        <span class="specialization">{{ item.lawyer.get_specialization_display }}</span>
+                        <span class="experience">{{ item.lawyer.experience_years }} سنة خبرة</span>
+                    </div>
+
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= item.lawyer.rating %}filled{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="rating-number">{{ item.lawyer.rating|floatformat:1 }}</span>
+                        <span class="reviews-count">({{ item.lawyer.total_reviews }} تقييم)</span>
+                    </div>
+
+                    <p class="lawyer-description">
+                        {{ item.lawyer.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="lawyer-location">
+                        <i class="icon-location"></i>
+                        <span>{{ item.distance }} كم</span>
+                    </div>
+
+                    <div class="lawyer-actions">
+                        <a href="{% url 'lawyer_detail' item.lawyer.id %}" class="btn btn-primary">
+                            عرض الملف
+                        </a>
+                        <span class="consultation-fee">{{ item.lawyer.consultation_fee }} ل.س</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- نتائج البحث العادية -->
+            {% for lawyer in lawyers %}
+            <div class="lawyer-card">
+                <div class="lawyer-avatar">
+                    {% if lawyer.user.profile.avatar %}
+                    <img src="{{ lawyer.user.profile.avatar.url }}" alt="{{ lawyer.user.get_full_name }}">
+                    {% else %}
+                    <div class="avatar-placeholder">{{ lawyer.user.first_name.0 }}{{ lawyer.user.last_name.0 }}</div>
+                    {% endif %}
+                    {% if lawyer.is_verified %}
+                    <span class="verified-badge" title="محامي موثق">✓</span>
+                    {% endif %}
+                </div>
+
+                <div class="lawyer-info">
+                    <h3>
+                        <a href="{% url 'lawyer_detail' lawyer.id %}">
+                            {{ lawyer.user.get_full_name|default:lawyer.user.username }}
+                        </a>
+                    </h3>
+                    
+                    <div class="lawyer-meta">
+                        <span class="specialization">{{ lawyer.get_specialization_display }}</span>
+                        <span class="experience">{{ lawyer.experience_years }} سنة خبرة</span>
+                    </div>
+
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= lawyer.rating %}filled{% endif %}">★</span>
+                        {% endfor %}
+                        <span class="rating-number">{{ lawyer.rating|floatformat:1 }}</span>
+                        <span class="reviews-count">({{ lawyer.total_reviews }} تقييم)</span>
+                    </div>
+
+                    <p class="lawyer-description">
+                        {{ lawyer.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="lawyer-actions">
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn btn-primary">
+                            عرض الملف
+                        </a>
+                        <span class="consultation-fee">{{ lawyer.consultation_fee }} ل.س</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-results">
+                <p>لم يتم العثور على محامين مطابقين للبحث</p>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if lawyers.has_other_pages %}
+    <div class="pagination">
+        {% if lawyers.has_previous %}
+        <a href="?page={{ lawyers.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">السابق</a>
+        {% endif %}
+
+        <span class="current-page">صفحة {{ lawyers.number }} من {{ lawyers.paginator.num_pages }}</span>
+
+        {% if lawyers.has_next %}
+        <a href="?page={{ lawyers.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">التالي</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// البحث الجغرافي
+function searchNearby() {
+    if (!navigator.geolocation) {
+        alert('المتصفح لا يدعم تحديد الموقع');
+        return;
+    }
+
+    const btn = document.getElementById('nearby-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="icon-loading"></i> جارٍ تحديد الموقع...';
+
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // إضافة الإحداثيات للبحث
+            const form = document.getElementById('search-form');
+            
+            // إزالة حقول الموقع القديمة
+            const oldLat = form.querySelector('input[name="lat"]');
+            const oldLng = form.querySelector('input[name="lng"]');
+            if (oldLat) oldLat.remove();
+            if (oldLng) oldLng.remove();
+            
+            // إضافة حقول جديدة
+            const latInput = document.createElement('input');
+            latInput.type = 'hidden';
+            latInput.name = 'lat';
+            latInput.value = lat;
+            form.appendChild(latInput);
+            
+            const lngInput = document.createElement('input');
+            lngInput.type = 'hidden';
+            lngInput.name = 'lng';
+            lngInput.value = lng;
+            form.appendChild(lngInput);
+            
+            // إرسال النموذج
+            form.submit();
+        },
+        function(error) {
+            alert('فشل تحديد الموقع: ' + error.message);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="icon-location"></i> قريب مني';
+        }
+    );
+}
+</script>
+{% endblock %}

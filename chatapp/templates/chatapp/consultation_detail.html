@@ -1,0 +1,42 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+
+{% block title %}تفاصيل الاستشارة{% endblock %}
+
+{% block content %}
+<div class="consultation-detail-card">
+    <div class="page-header">
+        <h1>{{ consultation.title }}</h1>
+        <p class="subtitle">
+            <span class="status-badge status-{{ consultation.status }}">{{ consultation.get_status_display }}</span>
+            {{ consultation.created_at|date:"d/m/Y" }}
+        </p>
+    </div>
+
+    <div class="card" style="padding:2rem;">
+        <h3>التفاصيل</h3>
+        <p>{{ consultation.description }}</p>
+
+        {% if consultation.audio_transcription %}
+        <div class="audio-transcription">
+            <h4>📝 نسخة الصوت</h4>
+            <p>{{ consultation.audio_transcription }}</p>
+        </div>
+        {% endif %}
+
+        {% if consultation.response %}
+        <div class="response-box">
+            <h4>✅ الرد</h4>
+            <p>{{ consultation.response }}</p>
+            {% if consultation.response_at %}
+            <p class="response-time">{{ consultation.response_at|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="back-link">
+            <a href="{% url 'my_consultations' %}" class="btn btn-outline">← العودة للاستشارات</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

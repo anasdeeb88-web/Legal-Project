@@ -1,0 +1,53 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+
+{% block title %}الاستشارات{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>{{ title }}</h1>
+    </div>
+
+    {% if consultations %}
+    <div class="consultations-list">
+        {% for consultation in consultations %}
+        <div class="consultation-card card">
+            <div class="consultation-header">
+                <h3>{{ consultation.title }}</h3>
+                <span class="status-badge status-{{ consultation.status }}">{{ consultation.get_status_display }}</span>
+            </div>
+            <p class="consultation-desc">{{ consultation.description|truncatewords:50 }}</p>
+            <div class="consultation-meta">
+                <span>{{ consultation.created_at|date:"d/m/Y" }}</span>
+            </div>
+            <div class="card-actions">
+                <a href="{% url 'consultation_detail' consultation.id %}" class="btn btn-small">عرض التفاصيل</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if consultations.has_other_pages %}
+    <div class="pagination">
+        {% if consultations.has_previous %}
+        <a href="?page=1" class="page-link">الأولى</a>
+        <a href="?page={{ consultations.previous_page_number }}" class="page-link">السابقة</a>
+        {% endif %}
+        <span class="current-page">{{ consultations.number }} / {{ consultations.paginator.num_pages }}</span>
+        {% if consultations.has_next %}
+        <a href="?page={{ consultations.next_page_number }}" class="page-link">التالية</a>
+        <a href="?page={{ consultations.paginator.num_pages }}" class="page-link">الأخيرة</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="no-data">
+        <span style="font-size:3rem;">📋</span>
+        <p>لا توجد استشارات بعد</p>
+        <a href="{% url 'lawyers_list' %}" class="btn btn-primary">ابحث عن محامٍ</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

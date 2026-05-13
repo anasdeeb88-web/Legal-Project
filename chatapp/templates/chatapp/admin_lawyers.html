@@ -1,0 +1,253 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}إدارة المحامين{% endblock %}
+{% block extra_css %}
+<style>
+{% include "chatapp/admin_base_style.css" %}
+
+/* ─── Pending Banner ─── */
+.pending-banner {
+    background: linear-gradient(135deg,#fef3c7,#fde68a);
+    border: 1.5px solid #f59e0b; border-radius: 14px;
+    padding: 16px 20px; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+}
+.pb-icon { font-size: 28px; flex-shrink: 0; }
+.pb-text h3 { font-size: 15px; font-weight: 700; color: #92400e; margin-bottom: 3px; }
+.pb-text p  { font-size: 13px; color: #78350f; }
+.pb-action  { margin-right: auto; flex-shrink: 0; }
+.btn-view-pending {
+    padding: 9px 20px; background: #d97706; border: none;
+    border-radius: 10px; color: white; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit; transition: background .2s; text-decoration: none;
+}
+.btn-view-pending:hover { background: #b45309; }
+
+/* ─── Filter Tabs ─── */
+.filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftab {
+    padding: 7px 16px; border-radius: 8px;
+    border: 1.5px solid #e0e0e0; background: white;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: inherit; color: #64748b;
+    transition: all .2s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 6px;
+}
+.ftab:hover { border-color: #007bff; color: #007bff; }
+.ftab.active { background: #007bff; border-color: #007bff; color: white; }
+.ftab.warn.active { background: #d97706; border-color: #d97706; color: white; }
+.ftab .fc {
+    display: inline-block; background: rgba(255,255,255,.3);
+    border-radius: 8px; padding: 1px 7px; font-size: 11px;
+}
+.ftab:not(.active) .fc { background: #f0f0f0; color: #64748b; }
+.search-wrap { flex: 1; min-width: 180px; }
+
+/* ─── Lawyer row ─── */
+.lawyer-info { display: flex; align-items: center; gap: 12px; }
+.la {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #e0f2fe; color: #0369a1;
+    font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.la-name { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+.la-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+.pending-row td             { background: #fffbeb; }
+.pending-row:hover td       { background: #fef3c7; }
+.pending-row td:first-child { border-right: 3px solid #f59e0b; }
+
+.actions-cell { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">الرئيسي</span>
+            <a href="{% url 'admin_dashboard' %}" class="admin-nav-link">🏠 لوحة التحكم</a>
+            <a href="{% url 'admin_statistics' %}" class="admin-nav-link">📊 الإحصائيات</a>
+        </div>
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">إدارة</span>
+            <a href="{% url 'admin_lawyers' %}" class="admin-nav-link active">
+                👨‍⚖️ المحامون
+                {% if pending_count > 0 %}<span class="nav-badge">{{ pending_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'admin_feedbacks' %}" class="admin-nav-link">💬 الملاحظات</a>
+            <a href="{% url 'admin_documents' %}" class="admin-nav-link">📄 قاعدة البيانات</a>
+        </div>
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">النظام</span>
+            <a href="{% url 'admin:index' %}" class="admin-nav-link">🔧 Django Admin</a>
+            <a href="{% url 'index' %}" class="admin-nav-link">🌐 الموقع</a>
+        </div>
+    </aside>
+
+    <main class="admin-content">
+        <div class="admin-page-header">
+            <div>
+                <h1>👨‍⚖️ إدارة المحامين</h1>
+                <p>مراجعة الطلبات وإدارة الملفات الشخصية</p>
+            </div>
+        </div>
+
+        {% if pending_count > 0 %}
+        <div class="pending-banner">
+            <div class="pb-icon">⚠️</div>
+            <div class="pb-text">
+                <h3>{{ pending_count }} طلب انتساب بانتظار مراجعتك</h3>
+                <p>محامون جدد سجّلوا ويحتاجون موافقتك للوصول إلى المنصة</p>
+            </div>
+            <div class="pb-action">
+                <a href="?status=pending" class="btn-view-pending">مراجعة الطلبات ←</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- فلاتر -->
+        <div class="admin-filters-bar">
+            <div class="filter-tabs">
+                <a href="?" class="ftab {% if not current_status %}active{% endif %}">
+                    الكل <span class="fc">{{ total_count }}</span>
+                </a>
+                <a href="?status=pending" class="ftab warn {% if current_status == 'pending' %}active{% endif %}">
+                    ⏳ بانتظار الموافقة <span class="fc">{{ pending_count }}</span>
+                </a>
+                <a href="?status=verified" class="ftab {% if current_status == 'verified' %}active{% endif %}">
+                    ✅ موثّقون <span class="fc">{{ verified_count }}</span>
+                </a>
+                <a href="?status=unavailable" class="ftab {% if current_status == 'unavailable' %}active{% endif %}">
+                    🔴 غير متاح
+                </a>
+            </div>
+            <div class="search-wrap">
+                <form method="get">
+                    {% if current_status %}<input type="hidden" name="status" value="{{ current_status }}">{% endif %}
+                    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="🔍 بحث..." class="form-control" style="padding:8px 12px;font-size:14px;">
+                </form>
+            </div>
+        </div>
+
+        <!-- الجدول -->
+        <div class="admin-table-card">
+            <div class="admin-card-header">
+                <h3>
+                    {% if current_status == 'pending' %}طلبات الانتساب
+                    {% elif current_status == 'verified' %}المحامون الموثّقون
+                    {% else %}جميع المحامين{% endif %}
+                </h3>
+            </div>
+
+            {% if lawyers %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>المحامي</th>
+                        <th>التخصص</th>
+                        <th>الترخيص</th>
+                        <th>تاريخ التسجيل</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lawyer in lawyers %}
+                    <tr class="{% if not lawyer.is_verified %}pending-row{% endif %}">
+                        <td>
+                            <div class="lawyer-info">
+                                <div class="la">{{ lawyer.user.username|first|upper }}</div>
+                                <div>
+                                    <div class="la-name">{{ lawyer.user.get_full_name|default:lawyer.user.username }}</div>
+                                    <div class="la-meta">{{ lawyer.user.email|default:"—" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ lawyer.get_specialization_display }}</td>
+                        <td style="font-family:monospace;font-size:13px;color:#64748b;">{{ lawyer.license_number|default:"—" }}</td>
+                        <td style="font-size:13px;color:#64748b;white-space:nowrap;">{{ lawyer.created_at|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if lawyer.is_verified %}
+                            <span class="badge-pill badge-verified">✓ موثّق</span>
+                            {% else %}
+                            <span class="badge-pill badge-pending">⏳ بانتظار</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                {% if not lawyer.is_verified %}
+                                <button class="btn-act btn-act-approve" onclick="verifyLawyer({{ lawyer.id }}, 'verify')">✓ موافقة</button>
+                                <button class="btn-act btn-act-reject"  onclick="verifyLawyer({{ lawyer.id }}, 'reject')">✕ رفض</button>
+                                {% else %}
+                                <button class="btn-act btn-act-reject"  onclick="verifyLawyer({{ lawyer.id }}, 'unverify')">إلغاء التوثيق</button>
+                                {% endif %}
+                                <a href="{% url 'admin_lawyer_edit' lawyer.id %}" class="btn-act btn-act-edit">تعديل</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if lawyers.has_other_pages %}
+            <div class="admin-pagination">
+                <div class="pg-info">الصفحة {{ lawyers.number }} من {{ lawyers.paginator.num_pages }}</div>
+                <div class="pg-btns">
+                    {% if lawyers.has_previous %}
+                    <a href="?page={{ lawyers.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="pg-btn">←</a>
+                    {% endif %}
+                    <span class="pg-btn current">{{ lawyers.number }}</span>
+                    {% if lawyers.has_next %}
+                    <a href="?page={{ lawyers.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}" class="pg-btn">→</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="admin-empty">
+                <div class="ei">👨‍⚖️</div>
+                <h3>لا يوجد محامون</h3>
+                <p>{% if current_status == 'pending' %}لا توجد طلبات بانتظار الموافقة{% else %}لا توجد نتائج{% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<div class="admin-toast-wrap" id="toastWrap"></div>
+<script>
+async function verifyLawyer(id, action) {
+    const labels = { verify:'موافقة', unverify:'إلغاء توثيق', reject:'رفض' };
+    const name = document.querySelector(`[onclick*="verifyLawyer(${id},"]`)?.closest('tr')?.querySelector('.la-name')?.textContent || 'المحامي';
+    if (!confirm(`هل تريد ${labels[action]} حساب "${name}"؟`)) return;
+    try {
+        const fd = new FormData();
+        fd.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        fd.append('action', action === 'reject' ? 'unverify' : action);
+        const res  = await fetch(`/admin-panel/lawyers/${id}/verify/`, { method:'POST', body:fd });
+        const data = await res.json();
+        if (data.success) {
+            toast(
+                action === 'verify'  ? `✅ تم توثيق ${name}` :
+                action === 'reject'  ? `🚫 تم رفض ${name}` :
+                                       `⚠️ تم إلغاء توثيق ${name}`,
+                action === 'verify' ? 'ok' : 'err'
+            );
+            setTimeout(() => location.reload(), 1200);
+        }
+    } catch(e) { toast('❌ حدث خطأ', 'err'); }
+}
+function toast(msg, type='') {
+    const wrap = document.getElementById('toastWrap');
+    const el = document.createElement('div');
+    el.className = `admin-toast ${type}`;
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }, 3000);
+}
+</script>
+{% endblock %}

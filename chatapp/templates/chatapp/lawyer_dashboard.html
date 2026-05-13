@@ -1,0 +1,131 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+
+{% block title %}لوحة تحكم المحامي{% endblock %}
+
+{% block content %}
+<div class="container lawyer-dashboard">
+    <div class="page-header">
+        <h1>لوحة التحكم</h1>
+        <p class="subtitle">مرحباً، {{ user.get_full_name|default:user.username }}</p>
+    </div>
+
+    <!-- الإحصائيات -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">💬</div>
+            <div class="stat-info">
+                <h3>{{ stats.total_consultations }}</h3>
+                <p>إجمالي الاستشارات</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+                <h3>{{ stats.pending_consultations }}</h3>
+                <p>استشارات بانتظار الرد</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-info">
+                <h3>{{ stats.average_rating|floatformat:1 }}</h3>
+                <p>متوسط التقييم</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+                <h3>{{ stats.total_reviews }}</h3>
+                <p>إجمالي التقييمات</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- الإجراءات السريعة -->
+    <div class="quick-actions">
+        <h2>الإجراءات السريعة</h2>
+        <div class="actions-grid">
+            <a href="{% url 'lawyer_consultations' %}" class="action-card">
+                <i class="icon-consultations"></i>
+                <h3>الاستشارات</h3>
+                <p>عرض والرد على الاستشارات</p>
+                {% if stats.pending_consultations > 0 %}
+                <span class="badge">{{ stats.pending_consultations }}</span>
+                {% endif %}
+            </a>
+
+            <a href="{% url 'lawyer_profile_edit' %}" class="action-card">
+                <i class="icon-edit"></i>
+                <h3>تعديل الملف الشخصي</h3>
+                <p>تحديث معلوماتك</p>
+            </a>
+
+            <a href="{% url 'lawyer_detail' lawyer_profile.id %}" class="action-card">
+                <i class="icon-view"></i>
+                <h3>عرض ملفي العام</h3>
+                <p>كما يراه المستخدمون</p>
+            </a>
+
+            <a href="{% url 'lawyer_feedback_to_admin' %}" class="action-card">
+                <i class="icon-feedback"></i>
+                <h3>إرسال ملاحظة للإدارة</h3>
+                <p>تواصل مع الإدارة</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- الاستشارات الأخيرة -->
+    <div class="recent-section">
+        <h2>الاستشارات الأخيرة</h2>
+        <div class="consultations-list">
+            {% for consultation in recent_consultations %}
+            <div class="consultation-card">
+                <div class="consultation-header">
+                    <h3>{{ consultation.title }}</h3>
+                    <span class="status-badge status-{{ consultation.status }}">
+                        {{ consultation.get_status_display }}
+                    </span>
+                </div>
+                <p class="consultation-desc">{{ consultation.description|truncatewords:30 }}</p>
+                <div class="consultation-meta">
+                    <span>من: {{ consultation.user.get_full_name|default:consultation.user.username }}</span>
+                    <span>{{ consultation.created_at|timesince }}</span>
+                </div>
+                <a href="{% url 'consultation_detail' consultation.id %}" class="btn btn-small">عرض التفاصيل</a>
+            </div>
+            {% empty %}
+            <p class="no-data">لا توجد استشارات بعد</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- التقييمات الأخيرة -->
+    <div class="recent-section">
+        <h2>التقييمات الأخيرة</h2>
+        <div class="reviews-list">
+            {% for review in recent_reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                    <div class="review-rating">
+                        {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if review.comment %}
+                <p class="review-comment">{{ review.comment }}</p>
+                {% endif %}
+                <span class="review-time">{{ review.created_at|timesince }}</span>
+            </div>
+            {% empty %}
+            <p class="no-data">لا توجد تقييمات بعد</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

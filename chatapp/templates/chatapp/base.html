@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}المستشار القانوني السوري{% endblock %}</title>
+    {% load static %}
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'chatapp/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    <script>
+    /* تطبيق الثيم قبل رسم الصفحة لتجنب الوميض */
+    (function() {
+        var t = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+    })();
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="{% url 'index' %}" class="nav-brand">
+                <span class="brand-icon">⚖️</span>
+                <span class="brand-text">المستشار القانوني</span>
+            </a>
+
+            <div class="nav-links desktop-only">
+                <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">الرئيسية</a>
+                <a href="{% url 'chat_new' %}" class="nav-link {% if 'chat' in request.resolver_match.url_name %}active{% endif %}">الدردشة</a>
+                <a href="{% url 'lawyers_map' %}" class="nav-link">خريطة المحامين</a>
+                <a href="{% url 'lawyers_list' %}" class="nav-link {% if request.resolver_match.url_name == 'lawyers_list' %}active{% endif %}">دليل المحامين</a>
+                {% if request.user.is_authenticated %}
+                    {% if request.user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}" class="nav-link nav-link--admin">الإدارة</a>
+                    {% elif request.user.profile.user_type == 'lawyer' %}
+                        <a href="{% url 'lawyer_dashboard' %}" class="nav-link">لوحتي</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="nav-actions">
+                {% if request.user.is_authenticated %}
+                <div class="user-menu" id="userMenu">
+                    <button class="user-btn" onclick="toggleUserMenu(event)">
+                        <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+                        <span class="user-name desktop-only">{{ request.user.get_full_name|default:request.user.username }}</span>
+                        <span class="chevron">▾</span>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        {% if request.user.profile.user_type == 'lawyer' %}
+                        <a href="{% url 'lawyer_dashboard' %}">⚡ لوحة التحكم</a>
+                        <a href="{% url 'lawyer_profile_edit' %}">👤 الملف الشخصي</a>
+                        <a href="{% url 'lawyer_consultations' %}">📋 الاستشارات</a>
+                        {% elif request.user.is_staff %}
+                        <a href="{% url 'admin_dashboard' %}">🛡️ الإدارة</a>
+                        <a href="{% url 'admin_documents' %}">📄 قاعدة البيانات</a>
+                        {% else %}
+                        <a href="{% url 'my_consultations' %}">📋 استشاراتي</a>
+                        {% endif %}
+                        <a href="{% url 'submit_feedback' %}">💬 ملاحظة</a>
+                        <div class="dropdown-divider"></div>
+                        <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">🚪 تسجيل الخروج</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="تبديل الوضع الليلي/النهاري">🌙</button>
+
+                <button class="hamburger mobile-only" id="hamburger" onclick="toggleMobileMenu()">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="{% url 'index' %}" class="mobile-link">🏠 الرئيسية</a>
+            <a href="{% url 'chat_new' %}" class="mobile-link">🤖 الدردشة</a>
+            <a href="{% url 'lawyers_map' %}" class="mobile-link">🗺️ خريطة المحامين</a>
+            <a href="{% url 'lawyers_list' %}" class="mobile-link">👨‍⚖️ دليل المحامين</a>
+            {% if request.user.is_authenticated %}
+                {% if request.user.profile.user_type == 'lawyer' %}
+                <a href="{% url 'lawyer_dashboard' %}" class="mobile-link">⚡ لوحة التحكم</a>
+                <a href="{% url 'lawyer_profile_edit' %}" class="mobile-link">👤 ملفي الشخصي</a>
+                {% elif request.user.is_staff %}
+                <a href="{% url 'admin_dashboard' %}" class="mobile-link">🛡️ الإدارة</a>
+                {% else %}
+                <a href="{% url 'my_consultations' %}" class="mobile-link">📋 استشاراتي</a>
+                {% endif %}
+                <a href="{% url 'submit_feedback' %}" class="mobile-link">💬 ملاحظة</a>
+                <div class="mobile-divider"></div>
+                <form method="post" action="{% url 'logout' %}" style="margin:0;padding:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="mobile-link mobile-logout">🚪 تسجيل الخروج</button>
+                </form>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="{% static 'chatapp/main.js' %}"></script>
+    <script>
+    /* ── Theme ── */
+    function toggleTheme() {
+        var html = document.documentElement;
+        var cur  = html.getAttribute('data-theme') || 'light';
+        var next = cur === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        var btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        var saved = localStorage.getItem('theme') || 'light';
+        var btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+    });
+
+    /* ── User Dropdown ── */
+    function toggleUserMenu(e) {
+        e.stopPropagation();
+        var dd = document.getElementById('userDropdown');
+        if (dd) dd.classList.toggle('show');
+    }
+    document.addEventListener('click', function() {
+        var dd = document.getElementById('userDropdown');
+        if (dd) dd.classList.remove('show');
+    });
+
+    /* ── Mobile Menu ── */
+    function toggleMobileMenu() {
+        document.getElementById('mobileMenu').classList.toggle('open');
+        document.getElementById('hamburger').classList.toggle('active');
+    }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

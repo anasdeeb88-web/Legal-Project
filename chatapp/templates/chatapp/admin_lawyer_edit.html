@@ -1,0 +1,317 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}تعديل المحامي{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
+<style>
+/* ── Admin layout ── */
+.admin-layout  { display:flex; min-height:calc(100vh - 64px); }
+.admin-sidebar {
+    width:220px; background:#1a1a2e; flex-shrink:0;
+    padding:24px 0; position:sticky; top:64px;
+    height:calc(100vh - 64px); overflow-y:auto;
+}
+.admin-nav-section { margin-bottom:24px; }
+.admin-nav-label  { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#4a5568; padding:0 20px; margin-bottom:8px; display:block; }
+.admin-nav-link   { display:flex; align-items:center; gap:10px; padding:9px 20px; color:#94a3b8; text-decoration:none; font-size:13px; font-weight:500; transition:all .15s; margin-bottom:2px; }
+.admin-nav-link:hover  { background:rgba(255,255,255,.08); color:white; }
+.admin-nav-link.active { background:rgba(59,130,246,.2); color:#60a5fa; }
+.admin-content { flex:1; padding:28px; background:var(--bg,#f8fafc); min-width:0; }
+
+/* ── page ── */
+.edit-wrap { max-width:760px; }
+.edit-wrap h1 { font-size:20px; font-weight:800; color:var(--text,#1a1a2e); margin-bottom:4px; }
+.edit-wrap .sub { font-size:14px; color:var(--text-muted,#64748b); margin-bottom:22px; }
+
+.card {
+    background:var(--surface,#fff); border-radius:14px; padding:24px 28px;
+    box-shadow:0 2px 10px rgba(0,0,0,.05); border:1px solid var(--border,#f0f0f0);
+    margin-bottom:18px;
+}
+.card h3 { font-size:15px; font-weight:700; color:var(--text,#1a1a2e); margin:0 0 18px; padding-bottom:10px; border-bottom:1px solid var(--border,#f0f0f0); }
+
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:12px; font-weight:600; color:var(--text-muted,#555); margin-bottom:5px; }
+.field input, .field select, .field textarea {
+    width:100%; padding:8px 12px; border:1.5px solid var(--border,#e0e0e0);
+    border-radius:9px; font-size:14px; font-family:inherit;
+    background:var(--surface,#fff); color:var(--text,#1a1a2e);
+    outline:none; transition:border-color .2s; box-sizing:border-box;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--primary,#2563eb); }
+.field textarea { min-height:80px; resize:vertical; }
+.f2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.chk-row { display:flex; gap:20px; padding:10px 14px; background:var(--surface-2,#f8fafc); border-radius:10px; }
+.chk-row label { display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; color:var(--text,#1a1a2e); }
+.chk-row input[type=checkbox] { width:16px; height:16px; accent-color:var(--primary,#2563eb); }
+
+/* map picker */
+#admin-map   { width:100%; height:300px; border-radius:11px; border:1.5px solid var(--border,#e0e0e0); overflow:hidden; direction:ltr; }
+.map-btns    { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+.mbt {
+    padding:7px 14px; border-radius:9px; font-size:13px; font-weight:600;
+    cursor:pointer; border:none; font-family:inherit; transition:opacity .2s;
+}
+.mbt-o { background:none; border:1.5px solid var(--primary,#2563eb); color:var(--primary,#2563eb); }
+.mbt-o:hover { background:rgba(37,99,235,.06); }
+.coords-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+.coords-row input { background:var(--surface-2,#f8fafc); font-size:13px; color:var(--text-muted,#666); }
+.loc-status { font-size:12px; margin-top:8px; min-height:18px; font-weight:600; }
+.loc-ok  { color:#059669; }
+.loc-err { color:#dc2626; }
+
+/* actions */
+.actions { display:flex; gap:10px; margin-top:8px; align-items:center; }
+.btn-save { padding:9px 26px; background:var(--primary,#2563eb); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:opacity .2s; }
+.btn-save:hover { opacity:.85; }
+.btn-back { padding:9px 20px; border:1.5px solid var(--border,#ddd); background:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; color:var(--text-muted,#666); text-decoration:none; }
+.btn-back:hover { border-color:#999; }
+.save-msg { font-size:13px; font-weight:600; }
+.save-ok  { color:#059669; }
+.save-err { color:#dc2626; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">الرئيسي</span>
+            <a href="{% url 'admin_dashboard' %}" class="admin-nav-link">🏠 لوحة التحكم</a>
+            <a href="{% url 'admin_statistics' %}" class="admin-nav-link">📊 الإحصائيات</a>
+        </div>
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">إدارة</span>
+            <a href="{% url 'admin_lawyers' %}" class="admin-nav-link active">👨‍⚖️ المحامون</a>
+            <a href="{% url 'admin_feedbacks' %}" class="admin-nav-link">💬 الملاحظات</a>
+            <a href="{% url 'admin_documents' %}" class="admin-nav-link">📄 قاعدة البيانات</a>
+        </div>
+        <div class="admin-nav-section">
+            <span class="admin-nav-label">النظام</span>
+            <a href="{% url 'admin_rag_status' %}" class="admin-nav-link">🔬 تشخيص RAG</a>
+            <a href="{% url 'index' %}" class="admin-nav-link">🌐 الموقع</a>
+        </div>
+    </aside>
+
+    <main class="admin-content">
+        <div class="edit-wrap">
+            <h1>تعديل معلومات المحامي</h1>
+            <p class="sub">{{ lawyer_profile.user.get_full_name }}</p>
+
+            <form id="admin-edit-form">
+                {% csrf_token %}
+
+                <!-- معلومات المكتب -->
+                <div class="card">
+                    <h3>🏢 معلومات المكتب</h3>
+                    <div class="field">
+                        <label>رقم الترخيص</label>
+                        <input type="text" name="license_number" value="{{ lawyer_profile.license_number }}" required>
+                    </div>
+                    <div class="f2">
+                        <div class="field">
+                            <label>التخصص</label>
+                            <select name="specialization" required>
+                                {% for code,name in specializations %}
+                                <option value="{{ code }}" {% if lawyer_profile.specialization == code %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>سنوات الخبرة</label>
+                            <input type="number" name="experience_years" value="{{ lawyer_profile.experience_years }}" min="0">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>اسم المكتب</label>
+                        <input type="text" name="office_name" value="{{ lawyer_profile.office_name }}">
+                    </div>
+                    <div class="field">
+                        <label>عنوان المكتب</label>
+                        <input type="text" id="admin-address" name="office_address" value="{{ lawyer_profile.office_address }}" required>
+                    </div>
+                    <div class="f2">
+                        <div class="field">
+                            <label>رقم الهاتف</label>
+                            <input type="tel" name="office_phone" value="{{ lawyer_profile.office_phone }}" required>
+                        </div>
+                        <div class="field">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" name="office_email" value="{{ lawyer_profile.office_email }}" required>
+                        </div>
+                    </div>
+                    <div class="f2">
+                        <div class="field">
+                            <label>رسوم الاستشارة (ل.س)</label>
+                            <input type="number" name="consultation_fee" value="{{ lawyer_profile.consultation_fee|floatformat:'0' }}" min="0" step="500">
+                        </div>
+                        <div class="field">
+                            <label>اللغات</label>
+                            <input type="text" name="languages" value="{{ lawyer_profile.languages|default:'العربية' }}">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>الوصف</label>
+                        <textarea name="description">{{ lawyer_profile.description }}</textarea>
+                    </div>
+                    <div class="field">
+                        <div class="chk-row">
+                            <label>
+                                <input type="checkbox" name="is_verified" {% if lawyer_profile.is_verified %}checked{% endif %}>
+                                موثق ✓
+                            </label>
+                            <label>
+                                <input type="checkbox" name="is_available" {% if lawyer_profile.is_available %}checked{% endif %}>
+                                متاح للحجز
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الموقع على الخريطة -->
+                <div class="card">
+                    <h3>📍 موقع المكتب على الخريطة</h3>
+                    <div id="admin-map"></div>
+                    <div class="map-btns">
+                        <button type="button" class="mbt mbt-o" onclick="adminGeocode()">🔍 حدد من العنوان</button>
+                        <button type="button" class="mbt mbt-o" onclick="adminMyLoc()">📍 موقعي الحالي</button>
+                    </div>
+                    <div class="coords-row">
+                        <div class="field" style="margin:0">
+                            <label>خط العرض</label>
+                            <input type="text" id="a-lat" name="latitude"
+                                   value="{{ lawyer_profile.latitude|default:'' }}" readonly>
+                        </div>
+                        <div class="field" style="margin:0">
+                            <label>خط الطول</label>
+                            <input type="text" id="a-lng" name="longitude"
+                                   value="{{ lawyer_profile.longitude|default:'' }}" readonly>
+                        </div>
+                    </div>
+                    <div class="loc-status" id="a-status">
+                        {% if lawyer_profile.latitude %}
+                        <span class="loc-ok">✅ موقع محفوظ — {{ lawyer_profile.latitude|floatformat:4 }}, {{ lawyer_profile.longitude|floatformat:4 }}</span>
+                        {% else %}
+                        <span style="color:var(--text-muted,#888)">لم يُحدَّد موقع — انقر على الخريطة لتحديده</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- حفظ -->
+                <div class="card" style="padding:18px 28px">
+                    <div class="actions">
+                        <button type="submit" class="btn-save">💾 حفظ التغييرات</button>
+                        <a href="{% url 'admin_lawyers' %}" class="btn-back">← رجوع</a>
+                        <span id="admin-save-msg" class="save-msg"></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js"></script>
+<script>
+function enableRTLTextPlugin() {
+    const url = 'https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js';
+    if (window.maptilersdk?.setRTLTextPlugin) {
+        window.maptilersdk.setRTLTextPlugin(url, null, true);
+    } else if (window.maplibregl?.setRTLTextPlugin) {
+        window.maplibregl.setRTLTextPlugin(url, null, true);
+    } else if (window.mapboxgl?.setRTLTextPlugin) {
+        window.mapboxgl.setRTLTextPlugin(url, null, true);
+    }
+}
+
+const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
+const S_LAT = {{ lawyer_profile.latitude|default:'null' }};
+const S_LNG = {{ lawyer_profile.longitude|default:'null' }};
+
+let map = null;
+let marker = null;
+
+function initAdminMap() {
+    enableRTLTextPlugin();
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+    map = new maptilersdk.Map({
+        container : 'admin-map',
+        style     : maptilersdk.MapStyle.STREETS,
+        center    : (S_LAT && S_LNG) ? [S_LNG, S_LAT] : [36.3, 33.5],
+        zoom      : S_LAT ? 14 : 7,
+        language  : maptilersdk.Language.ENGLISH,
+    });
+    map.on('load', () => { if (S_LAT) place(S_LNG, S_LAT); });
+    map.on('click', e => place(e.lngLat.lng, e.lngLat.lat));
+}
+
+function place(lng, lat) {
+    if (marker) marker.remove();
+    const el = document.createElement('div');
+    el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+        <filter id="sh2"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".28"/></filter>
+        <path filter="url(#sh2)" fill="#dc2626"
+            d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 25 17 25S34 29.7 34 17C34 7.6 26.4 0 17 0z"/>
+        <text x="17" y="21" font-size="14" text-anchor="middle" fill="white" font-family="Arial">🏢</text>
+    </svg>`;
+    el.style.cssText = 'cursor:pointer;width:34px;height:42px;';
+    marker = new maptilersdk.Marker({ element:el, draggable:true, anchor:'bottom' })
+        .setLngLat([lng, lat]).addTo(map);
+    marker.on('dragend', () => { const p=marker.getLngLat(); setC(p.lat,p.lng); });
+    setC(lat, lng);
+}
+
+function setC(lat, lng) {
+    document.getElementById('a-lat').value = lat.toFixed(6);
+    document.getElementById('a-lng').value = lng.toFixed(6);
+    document.getElementById('a-status').innerHTML =
+        '<span class="loc-ok">✅ ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span>';
+}
+
+function adminGeocode() {
+    const addr = document.getElementById('admin-address').value.trim();
+    if (!addr) { alert('أدخل العنوان أولاً'); return; }
+    document.getElementById('a-status').innerHTML = '⏳ جارٍ البحث...';
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr+' سوريا')}&format=json&limit=1`,
+          { headers:{'Accept-Language':'ar'} })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.length) { document.getElementById('a-status').innerHTML = '<span class="loc-err">❌ لم يُعثر على العنوان</span>'; return; }
+        map.flyTo({ center:[+data[0].lon, +data[0].lat], zoom:15, speed:1.6 });
+        place(+data[0].lon, +data[0].lat);
+    })
+    .catch(() => { document.getElementById('a-status').innerHTML = '<span class="loc-err">❌ خطأ في البحث</span>'; });
+}
+
+function adminMyLoc() {
+    if (!navigator.geolocation) { alert('غير مدعوم'); return; }
+    navigator.geolocation.getCurrentPosition(p => {
+        map.flyTo({ center:[p.coords.longitude, p.coords.latitude], zoom:14 });
+        place(p.coords.longitude, p.coords.latitude);
+    });
+}
+
+/* AJAX submit */
+document.getElementById('admin-edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-save');
+    const msg = document.getElementById('admin-save-msg');
+    btn.disabled = true; btn.textContent = '⏳...'; msg.textContent = '';
+    try {
+        const resp = await fetch(window.location.href, {
+            method:'POST', body:new FormData(this),
+            headers:{'X-CSRFToken':'{{ csrf_token }}'},
+        });
+        const d = await resp.json();
+        msg.textContent = d.success ? '✅ ' + d.message : '❌ ' + (d.error||'خطأ');
+        msg.className = 'save-msg ' + (d.success ? 'save-ok':'save-err');
+    } catch { msg.textContent='❌ خطأ'; msg.className='save-msg save-err'; }
+    btn.disabled = false; btn.textContent = '💾 حفظ التغييرات';
+});
+
+initAdminMap();
+</script>
+{% endblock %}

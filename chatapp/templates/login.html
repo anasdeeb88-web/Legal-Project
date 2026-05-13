@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول — المستشار القانوني السوري</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #c9a84c; --gold-light: #e8c97a;
+            --blue: #2563eb; --blue-light: rgba(37,99,235,0.1);
+            --dark: #0f172a;
+            /* Light mode surfaces */
+            --dark-2:   #ffffff;
+            --dark-3:   #f8fafc;
+            --surface:  #f1f5f9;
+            --surface-2:#e2e8f0;
+            --text:     #0f172a;
+            --text-muted: #64748b;
+            --border: rgba(0,0,0,0.1);
+            --border-gold: rgba(201,168,76,0.4);
+            --border-blue: rgba(37,99,235,0.3);
+        }
+        [data-theme="dark"] {
+            --gold: #c9a84c; --gold-light: #e8c97a;
+            --blue: #4f9eff; --blue-light: rgba(79,158,255,0.12);
+            --dark: #0a0e1a;
+            --dark-2:   #111827;
+            --dark-3:   #1a2235;
+            --surface:  #1c2333;
+            --surface-2:#21262d;
+            --text:     #e6edf3;
+            --text-muted: #8b949e;
+            --border: rgba(255,255,255,0.08);
+            --border-gold: rgba(201,168,76,0.3);
+            --border-blue: rgba(47,129,247,0.3);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: var(--dark-3);
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+
+        /* ===== خلفية ===== */
+        .bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+        .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); animation: float linear infinite;
+        }
+        .o1 { width:500px; height:500px; background:radial-gradient(#2563eb,transparent); top:-150px; right:-100px; opacity:.06; animation-duration:20s; }
+        .o2 { width:400px; height:400px; background:radial-gradient(#c9a84c,transparent); bottom:-100px; left:-80px; opacity:.06; animation-duration:26s; animation-direction:reverse; }
+        .o3 { width:200px; height:200px; background:radial-gradient(#2563eb,transparent); top:50%; left:20%; opacity:.04; animation-duration:35s; }
+        @keyframes float {
+            0%   { transform: translate(0,0) scale(1); }
+            33%  { transform: translate(30px,-40px) scale(1.06); }
+            66%  { transform: translate(-20px,30px) scale(0.94); }
+            100% { transform: translate(0,0) scale(1); }
+        }
+        .grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        /* ===== MAIN CARD ===== */
+        .card {
+            position: relative; z-index: 1;
+            width: 480px; max-width: 95vw;
+            background: var(--dark-2);
+            border-radius: 24px;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+            overflow: hidden;
+            animation: cardIn .65s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes cardIn {
+            from { opacity:0; transform: scale(.93) translateY(24px); }
+            to   { opacity:1; transform: scale(1) translateY(0); }
+        }
+
+        /* ===== HEADER ===== */
+        .card-header {
+            padding: 36px 40px 28px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .logo {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 16px;
+            box-shadow: 0 8px 20px rgba(201,168,76,0.3);
+            animation: iconIn .6s cubic-bezier(0.16,1,0.3,1) .15s both;
+        }
+        @keyframes iconIn {
+            from { transform: scale(.4) rotate(-20deg); opacity:0; }
+            to   { transform: scale(1) rotate(0); opacity:1; }
+        }
+        .card-header h1 {
+            font-size: 22px; font-weight: 900; color: var(--text); margin-bottom: 6px;
+            animation: fadeUp .5s ease .25s both;
+        }
+        .card-header p {
+            font-size: 14px; color: var(--text-muted);
+            animation: fadeUp .5s ease .35s both;
+        }
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(12px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ===== ROLE SELECTOR ===== */
+        .role-selector {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; padding: 28px 40px 0;
+            animation: fadeUp .5s ease .4s both;
+        }
+        .role-btn {
+            padding: 18px 14px; border-radius: 14px;
+            border: 2px solid var(--border);
+            background: var(--surface); cursor: pointer;
+            text-align: center; transition: all .3s;
+            font-family: inherit; color: var(--text-muted);
+            position: relative; overflow: hidden;
+        }
+        .role-btn::before {
+            content: ''; position: absolute; inset: 0;
+            opacity: 0; transition: opacity .3s;
+        }
+        .role-btn .rb-icon { font-size: 32px; display: block; margin-bottom: 10px; transition: transform .3s; }
+        .role-btn .rb-title { font-size: 15px; font-weight: 700; display: block; margin-bottom: 4px; }
+        .role-btn .rb-sub   { font-size: 12px; opacity: .7; display: block; }
+        .role-btn:hover { transform: translateY(-2px); }
+
+        /* User role */
+        .role-btn.user-role:hover,
+        .role-btn.user-role.active {
+            border-color: var(--blue);
+            background: rgba(47,129,247,0.08);
+            color: var(--text);
+            box-shadow: 0 0 0 4px rgba(47,129,247,0.1);
+        }
+        .role-btn.user-role.active .rb-icon { transform: scale(1.15); }
+        .role-btn.user-role.active .rb-title { color: var(--blue); }
+
+        /* Lawyer role */
+        .role-btn.lawyer-role:hover,
+        .role-btn.lawyer-role.active {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.08);
+            color: var(--text);
+            box-shadow: 0 0 0 4px rgba(201,168,76,0.1);
+        }
+        .role-btn.lawyer-role.active .rb-icon { transform: scale(1.15); }
+        .role-btn.lawyer-role.active .rb-title { color: var(--gold); }
+
+        /* ===== FORMS CONTAINER ===== */
+        .forms-area {
+            padding: 24px 40px 32px;
+            min-height: 260px;
+        }
+
+        .login-form {
+            display: none;
+            animation: formSlide .35s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .login-form.active { display: block; }
+        @keyframes formSlide {
+            from { opacity:0; transform: translateY(14px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        /* Hint box */
+        .hint-box {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 14px; border-radius: 10px; margin-bottom: 20px;
+            font-size: 13px;
+        }
+        .hint-box.user   { background: var(--blue-light); border: 1px solid var(--border-blue); color: #79c0ff; }
+        .hint-box.lawyer { background: rgba(201,168,76,0.1); border: 1px solid var(--border-gold); color: var(--gold-light); }
+        .hint-box .hi { font-size: 18px; flex-shrink: 0; }
+
+        /* Error */
+        .error-box {
+            background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 10px; padding: 11px 14px; margin-bottom: 16px;
+            font-size: 13px; color: #f87171;
+            animation: shake .4s ease;
+        }
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
+
+        /* Input group */
+        .fg { margin-bottom: 18px; }
+        .fg label { display:block; font-size:13px; color:var(--text-muted); margin-bottom:7px; font-weight:500; }
+        .iw { position: relative; }
+        .iw .ic { position:absolute; right:13px; top:50%; transform:translateY(-50%); font-size:16px; pointer-events:none; }
+        .fg input {
+            width:100%; padding:12px 40px 12px 14px;
+            background: var(--dark-3); border: 1.5px solid var(--border);
+            border-radius: 11px; color: var(--text); font-size:15px;
+            font-family:inherit; outline:none; transition: all .3s;
+        }
+        .fg input::placeholder { color: var(--text-muted); opacity:0.5; }
+
+        /* User input focus — blue */
+        #user-form .fg input:focus {
+            border-color: var(--blue);
+            background: rgba(47,129,247,0.05);
+            box-shadow: 0 0 0 4px rgba(47,129,247,0.1);
+        }
+        /* Lawyer input focus — gold */
+        #lawyer-form .fg input:focus {
+            border-color: var(--gold);
+            background: rgba(201,168,76,0.05);
+            box-shadow: 0 0 0 4px rgba(201,168,76,0.1);
+        }
+
+        /* Submit buttons */
+        .btn-submit {
+            width:100%; padding:14px; border:none; border-radius:12px;
+            font-size:16px; font-weight:800; font-family:inherit;
+            cursor:pointer; transition: all .3s; margin-top:4px;
+            position:relative; overflow:hidden;
+        }
+        .btn-submit::after {
+            content:''; position:absolute; inset:0;
+            background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.2) 50%, transparent 80%);
+            transform: translateX(-100%); transition: transform .6s;
+        }
+        .btn-submit:hover::after { transform: translateX(100%); }
+        .btn-submit:hover { transform: translateY(-2px); }
+        .btn-submit:active { transform: translateY(0); }
+
+        .btn-user {
+            background: linear-gradient(135deg, var(--blue), #388bfd);
+            color: white;
+        }
+        .btn-user:hover { box-shadow: 0 10px 28px rgba(47,129,247,0.45); }
+
+        .btn-lawyer {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            color: var(--dark);
+        }
+        .btn-lawyer:hover { box-shadow: 0 10px 28px rgba(201,168,76,0.45); }
+
+        /* ===== WELCOME (قبل اختيار الدور) ===== */
+        .welcome-state {
+            text-align: center; padding: 20px 0 8px;
+            animation: fadeUp .5s ease .5s both;
+        }
+        .welcome-state p { color: var(--text-muted); font-size: 14px; }
+        .arrow { font-size: 28px; display: block; margin-top: 10px; animation: bounce 1.5s ease-in-out infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+        /* ===== FOOTER ===== */
+        .card-footer {
+            padding: 20px 40px 28px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: center; align-items: center; gap: 12px;
+            animation: fadeUp .5s ease .55s both;
+            flex-wrap: wrap;
+        }
+        .footer-label {
+            font-size: 13px; color: var(--text-muted); width: 100%;
+            text-align: center; margin-bottom: 4px;
+        }
+        .footer-link {
+            font-size: 14px; font-weight: 700; text-decoration: none;
+            padding: 9px 22px; border-radius: 10px; transition: all .2s;
+            border: 1.5px solid transparent;
+        }
+        .footer-link.user-reg {
+            color: var(--blue);
+            background: rgba(47,129,247,0.1);
+            border-color: rgba(47,129,247,0.25);
+        }
+        .footer-link.user-reg:hover {
+            background: rgba(47,129,247,0.2);
+            border-color: var(--blue);
+            transform: translateY(-1px);
+        }
+        .footer-link.lawyer-reg {
+            color: var(--gold);
+            background: rgba(201,168,76,0.1);
+            border-color: rgba(201,168,76,0.25);
+        }
+        .footer-link.lawyer-reg:hover {
+            background: rgba(201,168,76,0.2);
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+        .footer-sep { color: #2e3a4e; }
+
+        .form-register-link {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .reg-link {
+            font-weight: 700; text-decoration: none; margin-right: 4px;
+            transition: opacity .2s;
+        }
+        .reg-link:hover { opacity: 0.8; text-decoration: underline; }
+        .reg-link-user   { color: var(--blue); }
+        .reg-link-lawyer { color: var(--gold); }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 520px) {
+            .card { border-radius: 0; max-width: 100%; min-height: 100dvh; box-shadow: none; }
+            body { align-items: flex-start; }
+            .card-header { padding: 28px 24px 20px; }
+            .role-selector { padding: 20px 24px 0; gap: 10px; }
+            .forms-area { padding: 20px 24px 28px; }
+            .card-footer { padding: 14px 24px 28px; }
+            .role-btn { padding: 14px 10px; }
+            .role-btn .rb-icon { font-size: 26px; }
+            .role-btn .rb-title { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+</div>
+<div class="grid"></div>
+
+<div class="card">
+
+    <!-- Header -->
+    <div class="card-header">
+        <div class="logo">⚖️</div>
+        <h1>المستشار القانوني السوري</h1>
+        <p>منصة استشارات قانونية بالذكاء الاصطناعي</p>
+    </div>
+
+    <!-- اختيار الدور -->
+    <div class="role-selector">
+        <button class="role-btn user-role" onclick="selectRole('user')" id="btn-user">
+            <span class="rb-icon">👤</span>
+            <span class="rb-title">مستخدم</span>
+            <span class="rb-sub">استشارات قانونية</span>
+        </button>
+        <button class="role-btn lawyer-role" onclick="selectRole('lawyer')" id="btn-lawyer">
+            <span class="rb-icon">⚖️</span>
+            <span class="rb-title">محامٍ</span>
+            <span class="rb-sub">إدارة الاستشارات</span>
+        </button>
+    </div>
+
+    <!-- Forms Area -->
+    <div class="forms-area">
+
+        <!-- Welcome State -->
+        <div class="welcome-state" id="welcome-state">
+            <p>اختر نوع حسابك للمتابعة</p>
+            <span class="arrow">↑</span>
+        </div>
+
+        <!-- فورم المستخدم -->
+        <div class="login-form" id="user-form">
+            <div class="hint-box user">
+                <span class="hi">💬</span>
+                <span>سجّل دخولك للوصول إلى الدردشة القانونية ودليل المحامين</span>
+            </div>
+            {% if form.errors and request.POST.role == 'user' %}
+            <div class="error-box">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="user">
+                <div class="fg">
+                    <label>اسم المستخدم</label>
+                    <div class="iw">
+                        <span class="ic">👤</span>
+                        <input type="text" name="username" placeholder="أدخل اسم المستخدم" required autocomplete="username"
+                               value="{{ request.POST.username|default:'' }}">
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>كلمة المرور</label>
+                    <div class="iw">
+                        <span class="ic">🔑</span>
+                        <input type="password" name="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit btn-user">دخول ←</button>
+            </form>
+            <div class="form-register-link">
+                ليس لديك حساب؟
+                <a href="/register/" class="reg-link reg-link-user">إنشاء حساب مستخدم</a>
+            </div>
+        </div>
+
+        <!-- فورم المحامي -->
+        <div class="login-form" id="lawyer-form">
+            <div class="hint-box lawyer">
+                <span class="hi">⚖️</span>
+                <span>سجّل دخولك للوصول إلى لوحة تحكم المحامي وإدارة استشاراتك</span>
+            </div>
+            {% if form.errors and request.POST.role == 'lawyer' %}
+            <div class="error-box">❌ اسم المستخدم أو كلمة المرور غير صحيحة</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="lawyer">
+                <div class="fg">
+                    <label>اسم المستخدم</label>
+                    <div class="iw">
+                        <span class="ic">⚖️</span>
+                        <input type="text" name="username" placeholder="أدخل اسم المستخدم" required autocomplete="username"
+                               value="{{ request.POST.username|default:'' }}">
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>كلمة المرور</label>
+                    <div class="iw">
+                        <span class="ic">🔑</span>
+                        <input type="password" name="password" placeholder="أدخل كلمة المرور" required autocomplete="current-password">
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit btn-lawyer">دخول كمحامٍ ←</button>
+            </form>
+            <div class="form-register-link">
+                لست محامياً مسجلاً؟
+                <a href="/lawyer/register/" class="reg-link reg-link-lawyer">سجّل كمحامٍ</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer links -->
+    <div class="card-footer">
+        <span class="footer-label">ليس لديك حساب؟ أنشئ واحداً الآن</span>
+        <a href="/register/" class="footer-link user-reg">👤 إنشاء حساب مستخدم</a>
+        <a href="/lawyer/register/" class="footer-link lawyer-reg">⚖️ تسجيل كمحامٍ</a>
+    </div>
+
+</div>
+
+<script>
+// اكتشف إذا في خطأ وافتح الفورم الصح
+const postRole = "{{ request.POST.role }}";
+if (postRole === 'user')   selectRole('user',   false);
+if (postRole === 'lawyer') selectRole('lawyer', false);
+
+function selectRole(role, animate = true) {
+    // إخفاء welcome
+    document.getElementById('welcome-state').style.display = 'none';
+
+    // إخفاء الفورمز
+    document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+
+    // إلغاء تفعيل الأزرار
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+
+    // تفعيل الاختيار
+    document.getElementById('btn-' + role).classList.add('active');
+
+    const form = document.getElementById(role + '-form');
+    if (animate) {
+        form.style.animation = 'none';
+        form.offsetHeight; // reflow
+        form.style.animation = '';
+    }
+    form.classList.add('active');
+
+    // فوكس على أول حقل
+    setTimeout(() => {
+        const input = form.querySelector('input[name="username"]');
+        if (input) input.focus();
+    }, 50);
+}
+</script>
+<script>
+(function() {
+    var t = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    var btn = document.getElementById('themeToggle');
+    if (btn) btn.textContent = t === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

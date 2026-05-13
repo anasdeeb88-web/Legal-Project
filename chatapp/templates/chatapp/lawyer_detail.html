@@ -1,0 +1,269 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ lawyer.user.get_full_name }} - المستشار القانوني السوري{% endblock %}
+
+{% block content %}
+<div class="lawyer-detail-page">
+
+    <!-- Header -->
+    <div class="lawyer-profile-header">
+        <div class="profile-main">
+            <div class="lawyer-avatar-large">
+                {% if lawyer.user.profile.avatar %}
+                    <img src="{{ lawyer.user.profile.avatar.url }}" alt="{{ lawyer.user.get_full_name }}">
+                {% else %}
+                    <div class="avatar-placeholder-large">
+                        {{ lawyer.user.first_name|slice:":1" }}{{ lawyer.user.last_name|slice:":1" }}
+                    </div>
+                {% endif %}
+                {% if lawyer.is_verified %}
+                    <span class="verified-badge-large" title="محامي موثق">✓</span>
+                {% endif %}
+            </div>
+
+            <div class="profile-info">
+                <h1>{{ lawyer.user.get_full_name|default:lawyer.user.username }}</h1>
+                <div class="profile-meta">
+                    <span class="specialization-badge">{{ lawyer.get_specialization_display }}</span>
+                    <span class="experience-badge">{{ lawyer.experience_years }} سنة خبرة</span>
+                    {% if lawyer.is_available %}
+                        <span class="status-badge available">متاح</span>
+                    {% else %}
+                        <span class="status-badge unavailable">غير متاح</span>
+                    {% endif %}
+                </div>
+                <div class="rating-display">
+                    <div class="stars-large">
+                        {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= lawyer.rating|floatformat:"0"|add:"0" %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <span class="rating-number-large">{{ lawyer.rating|floatformat:1 }}</span>
+                    <span class="reviews-count-large">({{ lawyer.total_reviews }} تقييم)</span>
+                </div>
+                <div class="consultation-fee-large">
+                    <span class="label">أتعاب الاستشارة:</span>
+                    <span class="amount">{{ lawyer.consultation_fee }} ل.س</span>
+                </div>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <button class="btn btn-primary btn-large" onclick="openConsultationModal()">📋 طلب استشارة</button>
+            {% if lawyer.latitude and lawyer.longitude %}
+            <a href="#map-section" class="btn btn-outline">🗺️ الموقع</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-content">
+
+        <!-- نبذة -->
+        <section class="profile-section">
+            <h2>نبذة عن المحامي</h2>
+            <p class="description">{{ lawyer.description }}</p>
+        </section>
+
+        <!-- معلومات المكتب -->
+        <section class="profile-section">
+            <h2>معلومات المكتب</h2>
+            <div class="office-info-grid">
+                <div class="info-item"><strong>اسم المكتب</strong><span>{{ lawyer.office_name }}</span></div>
+                <div class="info-item"><strong>العنوان</strong><span>{{ lawyer.office_address }}</span></div>
+                <div class="info-item"><strong>الهاتف</strong><span dir="ltr">{{ lawyer.office_phone }}</span></div>
+                <div class="info-item"><strong>البريد الإلكتروني</strong><span>{{ lawyer.office_email }}</span></div>
+                <div class="info-item"><strong>اللغات</strong><span>{{ lawyer.languages }}</span></div>
+                <div class="info-item"><strong>رقم الترخيص</strong><span>{{ lawyer.license_number }}</span></div>
+            </div>
+        </section>
+
+        <!-- الخريطة -->
+        {% if lawyer.latitude and lawyer.longitude %}
+        <section class="profile-section" id="map-section">
+            <h2>الموقع على الخريطة</h2>
+            <div id="map" class="lawyer-map" style="height:400px;width:100%;"></div>
+        </section>
+        {% endif %}
+
+        <!-- التقييمات -->
+        <section class="profile-section">
+            <h2>التقييمات ({{ lawyer.total_reviews }})</h2>
+
+            {% if lawyer.total_reviews > 0 %}
+            <div class="rating-distribution">
+                {% for star in "54321" %}
+                    {% with count=rating_distribution|get_item:star %}
+                    <div class="rating-bar-row">
+                        <span class="star-label">{{ star }} ★</span>
+                        <div class="rating-bar-track">
+                            <div class="rating-bar-fill" style="width:{% if lawyer.total_reviews > 0 %}{% widthratio count lawyer.total_reviews 100 %}{% else %}0{% endif %}%"></div>
+                        </div>
+                        <span class="rating-count-label">{{ count }}</span>
+                    </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if user.is_authenticated and can_review %}
+            <div class="add-review-section">
+                <h3>أضف تقييمك</h3>
+                <form id="review-form" onsubmit="submitReview(event)">
+                    {% csrf_token %}
+                    <div class="stars-input-group">
+                        <label>التقييم:</label>
+                        <div class="stars-select">
+                            {% for i in "12345" %}
+                            <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {% if forloop.last %}required{% endif %}>
+                            <label for="star{{ i }}" title="{{ i }} نجوم">★</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">تعليقك (اختياري)</label>
+                        <textarea id="comment" name="comment" rows="4" placeholder="اكتب تجربتك مع المحامي..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">إرسال التقييم</button>
+                </form>
+            </div>
+            {% elif not user.is_authenticated %}
+            <p class="login-prompt"><a href="{% url 'login' %}?next={{ request.path }}">سجل الدخول</a> لإضافة تقييمك</p>
+            {% elif not can_review %}
+            <p class="already-reviewed">✓ لقد قيّمت هذا المحامي من قبل</p>
+            {% endif %}
+
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="review-card card">
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                            <span class="review-time">{{ review.created_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="review-rating">
+                            {% for i in "12345" %}
+                                <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if review.comment %}<p class="review-comment">{{ review.comment }}</p>{% endif %}
+                </div>
+                {% empty %}
+                <p class="muted">لا توجد تقييمات بعد — كن أول من يقيّم!</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Modal الاستشارة -->
+<div id="consultation-modal" class="modal" style="display:none;">
+    <div class="modal-overlay" onclick="closeConsultationModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>طلب استشارة</h2>
+            <button class="modal-close" onclick="closeConsultationModal()">✕</button>
+        </div>
+        <form id="consultation-form" onsubmit="submitConsultation(event)">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="consult-title">عنوان الاستشارة *</label>
+                <input type="text" id="consult-title" name="title" required placeholder="مثال: قضية ميراث">
+            </div>
+            <div class="form-group">
+                <label for="consult-desc">وصف الاستشارة *</label>
+                <textarea id="consult-desc" name="description" rows="6" required placeholder="اشرح قضيتك بالتفصيل..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>إرفاق ملف صوتي (اختياري)</label>
+                <div class="audio-controls">
+                    <button type="button" class="btn btn-outline" id="record-btn" onclick="startRecording()">🎤 تسجيل صوتي</button>
+                    <span class="muted">أو</span>
+                    <label for="audio-file-input" class="btn btn-outline">📎 رفع ملف</label>
+                    <input type="file" id="audio-file-input" name="audio_file" accept="audio/*" style="display:none;">
+                </div>
+                <div id="recording-indicator" class="recording-indicator" style="display:none;">
+                    <div class="recording-dot"></div>
+                    <span>جارٍ التسجيل...</span>
+                    <span id="recording-time">0:00</span>
+                    <button type="button" class="btn btn-small" style="background:var(--error);color:white;border:none;" onclick="stopRecording()">⏹ إيقاف</button>
+                </div>
+                <div id="audio-preview" class="audio-preview" style="display:none;">
+                    <p>✓ تم رفع الملف الصوتي</p>
+                    <audio id="audio-player" controls></audio>
+                </div>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeConsultationModal()">إلغاء</button>
+            <button type="submit" form="consultation-form" class="btn btn-primary">إرسال الطلب</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'chatapp/audio-recorder.js' %}"></script>
+<script>
+{% if lawyer.latitude and lawyer.longitude and GOOGLE_MAPS_API_KEY %}
+const MAPS_ENABLED = true;
+const LAWYER_LAT = {{ lawyer.latitude }};
+const LAWYER_LNG = {{ lawyer.longitude }};
+const LAWYER_NAME = "{{ lawyer.office_name|escapejs }}";
+{% else %}
+const MAPS_ENABLED = false;
+{% endif %}
+
+const REVIEW_URL  = "{% url 'submit_review' lawyer.id %}";
+const CONSULT_URL = "{% url 'request_consultation' lawyer.id %}";
+
+function initMap() {
+    if (!MAPS_ENABLED) return;
+    const loc = { lat: LAWYER_LAT, lng: LAWYER_LNG };
+    const map = new google.maps.Map(document.getElementById('map'), { zoom: 15, center: loc });
+    const marker = new google.maps.Marker({ position: loc, map, title: LAWYER_NAME });
+    const iw = new google.maps.InfoWindow({ content: `<strong style="font-family:Tajawal">${LAWYER_NAME}</strong>` });
+    marker.addListener('click', () => iw.open(map, marker));
+}
+
+async function submitReview(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true; submitBtn.textContent = 'جارٍ الإرسال...';
+    try {
+        const res = await fetch(REVIEW_URL, { method:'POST', body:formData, headers:{'X-CSRFToken':formData.get('csrfmiddlewaretoken')} });
+        const data = await res.json();
+        if (data.success) { alert('✓ تم إرسال تقييمك!'); location.reload(); }
+        else { alert('❌ ' + (data.error||'حدث خطأ')); submitBtn.disabled=false; submitBtn.textContent='إرسال التقييم'; }
+    } catch { alert('❌ حدث خطأ'); submitBtn.disabled=false; submitBtn.textContent='إرسال التقييم'; }
+}
+
+function openConsultationModal()  { document.getElementById('consultation-modal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeConsultationModal() { document.getElementById('consultation-modal').style.display='none'; document.body.style.overflow=''; }
+
+async function submitConsultation(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const submitBtn = document.querySelector('.modal-footer .btn-primary');
+    submitBtn.disabled = true; submitBtn.textContent = 'جارٍ الإرسال...';
+    try {
+        const res = await fetch(CONSULT_URL, { method:'POST', body:formData, headers:{'X-CSRFToken':formData.get('csrfmiddlewaretoken')} });
+        const data = await res.json();
+        if (data.success) { alert('✓ '+data.message); closeConsultationModal(); window.location.href="{% url 'my_consultations' %}"; }
+        else { alert('❌ '+(data.error||'حدث خطأ')); submitBtn.disabled=false; submitBtn.textContent='إرسال الطلب'; }
+    } catch { alert('❌ حدث خطأ'); submitBtn.disabled=false; submitBtn.textContent='إرسال الطلب'; }
+}
+
+document.getElementById('audio-file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) { document.getElementById('audio-player').src = URL.createObjectURL(file); document.getElementById('audio-preview').style.display='block'; }
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeConsultationModal(); });
+</script>
+
+{% if lawyer.latitude and lawyer.longitude and GOOGLE_MAPS_API_KEY %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&callback=initMap" async defer></script>
+{% endif %}
+{% endblock %}

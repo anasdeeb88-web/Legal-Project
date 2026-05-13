@@ -1,0 +1,302 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}خريطة المحامين{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
+<style>
+.map-page  { height:calc(100vh - 64px); display:flex; flex-direction:column; overflow:hidden; }
+.toolbar   {
+    background:var(--surface,#fff); padding:10px 16px;
+    border-bottom:1px solid var(--border,#e8ecf0);
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    box-shadow:0 2px 8px rgba(0,0,0,.05); flex-shrink:0; z-index:10;
+}
+.map-body  { flex:1; display:flex; overflow:hidden; }
+#map       { flex:1; direction:ltr; }
+
+.t-input, .t-select {
+    padding:8px 13px; border:1.5px solid var(--border,#e0e0e0);
+    border-radius:10px; font-size:13px; font-family:inherit;
+    background:var(--surface,#fff); color:var(--text,#1a1a2e);
+    outline:none; transition:border-color .2s;
+}
+.t-input          { flex:1; min-width:160px; }
+.t-input:focus,
+.t-select:focus   { border-color:var(--primary,#2563eb); }
+.t-select         { cursor:pointer; }
+.btn-loc {
+    padding:8px 16px; background:var(--primary,#2563eb); color:#fff;
+    border:none; border-radius:10px; font-size:13px; font-weight:600;
+    cursor:pointer; font-family:inherit; white-space:nowrap; transition:opacity .2s;
+}
+.btn-loc:hover { opacity:.85; }
+
+.panel {
+    width:310px; flex-shrink:0; background:var(--surface,#fff);
+    border-left:1px solid var(--border,#e8ecf0);
+    display:flex; flex-direction:column; overflow:hidden;
+}
+.panel-head {
+    padding:12px 16px; border-bottom:1px solid var(--border,#eee);
+    font-size:14px; font-weight:700; color:var(--text,#1a1a2e);
+    display:flex; justify-content:space-between; align-items:center; flex-shrink:0;
+}
+.p-count   { font-size:12px; font-weight:400; color:var(--text-muted,#888); }
+.panel-list { flex:1; overflow-y:auto; }
+
+.lcard {
+    padding:12px 15px; border-bottom:1px solid var(--border,#f0f0f0);
+    cursor:pointer; transition:background .15s;
+}
+.lcard:hover          { background:rgba(37,99,235,.04); }
+.lcard.sel            { background:rgba(37,99,235,.07); border-right:3px solid var(--primary,#2563eb); }
+.lc-name              { font-size:14px; font-weight:700; color:var(--text,#1a1a2e); margin-bottom:2px; }
+.lc-spec              { font-size:12px; color:var(--primary,#2563eb); margin-bottom:5px; }
+.lc-row               { display:flex; gap:10px; font-size:11px; color:var(--text-muted,#888); margin-bottom:7px; }
+.lc-dist              { color:#059669; font-weight:700; }
+.lc-btns              { display:flex; gap:6px; }
+.lc-btn {
+    flex:1; padding:5px 8px; border-radius:8px; font-size:12px; font-weight:600;
+    cursor:pointer; font-family:inherit; text-align:center;
+    border:none; text-decoration:none; display:block; transition:opacity .15s;
+}
+.lc-btn-p  { background:var(--primary,#2563eb); color:#fff; }
+.lc-btn-p:hover { opacity:.85; }
+.lc-btn-o  { background:none; border:1.5px solid var(--primary,#2563eb); color:var(--primary,#2563eb); }
+.lc-btn-o:hover { background:rgba(37,99,235,.06); }
+.no-res    { padding:44px 16px; text-align:center; color:var(--text-muted,#888); font-size:13px; line-height:1.8; }
+
+.pop {
+    font-family:'Tajawal',sans-serif; direction:rtl; text-align:right; min-width:200px;
+}
+.pop h4    { font-size:15px; font-weight:800; margin:0 0 3px; color:#1a1a2e; }
+.pop-spec  { font-size:12px; color:#2563eb; font-weight:600; margin-bottom:6px; }
+.pop-meta  { font-size:12px; color:#555; line-height:1.8; margin-bottom:10px; }
+.pop-btn   {
+    display:block; padding:7px 14px; background:#2563eb; color:#fff;
+    border-radius:9px; text-decoration:none; text-align:center;
+    font-size:13px; font-weight:700;
+}
+.pop-btn:hover { background:#1d4ed8; }
+.maplibregl-popup-content {
+    padding:14px 16px !important; border-radius:14px !important;
+    box-shadow:0 6px 24px rgba(0,0,0,.14) !important;
+    font-family:'Tajawal',sans-serif;
+}
+.maplibregl-popup-close-button { font-size:16px; color:#888; }
+
+[data-theme="dark"] .toolbar,
+[data-theme="dark"] .panel { background:var(--surface,#161b22); }
+[data-theme="dark"] .lcard:hover { background:rgba(255,255,255,.04); }
+
+@media(max-width:700px){
+    .map-body{flex-direction:column-reverse;}
+    .panel{width:100%;height:260px;border-left:none;border-top:1px solid var(--border,#eee);}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="map-page">
+    <div class="toolbar">
+        <input  id="q"  class="t-input"  type="text" placeholder="🔍 ابحث باسم المحامي أو المدينة...">
+        <select id="sf" class="t-select">
+            <option value="">كل التخصصات</option>
+            {% for code,name in specializations %}
+            <option value="{{ code }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn-loc" id="btn-loc">📍 قريب مني</button>
+    </div>
+
+    <div class="map-body">
+        <div id="map"></div>
+        <div class="panel">
+            <div class="panel-head">
+                المحامون المتاحون
+                <span class="p-count" id="cnt"></span>
+            </div>
+            <div class="panel-list" id="lst"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js"></script>
+<script>
+function enableRTLTextPlugin() {
+    const url = 'https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js';
+    if (window.maptilersdk?.setRTLTextPlugin) {
+        window.maptilersdk.setRTLTextPlugin(url, null, true);
+    } else if (window.maplibregl?.setRTLTextPlugin) {
+        window.maplibregl.setRTLTextPlugin(url, null, true);
+    } else if (window.mapboxgl?.setRTLTextPlugin) {
+        window.mapboxgl.setRTLTextPlugin(url, null, true);
+    }
+}
+
+// ✅ الكود كله داخل window.addEventListener('load')
+// عشان يضمن إن SDK اتحمّل بالكامل قبل ما نستخدمه
+window.addEventListener('load', function () {
+
+    const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
+    const SRC = {{ lawyers_json|safe }};
+
+    let data  = [...SRC];
+    let actId = null;
+    let uMkr  = null;
+    const MKR = {};
+
+    /* ── Init ─────────────────────────────────── */
+    enableRTLTextPlugin();
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+
+    const map = new maptilersdk.Map({
+        container : 'map',
+        style     : maptilersdk.MapStyle.STREETS,
+        center    : [38.5, 34.9],
+        zoom      : 6.2,
+        language  : maptilersdk.Language.ENGLISH,
+    });
+
+    const pop = new maptilersdk.Popup({ closeButton:true, maxWidth:'290px' });
+
+    map.on('load', render);
+
+    document.getElementById('q').addEventListener('input', render);
+    document.getElementById('sf').addEventListener('change', render);
+    document.getElementById('btn-loc').addEventListener('click', locateMe);
+
+    /* ── Filter + Render ──────────────────────── */
+    function render() {
+        const q = document.getElementById('q').value.trim().toLowerCase();
+        const s = document.getElementById('sf').value;
+        data = SRC.filter(l => {
+            const mq = !q || l.name.includes(q) || l.specialization.includes(q) || (l.address||'').includes(q);
+            const ms = !s  || l.specialization_code === s;
+            return mq && ms;
+        });
+        document.getElementById('cnt').textContent = '(' + data.length + ')';
+        drawMkrs();
+        drawList();
+    }
+
+    /* ── Markers ──────────────────────────────── */
+    function drawMkrs() {
+        Object.values(MKR).forEach(m => m.remove());
+        for (const k in MKR) delete MKR[k];
+
+        data.forEach(l => {
+            if (!l.lat || !l.lng) return;
+            const el = document.createElement('div');
+            el.innerHTML = mkrSVG(l.id === actId);
+            el.style.cssText = 'cursor:pointer;width:34px;height:42px;';
+            el.addEventListener('click', e => { e.stopPropagation(); openPop(l); });
+            MKR[l.id] = new maptilersdk.Marker({ element:el, anchor:'bottom' })
+                .setLngLat([l.lng, l.lat])
+                .addTo(map);
+        });
+    }
+
+    function mkrSVG(active) {
+        const c = active ? '#dc2626' : '#2563eb';
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+            <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".28"/></filter>
+            <path filter="url(#sh)" fill="${c}"
+                d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 25 17 25S34 29.7 34 17C34 7.6 26.4 0 17 0z"/>
+            <text x="17" y="21" font-size="14" text-anchor="middle" fill="white" font-family="Arial">⚖</text>
+        </svg>`;
+    }
+
+    /* ── Popup ────────────────────────────────── */
+    function openPop(l) {
+        actId = l.id;
+        pop.setLngLat([l.lng, l.lat])
+           .setHTML(`<div class="pop">
+                <h4>${l.name}</h4>
+                <div class="pop-spec">${l.specialization}</div>
+                <div class="pop-meta">
+                    ⭐ ${l.rating.toFixed(1)} (${l.reviews} تقييم) · 🏛 ${l.experience} سنوات<br>
+                    💰 ${l.fee.toLocaleString()} ل.س للاستشارة<br>
+                    📍 ${l.address || 'غير محدد'}
+                </div>
+                <a class="pop-btn" href="/lawyers/${l.id}/">عرض الملف الشخصي ←</a>
+            </div>`)
+           .addTo(map);
+        drawMkrs();
+        drawList();
+        const card = document.getElementById('c' + l.id);
+        if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }
+
+    /* ── List ─────────────────────────────────── */
+    function drawList() {
+        const el = document.getElementById('lst');
+        if (!data.length) {
+            el.innerHTML = '<div class="no-res">لا يوجد محامون<br>جرّب تغيير الفلتر أو البحث</div>';
+            return;
+        }
+        el.innerHTML = data.map(l => `
+            <div class="lcard ${l.id===actId?'sel':''}" id="c${l.id}" onclick="flyTo(${l.id})">
+                <div class="lc-name">${l.name}</div>
+                <div class="lc-spec">${l.specialization}</div>
+                <div class="lc-row">
+                    <span>⭐ ${l.rating.toFixed(1)}</span>
+                    <span>💰 ${l.fee.toLocaleString()} ل.س</span>
+                    ${l._d ? '<span class="lc-dist">📍 '+l._d+' كم</span>' : ''}
+                </div>
+                <div class="lc-btns">
+                    <a href="/lawyers/${l.id}/" class="lc-btn lc-btn-p">عرض الملف</a>
+                    <button class="lc-btn lc-btn-o"
+                        onclick="event.stopPropagation();window.location.href='/lawyers/${l.id}/'">
+                        استشارة
+                    </button>
+                </div>
+            </div>`).join('');
+    }
+
+    // flyTo global عشان onclick في HTML يشوفها
+    window.flyTo = function(id) {
+        const l = data.find(x => x.id === id);
+        if (!l || !l.lat) return;
+        map.flyTo({ center:[l.lng, l.lat], zoom:14, speed:1.6 });
+        openPop(l);
+    };
+
+    /* ── Locate User ─────────────────────────── */
+    function locateMe() {
+        if (!navigator.geolocation) { alert('المتصفح لا يدعم تحديد الموقع'); return; }
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude:lat, longitude:lng } = pos.coords;
+            if (uMkr) uMkr.remove();
+            const el = document.createElement('div');
+            el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+                <circle cx="11" cy="11" r="11" fill="#2563eb" opacity=".22"/>
+                <circle cx="11" cy="11" r="7"  fill="#2563eb"/>
+                <circle cx="11" cy="11" r="3"  fill="white"/>
+            </svg>`;
+            uMkr = new maptilersdk.Marker({ element:el })
+                .setLngLat([lng, lat])
+                .setPopup(new maptilersdk.Popup().setHTML(
+                    '<div style="font-family:Tajawal;direction:rtl;padding:2px 4px">📍 موقعك الحالي</div>'
+                ))
+                .addTo(map);
+            map.flyTo({ center:[lng, lat], zoom:10, speed:1.8 });
+
+            SRC.forEach(l => {
+                if (!l.lat) return;
+                const dx = (l.lat - lat) * 111;
+                const dy = (l.lng - lng) * 111 * Math.cos(lat * Math.PI / 180);
+                l._d = Math.round(Math.sqrt(dx*dx + dy*dy) * 10) / 10;
+            });
+            SRC.sort((a,b) => (a._d||9999) - (b._d||9999));
+            render();
+        }, () => alert('تعذّر تحديد موقعك — تأكد من منح إذن الموقع للمتصفح'));
+    }
+
+}); // end window.addEventListener('load')
+</script>
+{% endblock %}

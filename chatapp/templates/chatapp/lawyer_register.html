@@ -1,0 +1,314 @@
+{% extends "chatapp/base.html" %}
+{% load static %}
+{% block title %}تسجيل محامٍ جديد{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
+<style>
+.reg-container { max-width: 680px; margin: 40px auto; }
+.reg-header { text-align: center; margin-bottom: 36px; }
+.reg-header .badge {
+    display: inline-block; background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.35); border-radius: 20px;
+    padding: 6px 16px; font-size: 13px; color: #a16207;
+    margin-bottom: 14px;
+}
+.reg-header h1 { font-size: 28px; color: var(--text, #0f172a); margin-bottom: 8px; }
+.reg-header p { color: var(--text-muted, #64748b); }
+.form-card { background: var(--surface); border-radius: 16px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+.section-title {
+    font-size: 15px; font-weight: 700; color: var(--primary, #2563eb);
+    border-bottom: 2px solid var(--primary, #2563eb);
+    padding-bottom: 8px; margin: 28px 0 18px 0;
+}
+.section-title:first-child { margin-top: 0; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-size: 14px; font-family: inherit; transition: border-color 0.2s; outline: none;
+    background: var(--surface-2, #f8fafc); color: var(--text);
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary, #2563eb); background: var(--surface);
+}
+.help-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+.error-box {
+    background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.2); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #e53e3e;
+}
+.error-box ul { list-style: none; }
+.error-box li { margin: 4px 0; }
+.notice-box {
+    background: rgba(217,119,6,0.06); border: 1px solid rgba(217,119,6,0.25); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: var(--warning, #d97706);
+}
+.btn-register {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--primary, #2563eb), var(--primary-dark, #1d4ed8));
+    border: none; border-radius: 12px;
+    color: white; font-size: 16px; font-weight: 700;
+    font-family: inherit; cursor: pointer; transition: all 0.3s; margin-top: 12px;
+}
+.btn-register:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,123,255,0.35); }
+.login-link { text-align: center; margin-top: 18px; font-size: 14px; color: var(--text-muted); }
+.login-link a { color: var(--primary, #2563eb); font-weight: 600; text-decoration: none; }
+@media(max-width:600px) { .form-row-2{grid-template-columns:1fr;} .form-card{padding:24px;} }
+.map-picker { margin-top:14px; }
+.map-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+#register-map { width:100%; height:280px; border-radius:12px; border:1.5px solid rgba(226,232,240,.95); overflow:hidden; direction:ltr; }
+.loc-status { margin-top:10px; font-size:13px; color:#2563eb; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="reg-container">
+    <div class="reg-header">
+        <div class="badge">⚖️ انضم كمحامٍ</div>
+        <h1>تسجيل محامٍ جديد</h1>
+        <p>أنشئ حسابك وابدأ تلقّي الاستشارات من العملاء</p>
+    </div>
+
+    <div class="form-card">
+        <div class="notice-box">
+            ⏳ سيتم مراجعة بياناتك من قبل الإدارة قبل تفعيل حسابك على المنصة.
+        </div>
+
+        {% if form.errors %}
+        <div class="error-box">
+            <ul>
+                {% for field in form %}{% for error in field.errors %}<li>❌ {{ error }}</li>{% endfor %}{% endfor %}
+                {% for error in form.non_field_errors %}<li>❌ {{ error }}</li>{% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="section-title">بيانات الحساب</div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>الاسم الأول *</label>
+                    <input type="text" name="first_name" required placeholder="محمد">
+                </div>
+                <div class="form-group">
+                    <label>الاسم الأخير *</label>
+                    <input type="text" name="last_name" required placeholder="العلي">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني *</label>
+                <input type="email" name="email" required placeholder="lawyer@example.com">
+            </div>
+            <div class="form-group">
+                <label>اسم المستخدم *</label>
+                {{ form.username }}
+                {% if form.username.help_text %}<p class="help-text">{{ form.username.help_text }}</p>{% endif %}
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>كلمة المرور *</label>
+                    {{ form.password1 }}
+                    {% if form.password1.help_text %}<p class="help-text">{{ form.password1.help_text }}</p>{% endif %}
+                </div>
+                <div class="form-group">
+                    <label>تأكيد كلمة المرور *</label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+
+            <div class="section-title">المعلومات المهنية</div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>رقم الترخيص *</label>
+                    <input type="text" name="license_number" required placeholder="SY-2024-XXXX">
+                </div>
+                <div class="form-group">
+                    <label>التخصص *</label>
+                    <select name="specialization" required>
+                        {% for code, name in specializations %}
+                        <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>سنوات الخبرة</label>
+                    <input type="number" name="experience_years" min="0" max="60" placeholder="5">
+                </div>
+                <div class="form-group">
+                    <label>رسوم الاستشارة (ل.س)</label>
+                    <input type="number" name="consultation_fee" min="0" step="500" placeholder="50000">
+                </div>
+            </div>
+
+            <div class="section-title">معلومات المكتب</div>
+            <div class="form-group">
+                <label>اسم المكتب</label>
+                <input type="text" name="office_name" placeholder="مكتب المحامي محمد للاستشارات">
+            </div>
+            <div class="form-group">
+                <label>العنوان الكامل *</label>
+                <input type="text" id="office_address" name="office_address" required placeholder="دمشق - المزة - شارع الجلاء">
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>خط العرض (Latitude)</label>
+                    <input type="text" id="reg-lat" name="latitude" readonly placeholder="حدد الموقع على الخريطة أو اضغط بحث">
+                </div>
+                <div class="form-group">
+                    <label>خط الطول (Longitude)</label>
+                    <input type="text" id="reg-lng" name="longitude" readonly placeholder="حدد الموقع على الخريطة أو اضغط بحث">
+                </div>
+            </div>
+            <div class="section-title">موقع المكتب</div>
+            <div class="form-group">
+                <div class="map-picker">
+                    <div class="map-actions">
+                        <button type="button" class="btn-register" id="btn-find-address" style="margin-right:8px;">🔍 بحث بالعنوان</button>
+                        <button type="button" class="btn-register" id="btn-use-location">📍 موقعك الحالي</button>
+                    </div>
+                    <div id="register-map"></div>
+                    <p class="help-text">يمكنك النقر على الخريطة لتعيين موقع المكتب يدوياً.</p>
+                    <div class="loc-status" id="reg-loc-status"></div>
+                </div>
+            </div>
+            <div class="form-row-2">
+                <div class="form-group">
+                    <label>رقم الهاتف *</label>
+                    <input type="tel" name="office_phone" required placeholder="+963 11 XXX XXXX">
+                </div>
+                <div class="form-group">
+                    <label>بريد المكتب *</label>
+                    <input type="email" name="office_email" required placeholder="office@example.com">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>نبذة مختصرة</label>
+                <textarea name="description" rows="3" placeholder="اكتب نبذة عن خبرتك ومجالات عملك..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-register">إنشاء الحساب وإرسال طلب التوثيق ←</button>
+        </form>
+        <div class="login-link">لديك حساب؟ <a href="{% url 'login' %}">تسجيل الدخول</a></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js"></script>
+<script>
+function enableRTLTextPlugin() {
+    const url = 'https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js';
+    if (window.maptilersdk?.setRTLTextPlugin) {
+        window.maptilersdk.setRTLTextPlugin(url, null, true);
+    } else if (window.maplibregl?.setRTLTextPlugin) {
+        window.maplibregl.setRTLTextPlugin(url, null, true);
+    } else if (window.mapboxgl?.setRTLTextPlugin) {
+        window.mapboxgl.setRTLTextPlugin(url, null, true);
+    }
+}
+
+const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
+const addressInput = document.getElementById('office_address');
+const latInput = document.getElementById('reg-lat');
+const lngInput = document.getElementById('reg-lng');
+const locStatus = document.getElementById('reg-loc-status');
+let map = null;
+let marker = null;
+
+function initRegisterMap() {
+    if (!window.maptilersdk) {
+        setTimeout(initRegisterMap, 50);
+        return;
+    }
+
+    enableRTLTextPlugin();
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+    map = new maptilersdk.Map({
+        container: 'register-map',
+        style: maptilersdk.MapStyle.STREETS,
+        center: [36.3, 33.5],
+        zoom: 6.5,
+        language: maptilersdk.Language.ENGLISH,
+    });
+
+    map.on('load', () => {
+        map.on('click', e => {
+            placeMarker(e.lngLat.lng, e.lngLat.lat);
+        });
+    });
+
+    document.getElementById('btn-find-address').addEventListener('click', geocodeAddress);
+    document.getElementById('btn-use-location').addEventListener('click', useMyLocation);
+}
+
+function placeMarker(lng, lat) {
+    if (marker) marker.remove();
+    const el = document.createElement('div');
+    el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42">
+        <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".28"/></filter>
+        <path filter="url(#sh)" fill="#2563eb" d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 25 17 25S34 29.7 34 17C34 7.6 26.4 0 17 0z"/>
+        <text x="17" y="21" font-size="14" text-anchor="middle" fill="white" font-family="Arial">⚖</text>
+    </svg>`;
+    el.style.cssText = 'cursor:pointer;width:34px;height:42px;';
+    marker = new maptilersdk.Marker({ element: el, anchor: 'bottom' })
+        .setLngLat([lng, lat])
+        .addTo(map);
+    setCoords(lat, lng);
+}
+
+function setCoords(lat, lng) {
+    latInput.value = lat.toFixed(6);
+    lngInput.value = lng.toFixed(6);
+    locStatus.textContent = `✅ تم تحديد الموقع: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+}
+
+function geocodeAddress() {
+    const query = addressInput.value.trim();
+    if (!query) {
+        locStatus.textContent = '❌ أدخل العنوان أولاً.';
+        return;
+    }
+    locStatus.textContent = '⏳ جاري البحث...';
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' سوريا')}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'ar' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.length) {
+            locStatus.textContent = '❌ لم يُعثر على العنوان.';
+            return;
+        }
+        const lat = parseFloat(data[0].lat);
+        const lng = parseFloat(data[0].lon);
+        map.flyTo({ center: [lng, lat], zoom: 15, speed: 1.4 });
+        placeMarker(lng, lat);
+    })
+    .catch(() => {
+        locStatus.textContent = '❌ حدث خطأ أثناء البحث.';
+    });
+}
+
+function useMyLocation() {
+    if (!navigator.geolocation) {
+        locStatus.textContent = '❌ المتصفح لا يدعم تحديد الموقع.';
+        return;
+    }
+    locStatus.textContent = '⏳ جارٍ تحديد الموقع...';
+    navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        map.flyTo({ center: [lng, lat], zoom: 15, speed: 1.4 });
+        placeMarker(lng, lat);
+    }, () => {
+        locStatus.textContent = '❌ تعذّر تحديد موقعك.';
+    });
+}
+
+initRegisterMap();
+</script>
+{% endblock %}
