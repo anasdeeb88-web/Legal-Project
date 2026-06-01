@@ -12,5 +12,5 @@ SpeechRecognition==3.10.0
 pydub==0.25.1
 googlemaps==4.10.0
 geopy==2.4.1
-Pillow==10.1.0
+Pillow==10.4.0
 pytest-django==4.7.0
