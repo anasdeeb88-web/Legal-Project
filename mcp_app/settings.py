@@ -16,8 +16,12 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-#ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Render adds the service URL automatically — allow it
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 # ==================== Auth URLs ====================
 # "/" هو صفحة تسجيل الدخول
 LOGIN_URL = '/'
@@ -37,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # ← تقديم الملفات الثابتة على Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,17 +74,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mcp_app.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
-        'USER': os.getenv('DB_USER', ''),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+# Database — يدعم DATABASE_URL من Render تلقائياً
+import dj_database_url
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+            'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+            'USER': os.getenv('DB_USER', ''),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -98,6 +109,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -124,26 +136,13 @@ MAX_AUDIO_SIZE = 10 * 1024 * 1024
 ALLOWED_AUDIO_FORMATS = ['.mp3', '.wav', '.m4a', '.ogg', '.webm']
 
 # ==================== Email ====================
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'anasdib49@gmail.com' 
-EMAIL_HOST_PASSWORD = 'gfsxpepayeliwlan'
-DEFAULT_FROM_EMAIL =  'legal <anasdib49@gmail.com>'
-
-
-''' 
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-''' 
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', f'legal <{EMAIL_HOST_USER}>')
 # ==================== Upload Limits ====================
 MAX_PDF_SIZE = 20 * 1024 * 1024
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
