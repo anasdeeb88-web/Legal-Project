@@ -36,40 +36,6 @@
     }
   },
   {
-    "model": "chatapp.userprofile",
-    "pk": 1,
-    "fields": {
-      "user": [
-        "ليفلل"
-      ],
-      "user_type": "lawyer",
-      "phone": "",
-      "avatar": "",
-      "bio": "",
-      "address": "",
-      "city": "",
-      "created_at": "2026-02-20T23:48:11.225Z",
-      "updated_at": "2026-04-14T23:23:12.937Z"
-    }
-  },
-  {
-    "model": "chatapp.userprofile",
-    "pk": 24,
-    "fields": {
-      "user": [
-        "aaaa"
-      ],
-      "user_type": "lawyer",
-      "phone": "",
-      "avatar": "",
-      "bio": "",
-      "address": "",
-      "city": "",
-      "created_at": "2026-05-12T22:40:09.604Z",
-      "updated_at": "2026-05-12T22:44:12.395Z"
-    }
-  },
-  {
     "model": "chatapp.lawyerprofile",
     "pk": 1,
     "fields": {

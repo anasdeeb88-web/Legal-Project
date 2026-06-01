@@ -10,8 +10,15 @@ python manage.py shell -c "
 from chatapp.models import LawyerProfile
 if not LawyerProfile.objects.exists():
     import subprocess
-    subprocess.run(['python', 'manage.py', 'loaddata', 'initial_data.json'], check=True)
-    print('✓ تم تحميل البيانات الأولية')
+    result = subprocess.run(
+        ['python', 'manage.py', 'loaddata', '--ignoreconflicts', 'initial_data.json'],
+        capture_output=True, text=True
+    )
+    print(result.stdout)
+    if result.returncode != 0:
+        print('Warning:', result.stderr[:200])
+    else:
+        print('✓ تم تحميل البيانات الأولية')
 else:
     print('- البيانات موجودة مسبقاً، تم التخطي')
 "
