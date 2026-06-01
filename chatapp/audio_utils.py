@@ -2,7 +2,13 @@
 معالجة الملفات الصوتية والتحويل إلى نص
 """
 
-import speech_recognition as sr
+try:
+    import speech_recognition as sr
+    SR_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    SR_AVAILABLE = False
+    sr = None
+
 from openai import OpenAI
 from django.conf import settings
 import os
@@ -37,18 +43,20 @@ def transcribe_audio_google(audio_file_path):
     """
     تحويل الصوت إلى نص باستخدام Google Speech Recognition (مجاني)
     """
+    if not SR_AVAILABLE:
+        logger.warning("SpeechRecognition غير متاحة، استخدم Whisper بدلاً منها")
+        return ""
     try:
         recognizer = sr.Recognizer()
-        
+
         with sr.AudioFile(audio_file_path) as source:
             audio = recognizer.record(source)
-        
-        # استخدام Google Speech Recognition
+
         text = recognizer.recognize_google(audio, language='ar-SA')
-        
+
         logger.info(f"تم تحويل الصوت بنجاح (Google): {audio_file_path}")
         return text
-        
+
     except sr.UnknownValueError:
         logger.warning("لم يتمكن من فهم الصوت")
         return ""
