@@ -8,7 +8,7 @@ pinecone-client==5.0.1
 PyPDF2==3.0.1
 pymupdf>=1.23.0
 python-dotenv==1.0.0
-SpeechRecognition==3.10.0
+SpeechRecognition==3.10.4
 pydub==0.25.1
 googlemaps==4.10.0
 geopy==2.4.1
