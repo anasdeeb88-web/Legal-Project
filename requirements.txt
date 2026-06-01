@@ -1,7 +1,9 @@
 Django==5.2.8
+psycopg2-binary==2.9.10
 openai==1.59.5
 pinecone-client==5.0.1
 PyPDF2==3.0.1
+pymupdf>=1.23.0
 python-dotenv==1.0.0
 gunicorn==21.2.0
 pytest-django==4.7.0 

@@ -1,36 +1,291 @@
-{% extends "chatapp/base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>إرسال ملاحظة — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-{% block title %}إرسال ملاحظة{% endblock %}
+:root {
+  --navy:      #0b1628;
+  --navy-2:    #111f38;
+  --gold:      #b8965a;
+  --gold-lt:   #d4b07a;
+  --gold-dim:  rgba(184,150,90,0.14);
+  --gold-line: rgba(184,150,90,0.28);
+  --white:     #ffffff;
+  --page-bg:   #f1f3f8;
+  --ink:       #1a1a2a;
+  --ink-2:     #3d3d52;
+  --ink-3:     #7a7a94;
+  --border:    rgba(0,0,0,.08);
+  --border-2:  rgba(0,0,0,.13);
+  --danger:    #dc2626;
+}
 
-{% block content %}
-<div class="container" style="max-width: 600px;">
-    <div class="page-header">
-        <h1>إرسال ملاحظة للإدارة</h1>
+html { scroll-behavior: smooth; }
+body { font-family: 'Tajawal', sans-serif; background: var(--page-bg); color: var(--ink); min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* ══ NAVBAR ══ */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--navy); border-bottom: 1px solid rgba(184,150,90,.18); transition: box-shadow .3s; }
+.navbar.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.35); }
+.nav-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.nav-emblem { width: 36px; height: 36px; border-radius: 9px; background: var(--gold-dim); border: 1px solid var(--gold-line); display: flex; align-items: center; justify-content: center; }
+.nav-emblem svg { width: 18px; height: 18px; }
+.nav-brand-text { font-family: 'Amiri', serif; font-size: 15px; color: var(--gold-lt); line-height: 1; }
+.nav-links { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+.nav-link { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); text-decoration: none; padding: 7px 14px; border-radius: 8px; transition: background .2s, color .2s; white-space: nowrap; }
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,.08); color: #fff; }
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.user-menu { position: relative; }
+.user-btn { display: flex; align-items: center; gap: 9px; background: none; border: 1.5px solid var(--gold-line); border-radius: 10px; padding: 6px 14px 6px 10px; cursor: pointer; color: var(--gold-lt); font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600; transition: background .2s; }
+.user-btn:hover { background: var(--gold-dim); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #8a6d38, var(--gold)); color: #1a0f00; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chevron { font-size: 10px; color: rgba(255,255,255,.4); margin-right: 2px; transition: transform .2s; }
+.user-menu.open .chevron { transform: rotate(180deg); }
+.user-dropdown { position: absolute; top: calc(100% + 8px); left: 0; background: var(--navy-2); border: 1px solid var(--gold-line); border-radius: 12px; min-width: 180px; box-shadow: 0 16px 40px rgba(0,0,0,.4); overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: all .2s; z-index: 200; }
+.user-menu.open .user-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.user-dropdown a, .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 11px 16px; text-decoration: none; color: rgba(255,255,255,.8); font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 500; transition: background .15s, color .15s; border: none; background: none; width: 100%; cursor: pointer; text-align: right; }
+.user-dropdown a:hover, .user-dropdown button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.dropdown-divider { height: 1px; background: var(--gold-line); margin: 4px 0; }
+.hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; background: none; border: none; padding: 6px; cursor: pointer; width: 36px; height: 36px; }
+.hamburger span { display: block; height: 2px; background: var(--gold-lt); border-radius: 2px; transition: all .25s; }
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.mobile-nav { display: none; flex-direction: column; background: var(--navy-2); border-top: 1px solid var(--gold-line); padding: 12px 0; }
+.mobile-nav.open { display: flex; }
+.mobile-link { padding: 12px 24px; color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .15s; border: none; background: none; font-family: 'Tajawal', sans-serif; cursor: pointer; text-align: right; width: 100%; display: flex; align-items: center; gap: 8px; }
+.mobile-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.mobile-divider { height: 1px; background: var(--gold-line); margin: 6px 24px; }
+@media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } }
+
+/* ══ PAGE ══ */
+.page-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px 60px; }
+
+.page-header { text-align: center; margin-bottom: 28px; }
+.page-header h1 { font-family: 'Amiri', serif; font-size: 32px; font-weight: 700; color: var(--navy); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.page-header p { font-size: 14px; color: var(--ink-3); line-height: 1.7; }
+
+/* Banner */
+#form-banner { display: none; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 600; width: 100%; }
+
+/* Card */
+.form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 18px; padding: 32px 32px 28px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+  width: 100%; max-width: 700px;
+}
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+.fg { margin-bottom: 20px; }
+.fg label { display: block; font-size: 13.5px; font-weight: 700; color: var(--ink-2); margin-bottom: 8px; }
+.fg label span { color: var(--danger); }
+.fg-input, .fg-select, .fg-textarea {
+  width: 100%; background: #f8f9fc; border: 1.5px solid rgba(0,0,0,.1);
+  border-radius: 12px; padding: 11px 15px;
+  font-size: 14px; color: var(--ink); font-family: 'Tajawal', sans-serif;
+  outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.fg-input:focus, .fg-select:focus, .fg-textarea:focus {
+  border-color: var(--gold); background: #fff;
+  box-shadow: 0 0 0 4px rgba(184,150,90,.1);
+}
+.fg-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='.5.5l5 5 5-5' stroke='%237a7a94' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 12px center; padding-left: 32px; -webkit-appearance: none; }
+.fg-textarea { resize: vertical; min-height: 180px; line-height: 1.7; }
+.fg-hint { font-size: 12px; color: var(--ink-3); margin-top: 5px; text-align: left; }
+
+.form-footer { display: flex; gap: 12px; align-items: center; justify-content: flex-start; margin-top: 4px; }
+.btn-submit {
+  padding: 12px 32px; border-radius: 12px;
+  background: linear-gradient(135deg, #7a5e2a, var(--gold), var(--gold-lt));
+  border: none; color: #1a0f00; font-size: 15px; font-weight: 800;
+  font-family: 'Tajawal', sans-serif; cursor: pointer;
+  box-shadow: 0 4px 18px rgba(184,150,90,.38); transition: box-shadow .25s, transform .2s;
+}
+.btn-submit:hover { box-shadow: 0 8px 28px rgba(184,150,90,.55); transform: translateY(-1px); }
+.btn-submit:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-cancel {
+  padding: 11px 24px; border-radius: 12px;
+  border: 1.5px solid rgba(0,0,0,.12); background: none;
+  color: var(--ink-3); font-size: 14px; font-weight: 600;
+  font-family: 'Tajawal', sans-serif; cursor: pointer; text-decoration: none;
+  transition: all .2s; display: inline-flex; align-items: center;
+}
+.btn-cancel:hover { background: var(--page-bg); border-color: var(--navy); color: var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'index' %}" class="nav-brand">
+      <div class="nav-emblem">
+        <svg viewBox="0 0 28 28" fill="none"><path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/><path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="nav-brand-text">المستشار القانوني السوري</span>
+    </a>
+    <div class="nav-links">
+      <a href="{% url 'index' %}" class="nav-link">الرئيسية</a>
+      <a href="{% url 'chat_new' %}" class="nav-link">المستشار الذكي</a>
+      <a href="{% url 'lawyers_list' %}" class="nav-link">دليل المحامين</a>
+      <a href="{% url 'lawyers_map' %}" class="nav-link">خريطة المحامين</a>
+      <a href="{% url 'lawyer_dashboard' %}" class="nav-link">لوحتي</a>
     </div>
-
-    <form method="post" class="card" style="padding: 2rem;">
-        {% csrf_token %}
-
-        <div style="margin: 1rem 0;">
-            <label>الموضوع:</label>
-            <input type="text" name="subject" placeholder="موضوع الملاحظة" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+    <div class="nav-actions">
+      {% if request.user.is_authenticated %}
+      <div class="user-menu" id="userMenu">
+        <button class="user-btn" onclick="toggleUserMenu(event)">
+          <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+          <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="user-dropdown">
+          <a href="{% url 'lawyer_profile_edit' %}">💬 إرسال ملاحظة</a>
+          <div class="dropdown-divider"></div>
+          <form method="post" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}<button type="submit">🚪 تسجيل الخروج</button>
+          </form>
         </div>
-
-        <div style="margin: 1rem 0;">
-            <label>الرسالة:</label>
-            <textarea name="message" placeholder="اكتب ملاحظتك..." required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px; min-height: 150px;"></textarea>
-        </div>
-
-        <div style="margin: 1rem 0;">
-            <label>إضافة صوت (اختياري):</label>
-            <input type="file" name="audio_file" accept="audio/*" style="width: 100%;">
-        </div>
-
-        <div style="margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">إرسال</button>
-            <a href="{% url 'index' %}" class="btn btn-outline">إلغاء</a>
-        </div>
+      </div>
+      {% endif %}
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="{% url 'index' %}" class="mobile-link">🏠 الرئيسية</a>
+    <a href="{% url 'lawyer_dashboard' %}" class="mobile-link">⚖️ لوحتي</a>
+    <a href="{% url 'lawyer_consultations' %}" class="mobile-link">📋 استشارات العملاء</a>
+    <a href="{% url 'lawyer_profile_edit' %}" class="mobile-link">👤 تعديل الملف الشخصي</a>
+    <div class="mobile-divider"></div>
+    <form method="post" action="{% url 'logout' %}" style="margin:0;">
+      {% csrf_token %}<button type="submit" class="mobile-link">🚪 تسجيل الخروج</button>
     </form>
+  </div>
+</nav>
+
+<!-- ══ PAGE ══ -->
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>💬 إرسال ملاحظة</h1>
+    <p>آراؤكم تساعدنا في تحسين الخدمة — سنراجع ملاحظتك في أقرب وقت</p>
+  </div>
+
+  <div id="form-banner"></div>
+
+  <div class="form-card">
+    <form id="lawyer-feedback-form">
+      {% csrf_token %}
+
+      <div class="form-grid">
+        <div class="fg" style="margin-bottom:0;">
+          <label>نوع الملاحظة <span>*</span></label>
+          <select name="feedback_type" class="fg-select">
+            <option value="bug">مشكلة تقنية</option>
+            <option value="suggestion">اقتراح</option>
+            <option value="complaint">شكوى</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:0;">
+          <label>الموضوع <span>*</span></label>
+          <input type="text" name="subject" class="fg-input" required placeholder="عنوان مختصر للملاحظة">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>الرسالة <span>*</span></label>
+        <textarea name="message" class="fg-textarea" required placeholder="اشرح ملاحظتك بوضوح وتفصيل..."></textarea>
+        <div class="fg-hint" id="char-hint">الحد الأقصى: 2000 حرف</div>
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" id="submit-btn" class="btn-submit">إرسال الملاحظة</button>
+        <a href="{% url 'lawyer_dashboard' %}" class="btn-cancel">إلغاء</a>
+      </div>
+    </form>
+  </div>
+
 </div>
-{% endblock %}
+
+<script>
+/* ── Navbar ── */
+window.addEventListener('scroll', function() {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+});
+function toggleUserMenu(e) {
+  e.stopPropagation();
+  document.getElementById('userMenu').classList.toggle('open');
+}
+document.addEventListener('click', function() {
+  var m = document.getElementById('userMenu');
+  if (m) m.classList.remove('open');
+});
+function toggleMobileMenu() {
+  document.getElementById('hamburger').classList.toggle('active');
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+
+/* ── Form submit ── */
+document.getElementById('lawyer-feedback-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const banner   = document.getElementById('form-banner');
+  const btn      = document.getElementById('submit-btn');
+  const formData = new FormData(this);
+
+  btn.disabled = true;
+  btn.textContent = 'جارٍ الإرسال…';
+  banner.style.display = 'none';
+
+  try {
+    const response = await fetch(window.location.pathname, {
+      method: 'POST', body: formData,
+      headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      banner.style.cssText = 'display:block;background:rgba(22,163,74,.08);color:#15803d;border:1px solid rgba(22,163,74,.2);padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:14px;font-weight:600;';
+      banner.textContent = '✓ ' + data.message;
+      this.reset();
+      setTimeout(() => { window.location.href = '{% url "lawyer_dashboard" %}'; }, 1800);
+    } else {
+      banner.style.cssText = 'display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:14px;font-weight:600;';
+      banner.textContent = '✗ ' + (data.error || 'حدث خطأ، يرجى المحاولة مجدداً');
+      btn.disabled = false;
+      btn.textContent = 'إرسال الملاحظة';
+    }
+  } catch {
+    banner.style.cssText = 'display:block;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:12px 18px;border-radius:10px;margin-bottom:20px;font-size:14px;font-weight:600;';
+    banner.textContent = '✗ حدث خطأ في الاتصال، يرجى المحاولة مجدداً';
+    btn.disabled = false;
+    btn.textContent = 'إرسال الملاحظة';
+  }
+});
+
+/* ── Character counter ── */
+document.querySelector('[name="message"]').addEventListener('input', function() {
+  const hint = document.getElementById('char-hint');
+  const remaining = 2000 - this.value.length;
+  if (remaining < 200) {
+    hint.textContent = remaining + ' حرف متبقٍ';
+    hint.style.color = remaining < 50 ? '#dc2626' : '#7a7a94';
+  } else {
+    hint.textContent = 'الحد الأقصى: 2000 حرف';
+    hint.style.color = '#7a7a94';
+  }
+});
+</script>
+</body>
+</html>

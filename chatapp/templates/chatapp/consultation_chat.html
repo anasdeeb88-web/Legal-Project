@@ -1,0 +1,489 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طلب استشارة — {{ lawyer_profile.user.get_full_name|default:lawyer_profile.user.username }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy:    #0b1628; --navy-2:  #111f38; --navy-3: #1a2e4a;
+  --gold:    #b8965a; --gold-lt: #d4b07a;
+  --gold-dim: rgba(184,150,90,.13); --gold-ln: rgba(184,150,90,.28);
+  --bg:      #eef0f6; --white:   #fff;
+  --ink:     #1a1a2a; --ink-2:   #3d3d52; --ink-3: #7a7a94;
+  --border:  rgba(0,0,0,.08);
+  --success: #16a34a;
+  --user-bubble: linear-gradient(135deg, #0b1628, #1a2e4a);
+}
+html { height: 100%; }
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+
+/* ── Navbar ── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--navy);
+  border-bottom: 1px solid var(--gold-ln);
+  box-shadow: 0 2px 16px rgba(0,0,0,.3);
+  flex-shrink: 0;
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 24px; height: 60px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-emblem {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--gold-dim); border: 1px solid var(--gold-ln);
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-brand-text { font-family: 'Amiri', serif; font-size: 14px; color: var(--gold-lt); }
+.nav-back {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 13px; border-radius: 8px;
+  border: 1.5px solid var(--gold-ln); color: var(--gold-lt);
+  font-size: 13px; font-weight: 600; transition: background .2s;
+}
+.nav-back:hover { background: var(--gold-dim); }
+
+/* ── Layout ── */
+.chat-layout {
+  flex: 1; display: flex; flex-direction: column;
+  max-width: 780px; width: 100%;
+  margin: 0 auto; padding: 24px 20px 32px;
+  gap: 16px;
+}
+
+/* ── Lawyer card ── */
+.lawyer-card {
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(0,0,0,.07);
+  padding: 18px 20px;
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.lc-avatar {
+  width: 54px; height: 54px; border-radius: 14px; flex-shrink: 0;
+  background: var(--navy); border: 2px solid var(--gold-ln);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Amiri', serif; font-size: 22px; color: var(--gold-lt);
+  overflow: hidden;
+}
+.lc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.lc-info { flex: 1; min-width: 0; }
+.lc-name { font-family: 'Amiri', serif; font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+.lc-badges { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.lc-spec {
+  padding: 3px 10px; border-radius: 6px;
+  background: var(--navy); color: var(--gold-lt);
+  font-size: 11.5px; font-weight: 700;
+}
+.lc-avail {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--success); font-weight: 600;
+}
+.avail-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.lc-rating { font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 3px; }
+.star-g { color: #f59e0b; font-size: 12px; }
+.lc-fee { font-size: 12px; color: var(--success); font-weight: 700; }
+.lc-action {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 9px;
+  border: 1.5px solid rgba(0,0,0,.12); color: var(--ink-2);
+  font-size: 13px; font-weight: 600; transition: background .2s;
+}
+.lc-action:hover { background: var(--bg); }
+
+/* ── Chat container ── */
+.chat-box {
+  background: var(--white); border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 14px rgba(0,0,0,.08);
+  display: flex; flex-direction: column;
+  overflow: hidden; min-height: 500px;
+}
+
+/* Chat header */
+.chat-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-3) 100%);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--gold-ln);
+}
+.ch-av {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-dim); border: 1.5px solid var(--gold-ln);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--gold-lt); font-weight: 800;
+  overflow: hidden;
+}
+.ch-av img { width: 100%; height: 100%; object-fit: cover; }
+.ch-info { flex: 1; }
+.ch-name { font-size: 14px; font-weight: 800; color: #fff; margin-bottom: 1px; }
+.ch-sub  { font-size: 11.5px; color: rgba(255,255,255,.45); }
+.ch-status { display: flex; align-items: center; gap: 5px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+.status-txt { font-size: 12px; color: #4ade80; font-weight: 600; }
+
+/* Messages area */
+.chat-messages {
+  flex: 1; padding: 28px 22px;
+  background: #f9fafb;
+  display: flex; flex-direction: column;
+  gap: 0; overflow-y: auto;
+  min-height: 260px;
+}
+
+/* Hint (empty) */
+.chat-hint {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 24px; gap: 12px;
+}
+.hint-icon {
+  width: 60px; height: 60px; border-radius: 18px;
+  background: var(--gold-dim); border: 1px solid var(--gold-ln);
+  display: flex; align-items: center; justify-content: center; font-size: 28px;
+}
+.hint-title { font-size: 15px; font-weight: 800; color: var(--navy); }
+.hint-sub   { font-size: 13px; color: var(--ink-3); line-height: 1.65; max-width: 360px; }
+
+/* Message bubble */
+.msg-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 18px; }
+.msg-row.outgoing { flex-direction: row-reverse; }
+.msg-av-sm {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800;
+}
+.msg-av-sm.u { background: rgba(99,102,241,.12); color: #4f46e5; }
+.msg-av-sm.l { background: var(--gold-dim); color: var(--gold); }
+.msg-content { max-width: 72%; display: flex; flex-direction: column; }
+.msg-row.outgoing .msg-content { align-items: flex-end; }
+.bubble-out {
+  background: var(--user-bubble); color: #fff;
+  padding: 12px 16px; border-radius: 18px 4px 18px 18px;
+  font-size: 14px; line-height: 1.7;
+}
+.bubble-title {
+  font-size: 11px; color: rgba(255,255,255,.55);
+  font-weight: 700; margin-bottom: 5px; display: block;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.msg-time-out { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+.msg-row.outgoing .msg-time-out { text-align: left; }
+.check-mark { color: var(--gold-lt); margin-right: 3px; font-size: 12px; }
+
+/* Success banner */
+.success-strip {
+  display: none;
+  margin: 0 18px 14px;
+  align-items: center; gap: 12px;
+  background: rgba(22,163,74,.07);
+  border: 1px solid rgba(22,163,74,.22);
+  border-radius: 12px; padding: 12px 16px;
+  animation: fadein .4s ease;
+}
+.success-strip.show { display: flex; }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.ss-icon { font-size: 20px; flex-shrink: 0; }
+.ss-text strong { display: block; font-size: 13.5px; font-weight: 800; color: var(--success); margin-bottom: 2px; }
+.ss-text span   { font-size: 12.5px; color: var(--ink-3); }
+
+/* Input area */
+.chat-input {
+  border-top: 1px solid var(--border);
+  background: var(--white); padding: 16px 18px;
+}
+.input-subject {
+  width: 100%; padding: 9px 13px; border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,.1);
+  font-family: 'Tajawal', sans-serif; font-size: 14px; color: var(--ink);
+  background: #fafafa; outline: none; transition: border-color .2s;
+  margin-bottom: 10px;
+}
+.input-subject:focus { border-color: var(--navy); background: #fff; }
+.input-subject::placeholder { color: var(--ink-3); }
+.input-row  { display: flex; align-items: flex-end; gap: 10px; }
+.input-msg {
+  flex: 1; padding: 11px 14px; border-radius: 14px;
+  border: 1.5px solid rgba(0,0,0,.1);
+  font-family: 'Tajawal', sans-serif; font-size: 14px; color: var(--ink);
+  background: #fafafa; resize: none; outline: none;
+  min-height: 54px; max-height: 130px; line-height: 1.65;
+  transition: border-color .2s;
+}
+.input-msg:focus { border-color: var(--navy); background: #fff; }
+.input-msg::placeholder { color: var(--ink-3); }
+.send-btn {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+  background: var(--navy); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 4px 14px rgba(11,22,40,.28);
+}
+.send-btn:hover  { background: var(--navy-2); box-shadow: 0 6px 20px rgba(11,22,40,.38); transform: translateY(-1px); }
+.send-btn:active { transform: translateY(0); }
+.send-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.input-hint { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+
+/* Post-send actions */
+.post-actions {
+  display: none; justify-content: center; gap: 10px; flex-wrap: wrap;
+  padding: 6px 20px 16px;
+}
+.post-actions.show { display: flex; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: 11px; border: none;
+  background: linear-gradient(135deg, #8a6d38, var(--gold));
+  color: #1a0f00; font-size: 14px; font-weight: 800;
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  transition: box-shadow .2s; box-shadow: 0 4px 14px rgba(184,150,90,.3);
+}
+.btn-primary:hover { box-shadow: 0 6px 20px rgba(184,150,90,.45); }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 11px;
+  border: 1.5px solid rgba(0,0,0,.13); background: none;
+  color: var(--ink-2); font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'Tajawal', sans-serif;
+  transition: background .2s;
+}
+.btn-outline:hover { background: var(--bg); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .chat-layout { padding: 14px 12px 24px; gap: 12px; }
+  .lawyer-card { padding: 14px 16px; gap: 12px; }
+  .lc-action { display: none; }
+  .chat-box { min-height: 420px; }
+  .chat-messages { padding: 20px 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'index' %}" class="nav-brand">
+      <div class="nav-emblem">
+        <svg viewBox="0 0 28 28" fill="none" width="17" height="17">
+          <path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/>
+          <path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="nav-brand-text">المستشار القانوني السوري</span>
+    </a>
+    <a href="{% url 'lawyers_list' %}" class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" width="14" height="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      دليل المحامين
+    </a>
+  </div>
+</nav>
+
+<div class="chat-layout">
+
+  <!-- Lawyer info -->
+  <div class="lawyer-card">
+    <div class="lc-avatar">
+      {% if lawyer_profile.user.profile.avatar %}
+        <img src="{{ lawyer_profile.user.profile.avatar.url }}" alt="">
+      {% else %}⚖️{% endif %}
+    </div>
+    <div class="lc-info">
+      <div class="lc-name">{{ lawyer_profile.user.get_full_name|default:lawyer_profile.user.username }}</div>
+      <div class="lc-badges">
+        <span class="lc-spec">{{ lawyer_profile.get_specialization_display }}</span>
+        {% if lawyer_profile.is_available %}
+          <span class="lc-avail"><span class="avail-dot"></span>متاح الآن</span>
+        {% endif %}
+        <span class="lc-rating">
+          <span class="star-g">★</span>
+          {{ lawyer_profile.rating|floatformat:1 }} ({{ lawyer_profile.total_reviews }})
+        </span>
+      </div>
+    </div>
+    <a href="{% url 'lawyer_detail' lawyer_profile.id %}" class="lc-action">عرض الملف الكامل ←</a>
+  </div>
+
+  <!-- Chat -->
+  <div class="chat-box">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="ch-av">
+        {% if lawyer_profile.user.profile.avatar %}
+          <img src="{{ lawyer_profile.user.profile.avatar.url }}" alt="">
+        {% else %}{{ lawyer_profile.user.first_name|first|default:lawyer_profile.user.username|first }}{% endif %}
+      </div>
+      <div class="ch-info">
+        <div class="ch-name">{{ lawyer_profile.user.get_full_name|default:lawyer_profile.user.username }}</div>
+        <div class="ch-sub">{{ lawyer_profile.get_specialization_display }} · {{ lawyer_profile.experience_years }} سنة خبرة</div>
+      </div>
+      {% if lawyer_profile.is_available %}
+      <div class="ch-status">
+        <span class="status-dot"></span>
+        <span class="status-txt">متاح</span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMsgs">
+      <div class="chat-hint" id="chatHint">
+        <div class="hint-icon">💬</div>
+        <div class="hint-title">ابدأ استشارتك القانونية</div>
+        <div class="hint-sub">اكتب طلبك بوضوح وسيتواصل معك المحامي في أقرب وقت ممكن. يُسمح بإرسال رسالة واحدة.</div>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div class="success-strip" id="successStrip">
+      <span class="ss-icon">✅</span>
+      <div class="ss-text">
+        <strong>تم إرسال استشارتك بنجاح!</strong>
+        <span>سيردّ عليك المحامي في أقرب وقت. يمكنك متابعة استشاراتك من ملفك الشخصي.</span>
+      </div>
+    </div>
+
+    <!-- Post-send actions -->
+    <div class="post-actions" id="postActions">
+      <a href="{% url 'my_consultations' %}" class="btn-primary">📋 متابعة استشاراتي</a>
+      <a href="{% url 'lawyers_list' %}" class="btn-outline">← العودة للدليل</a>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input" id="inputArea">
+      <input type="text" id="msgTitle" class="input-subject"
+             placeholder="عنوان الاستشارة (مثال: نزاع عقاري، قضية أسرية...)" maxlength="120">
+      <div class="input-row">
+        <textarea id="msgText" class="input-msg" rows="2"
+                  placeholder="اشرح وضعك القانوني بتفصيل كافٍ لضمان أفضل رد من المحامي..."></textarea>
+        <button class="send-btn" id="sendBtn" onclick="doSend()" title="إرسال (Ctrl+Enter)">
+          <svg viewBox="0 0 24 24" fill="none" width="20" height="20" stroke="#d4b07a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2" fill="rgba(212,176,122,.18)" stroke="#d4b07a"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">سيصل طلبك مباشرة إلى المحامي · Ctrl+Enter للإرسال</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const CONSULT_URL = "{% url 'request_consultation' lawyer_profile.id %}";
+const CSRF = "{{ csrf_token }}";
+const USER_INITIAL = "{{ request.user.first_name|first|default:request.user.username|first|upper }}";
+
+async function doSend() {
+  const title = document.getElementById('msgTitle').value.trim();
+  const text  = document.getElementById('msgText').value.trim();
+  if (!title) { document.getElementById('msgTitle').focus(); shake('msgTitle'); return; }
+  if (!text)  { document.getElementById('msgText').focus(); shake('msgText');  return; }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" width="18" height="18" stroke="#d4b07a" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+  const fd = new FormData();
+  fd.append('title', title);
+  fd.append('description', text);
+  fd.append('csrfmiddlewaretoken', CSRF);
+
+  try {
+    const r    = await fetch(CONSULT_URL, { method: 'POST', body: fd });
+    const data = await r.json();
+
+    if (data.success) {
+      const hint = document.getElementById('chatHint');
+      hint.style.display = 'none';
+
+      const msgs = document.getElementById('chatMsgs');
+      const now  = new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
+      msgs.insertAdjacentHTML('beforeend', `
+        <div class="msg-row outgoing">
+          <div class="msg-av-sm u">${USER_INITIAL}</div>
+          <div class="msg-content">
+            <div class="bubble-out">
+              <span class="bubble-title">${esc(title)}</span>
+              ${esc(text).replace(/\n/g,'<br>')}
+            </div>
+            <div class="msg-time-out">${now} <span class="check-mark">✓✓</span></div>
+          </div>
+        </div>
+      `);
+      msgs.scrollTop = msgs.scrollHeight;
+
+      document.getElementById('inputArea').style.display   = 'none';
+      document.getElementById('successStrip').classList.add('show');
+      document.getElementById('postActions').classList.add('show');
+    } else {
+      showError(data.error || 'حدث خطأ');
+      btn.disabled = false;
+      resetBtn(btn);
+    }
+  } catch(e) {
+    showError('خطأ في الاتصال بالخادم');
+    btn.disabled = false;
+    resetBtn(btn);
+  }
+}
+
+function resetBtn(btn) {
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" width="20" height="20" stroke="#d4b07a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="rgba(212,176,122,.18)" stroke="#d4b07a"/></svg>`;
+}
+
+function esc(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function shake(id) {
+  const el = document.getElementById(id);
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.borderColor = '#ef4444';
+  setTimeout(() => el.style.borderColor = '', 1800);
+}
+
+function showError(msg) {
+  let box = document.getElementById('errBox');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'errBox';
+    box.style.cssText = 'padding:10px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:13px;color:#b91c1c;margin:0 18px 10px;';
+    document.getElementById('inputArea').before(box);
+  }
+  box.textContent = '❌ ' + msg;
+  box.style.display = 'block';
+  setTimeout(() => box.style.display = 'none', 4000);
+}
+
+document.getElementById('msgText').addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'Enter') doSend();
+});
+
+// Auto-resize textarea
+document.getElementById('msgText').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+});
+</script>
+</body>
+</html>

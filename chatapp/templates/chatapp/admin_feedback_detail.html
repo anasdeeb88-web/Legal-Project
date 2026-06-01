@@ -1,157 +1,111 @@
-{% extends "chatapp/base.html" %}
+{% extends "chatapp/admin_base.html" %}
 {% load static %}
-{% block title %}تفاصيل الملاحظة — {{ feedback.subject }}{% endblock %}
+{% block title %}{{ feedback.subject }}{% endblock %}
+{% block page_title %}الملاحظات{% endblock %}
+
 {% block extra_css %}
 <style>
-.admin-layout { display:flex; min-height:calc(100vh - 64px); }
-.admin-sidebar { width:220px; background:#1a1a2e; flex-shrink:0; padding:24px 0; position:sticky; top:64px; height:calc(100vh - 64px); overflow-y:auto; }
-.admin-nav-section { margin-bottom:24px; }
-.admin-nav-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#4a5568; padding:0 20px; margin-bottom:8px; display:block; }
-.admin-nav-link { display:flex; align-items:center; gap:10px; padding:9px 20px; color:#94a3b8; text-decoration:none; font-size:13px; font-weight:500; transition:all .15s; margin-bottom:2px; }
-.admin-nav-link:hover { background:rgba(255,255,255,.08); color:white; }
-.admin-nav-link.active { background:rgba(59,130,246,.2); color:#60a5fa; }
-.admin-content { flex:1; padding:28px; background:var(--surface-2); min-width:0; }
-.admin-page-header { margin-bottom:24px; }
-.admin-page-header h1 { font-size:20px; font-weight:800; color:#1a1a2e; }
-.admin-page-header p  { font-size:14px; color:#64748b; margin-top:4px; }
-
-/* ─── Detail Card ─── */
 .detail-card {
-    background:white; border-radius:14px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #f0f0f0;
-    overflow:hidden; margin-bottom:20px;
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  overflow: hidden; margin-bottom: 20px;
 }
-.detail-card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; display:flex; align-items:center; gap:14px; }
-.detail-card-header h3 { font-size:15px; font-weight:700; color:#1a1a2e; flex:1; }
-.detail-card-body { padding:24px; }
-.feedback-meta { font-size:13px; color:#94a3b8; margin-bottom:16px; }
-.feedback-body { font-size:15px; color:#374151; line-height:1.75; }
+.detail-card-head { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.detail-card-head h3 { font-size: 15px; font-weight: 800; color: var(--navy); flex: 1; }
+.detail-card-body { padding: 24px; }
+.fb-body { font-size: 15px; color: var(--text); line-height: 1.75; }
 
-/* ─── Response Box ─── */
 .response-box {
-    background:#f0fdf4; border:1.5px solid #bbf7d0;
-    border-radius:12px; padding:18px 20px; margin-top:20px;
+  background: #f0fdf4; border: 1.5px solid #bbf7d0;
+  border-radius: 12px; padding: 18px 20px; margin-top: 20px;
 }
-.response-box .rb-label { font-size:12px; font-weight:700; color:#059669; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
-.response-box p { font-size:14px; color:#374151; line-height:1.7; }
+.rb-label { font-size: 11px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+.response-box p { font-size: 14px; color: var(--text); line-height: 1.7; }
 
-/* ─── Reply Form ─── */
 .reply-card {
-    background:white; border-radius:14px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #f0f0f0;
-    overflow:hidden;
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden;
 }
-.reply-card-header { padding:18px 24px; border-bottom:1px solid #f0f0f0; }
-.reply-card-header h3 { font-size:15px; font-weight:700; color:#1a1a2e; }
-.reply-card-body { padding:24px; }
-.form-group { margin-bottom:16px; }
-.form-group label { display:block; font-size:13px; font-weight:600; color:#374151; margin-bottom:6px; }
-.form-group textarea {
-    width:100%; padding:12px 14px;
-    border:1.5px solid #e0e0e0; border-radius:10px;
-    font-size:14px; font-family:inherit; color:#1a1a2e;
-    background:#fafafa; outline:none; resize:vertical; min-height:140px;
-    transition:border-color .2s;
+.reply-card-head { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+.reply-card-head h3 { font-size: 15px; font-weight: 800; color: var(--navy); }
+.reply-card-body { padding: 24px; }
+.rform-group { margin-bottom: 16px; }
+.rform-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-2); margin-bottom: 6px; }
+.rform-group textarea {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--border-2); border-radius: 10px;
+  font-size: 14px; font-family: inherit; color: var(--text);
+  background: #fafafa; outline: none; resize: vertical; min-height: 140px;
+  transition: border-color .2s;
 }
-.form-group textarea:focus { border-color:#007bff; background:var(--surface); box-shadow:0 0 0 3px rgba(0,123,255,.1); }
-.checkbox-row {
-    display:flex; align-items:center; gap:10px;
-    padding:12px 14px; background:var(--surface-2);
-    border:1.5px solid #e0e0e0; border-radius:10px; cursor:pointer;
+.rform-group textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11,22,40,.07); background: var(--white); }
+.chk-resolve {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; background: #f8fafc;
+  border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer;
+  margin-bottom: 16px;
 }
-.checkbox-row input { width:17px; height:17px; cursor:pointer; }
-.checkbox-row label { margin:0; cursor:pointer; font-size:14px; font-weight:600; color:#374151; }
-.form-actions { display:flex; gap:10px; padding-top:16px; border-top:1px solid #f0f0f0; margin-top:4px; }
-
-/* badge */
-.badge-pill { display:inline-block; padding:4px 12px; border-radius:14px; font-size:11px; font-weight:700; }
-.badge-new      { background:#fef3c7; color:#92400e; }
-.badge-resolved { background:#d1fae5; color:#065f46; }
-.badge-pending  { background:#dbeafe; color:#1e40af; }
-
-@media(max-width:900px) { .admin-layout{flex-direction:column;} .admin-sidebar{width:100%;height:auto;position:static;} .admin-content{padding:16px;} }
+.chk-resolve input { width: 17px; height: 17px; cursor: pointer; accent-color: var(--navy); }
+.chk-resolve span { font-size: 14px; font-weight: 600; color: var(--text); }
+.form-actions { display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--border); }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="admin-layout">
+<div class="adm-ph">
+  <h1>{{ feedback.subject }}</h1>
+  <p>
+    من: {{ feedback.user.get_full_name|default:feedback.user.username }}
+    &nbsp;·&nbsp; {{ feedback.created_at|date:"d/m/Y H:i" }}
+    &nbsp;·&nbsp;
+    <span class="bdg {% if feedback.is_resolved %}bdg-ok{% elif feedback.is_read %}bdg-info{% else %}bdg-new{% endif %}">
+      {% if feedback.is_resolved %}✓ تم الحل{% elif feedback.is_read %}قيد المراجعة{% else %}جديد{% endif %}
+    </span>
+  </p>
+</div>
 
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">الرئيسي</span>
-            <a href="{% url 'admin_dashboard' %}" class="admin-nav-link">🏠 لوحة التحكم</a>
-            <a href="{% url 'admin_statistics' %}" class="admin-nav-link">📊 الإحصائيات</a>
-        </div>
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">إدارة</span>
-            <a href="{% url 'admin_lawyers' %}" class="admin-nav-link">👨‍⚖️ المحامون</a>
-            <a href="{% url 'admin_feedbacks' %}" class="admin-nav-link active">💬 الملاحظات</a>
-            <a href="{% url 'admin_documents' %}" class="admin-nav-link">📄 قاعدة البيانات</a>
-        </div>
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">النظام</span>
-            <a href="{% url 'admin:index' %}" class="admin-nav-link">🔧 Django Admin</a>
-            <a href="{% url 'index' %}" class="admin-nav-link">🌐 الموقع</a>
-        </div>
-    </aside>
+<!-- الملاحظة -->
+<div class="detail-card">
+  <div class="detail-card-head">
+    <h3>
+      {% if feedback.feedback_type == 'bug' %}🐛 مشكلة تقنية
+      {% elif feedback.feedback_type == 'suggestion' %}💡 اقتراح
+      {% elif feedback.feedback_type == 'complaint' %}⚠️ شكوى
+      {% else %}📝 ملاحظة{% endif %}
+    </h3>
+  </div>
+  <div class="detail-card-body">
+    <p class="fb-body">{{ feedback.message }}</p>
+    {% if feedback.admin_response %}
+    <div class="response-box">
+      <div class="rb-label">✅ الرد الإداري</div>
+      <p>{{ feedback.admin_response }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
 
-    <main class="admin-content">
-        <div class="admin-page-header">
-            <h1>{{ feedback.subject }}</h1>
-            <p>
-                من: {{ feedback.user.get_full_name|default:feedback.user.username }}
-                &nbsp;·&nbsp; {{ feedback.created_at|date:"d/m/Y H:i" }}
-                &nbsp;·&nbsp;
-                <span class="badge-pill {% if feedback.is_resolved %}badge-resolved{% elif feedback.is_read %}badge-pending{% else %}badge-new{% endif %}">
-                    {% if feedback.is_resolved %}✓ تم الحل{% elif feedback.is_read %}قيد المراجعة{% else %}جديد{% endif %}
-                </span>
-            </p>
-        </div>
-
-        <!-- الملاحظة -->
-        <div class="detail-card">
-            <div class="detail-card-header">
-                <h3>
-                    {% if feedback.feedback_type == 'bug' %}🐛 مشكلة تقنية
-                    {% elif feedback.feedback_type == 'suggestion' %}💡 اقتراح
-                    {% elif feedback.feedback_type == 'complaint' %}⚠️ شكوى
-                    {% else %}📝 ملاحظة{% endif %}
-                </h3>
-            </div>
-            <div class="detail-card-body">
-                <p class="feedback-body">{{ feedback.message }}</p>
-                {% if feedback.admin_response %}
-                <div class="response-box">
-                    <div class="rb-label">✅ الرد الإداري</div>
-                    <p>{{ feedback.admin_response }}</p>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- نموذج الرد -->
-        <div class="reply-card">
-            <div class="reply-card-header">
-                <h3>✏️ {% if feedback.admin_response %}تعديل الرد{% else %}إضافة رد{% endif %}</h3>
-            </div>
-            <div class="reply-card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label>الرد على الملاحظة</label>
-                        <textarea name="admin_response" placeholder="اكتب ردك هنا...">{{ feedback.admin_response }}</textarea>
-                    </div>
-                    <label class="checkbox-row" style="margin-bottom:16px;">
-                        <input type="checkbox" name="mark_resolved" {% if feedback.is_resolved %}checked{% endif %}>
-                        <label>وضع علامة "تم الحل" على هذه الملاحظة</label>
-                    </label>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 حفظ الرد</button>
-                        <a href="{% url 'admin_feedbacks' %}" class="btn btn-outline">← العودة للقائمة</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </main>
+<!-- نموذج الرد -->
+<div class="reply-card">
+  <div class="reply-card-head">
+    <h3>✏️ {% if feedback.admin_response %}تعديل الرد{% else %}إضافة رد{% endif %}</h3>
+  </div>
+  <div class="reply-card-body">
+    <form method="get">
+      {% csrf_token %}
+      <div class="rform-group">
+        <label>الرد على الملاحظة</label>
+        <textarea name="admin_response" placeholder="اكتب ردك هنا...">{{ feedback.admin_response }}</textarea>
+      </div>
+      <label class="chk-resolve">
+        <input type="checkbox" name="mark_resolved" {% if feedback.is_resolved %}checked{% endif %}>
+        <span>وضع علامة "تم الحل" على هذه الملاحظة</span>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-navy">💾 حفظ الرد</button>
+        <a href="{% url 'admin_feedbacks' %}" class="btn btn-ghost">← العودة للقائمة</a>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}

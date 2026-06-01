@@ -1,0 +1,1188 @@
+{% extends "chatapp/admin_base.html" %}
+{% load static %}
+{% block title %}الوثائق الرسمية{% endblock %}
+{% block page_title %}الوثائق الرسمية{% endblock %}
+{% block extra_css %}
+<style>
+/* ─── Aliases for missing base vars ─── */
+:root {
+  --surface:      var(--white);
+  --surface-2:    var(--bg);
+  --text-muted:   var(--text-2);
+  --text-subtle:  var(--text-3);
+  --primary:      var(--navy);
+  --primary-dark: var(--navy-2);
+}
+
+/* ════════════════════════════════════
+   PAGE HEADER
+════════════════════════════════════ */
+.page-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 16px;
+  margin-bottom: 26px; flex-wrap: wrap;
+}
+.page-header-left h1 {
+  font-family: 'Amiri', serif;
+  font-size: 22px; font-weight: 800; color: var(--navy);
+  display: flex; align-items: center; gap: 10px;
+}
+.page-header-left p {
+  font-size: 13px; color: var(--text-3); margin-top: 4px;
+}
+.btn-add-doc {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: linear-gradient(135deg, #7a5e2a, var(--gold), var(--gold-lt));
+  color: #1a0f00; border: none; border-radius: 12px;
+  padding: 11px 22px; font-size: 14px; font-weight: 800;
+  font-family: 'Tajawal', sans-serif; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(184,150,90,.35);
+  transition: all .25s; white-space: nowrap;
+}
+.btn-add-doc:hover {
+  box-shadow: 0 6px 24px rgba(184,150,90,.5);
+  transform: translateY(-1px);
+}
+.btn-add-doc svg { width: 16px; height: 16px; }
+
+/* ════════════════════════════════════
+   STATS ROW
+════════════════════════════════════ */
+.stats-row {
+  display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap;
+}
+.stat-chip {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 22px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow-sm); flex: 1; min-width: 160px;
+}
+.stat-chip-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.sci-blue  { background: rgba(59,130,246,.1); }
+.sci-green { background: rgba(22,163,74,.1); }
+.sci-gold  { background: rgba(184,150,90,.1); }
+.stat-chip-val  { font-size: 26px; font-weight: 900; color: var(--navy); line-height: 1; }
+.stat-chip-lbl  { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+/* ════════════════════════════════════
+   CARDS GRID
+════════════════════════════════════ */
+.cats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.cat-card {
+  background: var(--white);
+  border-radius: 16px; border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+  display: flex; flex-direction: column;
+}
+.cat-card:hover {
+  box-shadow: 0 8px 28px rgba(11,22,40,.12);
+  transform: translateY(-2px);
+}
+
+.cat-card-stripe {
+  height: 5px; flex-shrink: 0;
+}
+
+.cat-card-head {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.cat-head-icon-wrap {
+  width: 50px; height: 50px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.cat-head-info { flex: 1; min-width: 0; }
+.cat-head-name {
+  font-size: 15px; font-weight: 800; color: var(--navy);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cat-head-desc {
+  font-size: 12px; color: var(--text-3); margin-top: 3px;
+  line-height: 1.5; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cat-head-meta { display: flex; align-items: center; gap: 7px; margin-top: 7px; flex-wrap: wrap; }
+.badge {
+  font-size: 11px; font-weight: 700; padding: 2px 10px;
+  border-radius: 10px; flex-shrink: 0;
+}
+.badge-blue   { background: rgba(59,130,246,.1);  color: #2563eb; }
+.badge-green  { background: rgba(22,163,74,.1);   color: #16a34a; }
+.badge-red    { background: rgba(239,68,68,.1);   color: #ef4444; }
+.badge-gray   { background: rgba(107,114,128,.1); color: #6b7280; }
+.badge-gold   { background: rgba(184,150,90,.1);  color: #7a5e2a; }
+
+.cat-head-actions {
+  display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+}
+.btn-icon-sm {
+  width: 30px; height: 30px; border-radius: 8px;
+  border: 1px solid var(--border); background: none;
+  cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s, color .15s;
+  color: var(--text-2);
+}
+.btn-icon-sm:hover { background: var(--bg); border-color: var(--border-2); color: var(--navy); }
+.btn-icon-sm.danger:hover { background: rgba(239,68,68,.08); border-color: #ef4444; color: #ef4444; }
+.btn-icon-sm svg { width: 14px; height: 14px; }
+
+/* Quick visibility toggle on card */
+.vis-toggle-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: none;
+  font-size: 11px; font-weight: 700; font-family: 'Tajawal', sans-serif;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.vis-toggle-btn.visible { color: #16a34a; border-color: rgba(22,163,74,.3); background: rgba(22,163,74,.06); }
+.vis-toggle-btn.hidden  { color: #6b7280; border-color: var(--border); background: var(--bg); }
+.vis-toggle-btn:hover   { opacity: .8; }
+.vis-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.vis-dot.on  { background: #16a34a; box-shadow: 0 0 0 2px rgba(22,163,74,.2); }
+.vis-dot.off { background: #9ca3af; }
+
+/* ════════════════════════════════════
+   ITEMS LIST (card display only)
+════════════════════════════════════ */
+.cat-items-wrap { flex: 1; }
+.items-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 18px 6px;
+}
+.items-header-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--text-3);
+}
+
+.item-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 18px; transition: background .15s;
+}
+.item-row:hover { background: var(--bg); }
+.item-num {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+.item-num.req { background: rgba(22,163,74,.1);  color: #16a34a; }
+.item-num.opt { background: rgba(107,114,128,.1); color: #6b7280; }
+.item-info { flex: 1; min-width: 0; }
+.item-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.item-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.item-req-badge {
+  font-size: 10px; font-weight: 700; padding: 1px 7px;
+  border-radius: 7px; flex-shrink: 0;
+}
+.item-req-badge.req { background: rgba(22,163,74,.1); color: #16a34a; }
+.item-req-badge.opt { background: rgba(107,114,128,.1); color: #6b7280; }
+
+/* Card footer */
+.cat-card-foot {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: flex-end;
+}
+
+/* ════════════════════════════════════
+   EMPTY STATE
+════════════════════════════════════ */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center;
+  padding: 80px 24px; gap: 14px;
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.empty-icon  { font-size: 52px; }
+.empty-title { font-size: 18px; font-weight: 800; color: var(--navy); }
+.empty-sub   { font-size: 13px; color: var(--text-3); }
+
+/* ════════════════════════════════════
+   MODAL SYSTEM
+════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(11,22,40,.6);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; opacity: 0; pointer-events: none;
+  transition: opacity .25s; padding: 16px;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--white); border-radius: 20px;
+  width: 100%; max-width: 660px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.25);
+  transform: translateY(-18px) scale(.97);
+  transition: transform .28s cubic-bezier(.16,1,.3,1);
+  overflow: hidden; max-height: 94vh; display: flex; flex-direction: column;
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+/* ── Navy gradient modal header ── */
+.modal-head-navy {
+  background: linear-gradient(135deg, #0b1628 0%, #1a2d50 100%);
+  padding: 22px 24px 20px; border-bottom: 2px solid rgba(184,150,90,.3);
+  flex-shrink: 0;
+}
+.modal-head-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+}
+.modal-preview-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  border: 1.5px solid rgba(184,150,90,.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0; transition: background .3s;
+}
+.modal-head-text { flex: 1; }
+.modal-head-title {
+  font-family: 'Amiri', serif;
+  font-size: 18px; font-weight: 800; color: #fff;
+}
+.modal-head-sub { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 3px; }
+.modal-close-btn {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+  color: rgba(255,255,255,.7); cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s; flex-shrink: 0;
+}
+.modal-close-btn:hover { background: rgba(255,255,255,.16); color: #fff; }
+.modal-close-btn svg { width: 14px; height: 14px; }
+
+/* plain header (delete modal) */
+.modal-header {
+  padding: 18px 22px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.modal-header h3 { font-size: 16px; font-weight: 800; color: var(--navy); }
+.modal-header .modal-close-btn {
+  background: none; border: 1px solid var(--border); color: var(--text-2);
+  width: 30px; height: 30px; font-size: 13px;
+}
+.modal-header .modal-close-btn:hover { background: var(--bg); color: var(--navy); }
+
+/* scroll body */
+.modal-body {
+  padding: 20px 24px;
+  display: flex; flex-direction: column; gap: 18px;
+  overflow-y: auto; flex: 1;
+}
+.modal-body::-webkit-scrollbar { width: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* form elements */
+.form-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--text-3);
+  display: flex; align-items: center; gap: 8px; margin-bottom: -6px;
+}
+.form-section-title::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label {
+  font-size: 12px; font-weight: 700; color: var(--text-2);
+  display: flex; align-items: center; gap: 5px;
+}
+.form-label .req-star { color: #ef4444; }
+.form-input, .form-textarea, .form-select {
+  padding: 10px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; font-size: 14px; font-family: 'Tajawal', sans-serif;
+  background: var(--bg); color: var(--text);
+  outline: none; transition: border-color .2s, box-shadow .2s, background .2s; width: 100%;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--gold); background: var(--white);
+  box-shadow: 0 0 0 3px rgba(184,150,90,.12);
+}
+.form-textarea { resize: vertical; min-height: 68px; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ── Icon picker ── */
+.icon-picker-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;
+  max-height: 130px; overflow-y: auto;
+  padding: 4px; border: 1.5px solid var(--border);
+  border-radius: 10px; background: var(--bg);
+}
+.icon-picker-grid::-webkit-scrollbar { width: 3px; }
+.icon-picker-grid::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+.icon-opt {
+  aspect-ratio: 1; border-radius: 8px;
+  border: 1.5px solid transparent;
+  background: var(--white); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.icon-opt:hover { border-color: var(--gold); transform: scale(1.1); background: var(--white); }
+.icon-opt.selected {
+  border-color: var(--gold); background: rgba(184,150,90,.12);
+  box-shadow: 0 0 0 2px rgba(184,150,90,.2);
+}
+
+/* ── Color swatches ── */
+.color-swatch-grid {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.color-swatch {
+  width: 46px; height: 34px; border-radius: 9px;
+  cursor: pointer; border: 2.5px solid transparent;
+  transition: transform .15s, border-color .15s, box-shadow .15s; flex-shrink: 0;
+}
+.color-swatch:hover { transform: scale(1.08); }
+.color-swatch.selected {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(11,22,40,.18);
+}
+
+/* ── Items builder ── */
+.items-builder {
+  border: 1.5px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.items-builder-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0b1628, #162240);
+  border-bottom: 1px solid rgba(184,150,90,.2);
+}
+.items-builder-title {
+  font-size: 13px; font-weight: 700; color: var(--gold-lt);
+  display: flex; align-items: center; gap: 7px;
+}
+.items-builder-title svg { width: 14px; height: 14px; color: var(--gold); }
+.btn-add-clause {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(184,150,90,.18); border: 1px solid rgba(184,150,90,.3);
+  color: var(--gold-lt); font-weight: 700;
+  border-radius: 30px; padding: 6px 14px;
+  font-size: 12px; font-family: 'Tajawal', sans-serif;
+  cursor: pointer; transition: background .15s;
+}
+.btn-add-clause:hover { background: rgba(184,150,90,.28); }
+.btn-add-clause svg { width: 13px; height: 13px; }
+.inline-items-list { padding: 10px; min-height: 60px; }
+.inline-items-list.compact { max-height: 240px; overflow-y: auto; padding: 8px; }
+.inline-items-list.compact::-webkit-scrollbar { width: 3px; }
+.inline-items-list.compact::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+.inline-item-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 10px 10px; margin-bottom: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 10px; transition: border-color .15s;
+}
+.inline-item-row:last-child { margin-bottom: 0; }
+.inline-item-row:hover { border-color: var(--border-2); }
+.inline-item-side {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; flex-shrink: 0; padding-top: 2px;
+}
+.inline-drag { color: var(--text-3); font-size: 14px; cursor: grab; }
+.inline-item-num {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: rgba(184,150,90,.12); color: var(--gold);
+  font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.inline-item-input {
+  flex: 1; padding: 8px 12px; border: 1.5px solid var(--border);
+  border-radius: 8px; font-size: 13px; font-family: 'Tajawal', sans-serif;
+  background: var(--white); color: var(--text); outline: none;
+  transition: border-color .2s; resize: vertical;
+  min-height: 60px; line-height: 1.6; direction: rtl;
+}
+.inline-item-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,150,90,.1); }
+.inline-item-input::placeholder { color: var(--text-3); }
+.btn-inline-del {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; margin-top: 2px;
+  background: none; border: 1px solid var(--border);
+  color: var(--text-3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.btn-inline-del:hover { background: rgba(239,68,68,.08); border-color: #ef4444; color: #ef4444; }
+.btn-inline-del svg { width: 13px; height: 13px; }
+.inline-empty {
+  padding: 20px; text-align: center;
+  font-size: 13px; color: var(--text-3); line-height: 1.7;
+  display: none;
+}
+.inline-empty.show { display: block; }
+
+/* ── Visibility toggle ── */
+.form-toggle-row {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--bg); border-radius: 12px;
+  padding: 14px 16px; border: 1.5px solid var(--border);
+}
+.ftrow-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(22,163,74,.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.ftrow-text { flex: 1; }
+.toggle-label { font-size: 13px; font-weight: 700; color: var(--navy); }
+.toggle-sub   { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute; inset: 0; background: #d1d5db; border-radius: 12px;
+  cursor: pointer; transition: background .25s;
+}
+.toggle-switch input:checked + .toggle-track { background: #16a34a; }
+.toggle-track::before {
+  content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+  background: white; top: 3px; right: 3px; transition: transform .25s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.toggle-switch input:checked + .toggle-track::before { transform: translateX(-20px); }
+
+/* ── Modal footer ── */
+.modal-footer {
+  padding: 14px 24px 18px;
+  display: flex; gap: 10px; justify-content: flex-end;
+  border-top: 1px solid var(--border); flex-shrink: 0;
+  background: var(--white);
+}
+.btn-cancel {
+  padding: 10px 22px; border-radius: 10px;
+  border: 1.5px solid var(--border); background: none;
+  color: var(--text-2); font-size: 13px; font-weight: 600;
+  font-family: 'Tajawal', sans-serif; cursor: pointer; transition: background .2s;
+}
+.btn-cancel:hover { background: var(--bg); }
+.btn-gold {
+  padding: 10px 26px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, #b8965a, #d4b07a);
+  color: #0b1628; font-size: 14px; font-weight: 800;
+  font-family: 'Tajawal', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  box-shadow: 0 4px 14px rgba(184,150,90,.35);
+}
+.btn-gold:hover { opacity: .9; transform: translateY(-1px); }
+.btn-danger {
+  padding: 10px 22px; border-radius: 10px; border: none;
+  background: #ef4444; color: white; font-size: 13px; font-weight: 700;
+  font-family: 'Tajawal', sans-serif; cursor: pointer; transition: background .2s;
+}
+.btn-danger:hover { background: #dc2626; }
+.modal-error { font-size: 12px; color: #ef4444; padding: 0 24px 6px; display: none; }
+
+/* ── Delete modal warning box ── */
+.delete-warn-box {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.2);
+  border-radius: 12px; padding: 14px 16px;
+}
+.delete-warn-icon { font-size: 22px; flex-shrink: 0; }
+.delete-warn-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+.delete-warn-text strong { color: var(--navy); }
+.delete-warn-note { font-size: 12px; color: #ef4444; margin-top: 4px; }
+
+/* ── Toast ── */
+.admin-toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(10px);
+  background: var(--navy); color: white; padding: 12px 24px; border-radius: 12px;
+  font-size: 13px; font-weight: 700; z-index: 2000;
+  opacity: 0; transition: opacity .25s, transform .25s;
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28); white-space: nowrap;
+  display: flex; align-items: center; gap: 9px;
+}
+.admin-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.admin-toast.success { border-color: rgba(34,197,94,.4); }
+.admin-toast.error   { border-color: rgba(239,68,68,.4); }
+
+@media(max-width:768px) {
+  .cats-grid { grid-template-columns: 1fr; }
+  .stats-row { gap: 10px; }
+  .form-row-2 { grid-template-columns: 1fr; }
+  .icon-picker-grid { grid-template-columns: repeat(6, 1fr); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page header ── -->
+<div class="page-header">
+  <div class="page-header-left">
+    <h1>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--gold)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      الوثائق الرسمية
+    </h1>
+    <p>إدارة وثائق الدولة السورية — العنوان والبنود والأيقونات والألوان</p>
+  </div>
+  <button class="btn-add-doc" onclick="openAddCatModal()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    إضافة وثيقة
+  </button>
+</div>
+
+<!-- ── Stats ── -->
+<div class="stats-row">
+  <div class="stat-chip">
+    <div class="stat-chip-icon sci-blue">📂</div>
+    <div>
+      <div class="stat-chip-val" id="statCats">{{ total_cats }}</div>
+      <div class="stat-chip-lbl">وثيقة رسمية</div>
+    </div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-chip-icon sci-green">📋</div>
+    <div>
+      <div class="stat-chip-val" id="statItems">{{ total_items }}</div>
+      <div class="stat-chip-lbl">بند مطلوب</div>
+    </div>
+  </div>
+  <div class="stat-chip">
+    <div class="stat-chip-icon sci-gold">✅</div>
+    <div>
+      <div class="stat-chip-val">{{ categories|length }}</div>
+      <div class="stat-chip-lbl">مُفعَّل منها</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Cards grid ── -->
+<div class="cats-grid" id="catsGrid">
+  {% if categories %}
+    {% for cat in categories %}
+    <div class="cat-card" id="cat-{{ cat.id }}">
+
+      <!-- Color stripe -->
+      <div class="cat-card-stripe" style="background:{{ cat.color|default:'linear-gradient(90deg,#0b1628,#b8965a)' }};"></div>
+
+      <!-- Card head -->
+      <div class="cat-card-head">
+        <div class="cat-head-icon-wrap" style="background:{{ cat.color|default:'linear-gradient(135deg,#0b1628,#b8965a)' }};">
+          <span style="filter:drop-shadow(0 1px 3px rgba(0,0,0,.3));">{{ cat.icon }}</span>
+        </div>
+        <div class="cat-head-info">
+          <div class="cat-head-name">{{ cat.name }}</div>
+          {% if cat.description %}
+          <div class="cat-head-desc">{{ cat.description }}</div>
+          {% endif %}
+          <div class="cat-head-meta">
+            <span class="badge badge-blue">{{ cat.items.count }} بند</span>
+            {% if cat.is_active %}
+            <span class="badge badge-green">نشط</span>
+            {% else %}
+            <span class="badge badge-gray">معطَّل</span>
+            {% endif %}
+          </div>
+        </div>
+        <div class="cat-head-actions">
+          <button class="btn-icon-sm" title="تعديل"
+            onclick="openEditCatModal({{ cat.id }}, '{{ cat.name|escapejs }}', '{{ cat.icon|escapejs }}', '{{ cat.description|escapejs }}', {{ cat.order }}, {{ cat.is_active|yesno:'true,false' }}, '{{ cat.color|escapejs }}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-icon-sm danger" title="حذف"
+            onclick="openDeleteCatModal({{ cat.id }}, '{{ cat.name|escapejs }}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Items list (display only — edit through the edit button above) -->
+      <div class="cat-items-wrap">
+        <div class="items-header">
+          <span class="items-header-label">البنود المطلوبة</span>
+        </div>
+        <div id="items-{{ cat.id }}">
+          {% for item in cat.items.all %}
+          <div class="item-row" id="item-{{ item.id }}">
+            <span class="item-num {% if item.is_required %}req{% else %}opt{% endif %}">{{ forloop.counter }}</span>
+            <div class="item-info">
+              <div class="item-name" style="white-space:pre-line;">{{ item.name }}</div>
+              {% if item.description %}<div class="item-desc">{{ item.description }}</div>{% endif %}
+            </div>
+            <span class="item-req-badge {% if item.is_required %}req{% else %}opt{% endif %}">
+              {% if item.is_required %}مطلوب{% else %}اختياري{% endif %}
+            </span>
+          </div>
+          {% empty %}
+          <div style="padding:14px 18px;font-size:12px;color:var(--text-3);text-align:center;" id="empty-items-{{ cat.id }}">
+            لا توجد بنود — افتح التعديل لإضافة البنود المطلوبة
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Card footer: quick visibility toggle -->
+      <div class="cat-card-foot">
+        <button class="vis-toggle-btn {% if cat.is_active %}visible{% else %}hidden{% endif %}"
+          id="vis-btn-{{ cat.id }}"
+          onclick="quickToggleVisibility({{ cat.id }}, this)">
+          <div class="vis-dot {% if cat.is_active %}on{% else %}off{% endif %}" id="vis-dot-{{ cat.id }}"></div>
+          <span id="vis-lbl-{{ cat.id }}">{% if cat.is_active %}مرئي للمستخدمين{% else %}مخفي عن المستخدمين{% endif %}</span>
+        </button>
+      </div>
+
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state" id="emptyState" style="grid-column:1/-1;">
+      <div class="empty-icon">📂</div>
+      <div class="empty-title">لا توجد وثائق رسمية بعد</div>
+      <div class="empty-sub">أنشئ أول وثيقة رسمية وابدأ بإضافة البنود المطلوبة</div>
+      <button class="btn-add-doc" onclick="openAddCatModal()" style="margin-top:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إنشاء الأولى
+      </button>
+    </div>
+  {% endif %}
+</div>
+
+
+<!-- ════════════════════════ MODALS ════════════════════════ -->
+
+<!-- ── Add / Edit Document Modal ── -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+
+    <div class="modal-head-navy">
+      <div class="modal-head-row">
+        <div class="modal-preview-icon" id="catPreviewIcon" style="background:linear-gradient(135deg,#0b1628,#b8965a)">📋</div>
+        <div class="modal-head-text">
+          <div class="modal-head-title" id="catModalTitle">وثيقة جديدة</div>
+          <div class="modal-head-sub">عنوان · أيقونة · لون · بنود · رؤية</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeCatModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Title & desc -->
+      <div class="form-section-title">بيانات الوثيقة</div>
+
+      <div class="form-group">
+        <label class="form-label">العنوان <span class="req-star">*</span></label>
+        <input type="text" class="form-input" id="catName"
+               placeholder="مثلاً: وثيقة استخراج بيان قيد فردي" maxlength="200"
+               oninput="syncCatPreview()">
+      </div>
+
+      <!-- Inline items builder — before description -->
+      <div class="form-section-title">البنود المطلوبة</div>
+
+      <div class="items-builder">
+        <div class="items-builder-head">
+          <span class="items-builder-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            البنود والمستندات المطلوبة
+          </span>
+          <button type="button" class="btn-add-clause" onclick="addInlineItem()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة بند
+          </button>
+        </div>
+        <div class="inline-items-list compact" id="inlineItemsList"></div>
+        <div class="inline-empty show" id="inlineEmpty">
+          📋 لم تُضف بنوداً بعد<br>
+          <span style="font-size:11px;">اضغط "+ إضافة بند" لإضافة البنود المطلوبة</span>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:12px;">
+        <label class="form-label">إضافة بنود كنص</label>
+        <textarea class="form-textarea" id="bulkItemsText"
+                  placeholder="ضع كل بند في سطر جديد. يمكنك استخدام - أو • قبل كل بند."
+                  rows="4"></textarea>
+        <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+          <button type="button" class="btn-add-clause" onclick="importBulkItems()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة البنود من النص
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">الوصف (اختياري)</label>
+        <textarea class="form-textarea" id="catDesc"
+                  placeholder="وصف مختصر يساعد المستخدم على فهم متطلبات هذه الوثيقة..."></textarea>
+      </div>
+
+      <!-- Icon + color on same row -->
+      <div class="form-section-title">الشكل البصري</div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">الأيقونة</label>
+          <div class="icon-picker-grid" id="iconPicker">
+            {% for ic in icons_list %}
+            <button type="button" class="icon-opt" onclick="selectIcon('{{ ic }}')">{{ ic }}</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="catIcon" value="📋">
+        </div>
+        <div class="form-group">
+          <label class="form-label">اللون / التدرج</label>
+          <div class="color-swatch-grid" id="colorPicker">
+            <div class="color-swatch selected"
+                 style="background:linear-gradient(135deg,#0b1628,#b8965a)"
+                 data-color="linear-gradient(135deg,#0b1628,#b8965a)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#b8965a,#d4b07a)"
+                 data-color="linear-gradient(135deg,#b8965a,#d4b07a)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#0b1628,#162240)"
+                 data-color="linear-gradient(135deg,#0b1628,#162240)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#0f766e,#14b8a6)"
+                 data-color="linear-gradient(135deg,#0f766e,#14b8a6)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#4c1d95,#7c3aed)"
+                 data-color="linear-gradient(135deg,#4c1d95,#7c3aed)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#7f1d1d,#dc2626)"
+                 data-color="linear-gradient(135deg,#7f1d1d,#dc2626)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#1e3a5f,#2563eb)"
+                 data-color="linear-gradient(135deg,#1e3a5f,#2563eb)"
+                 onclick="selectColor(this)"></div>
+            <div class="color-swatch"
+                 style="background:linear-gradient(135deg,#064e3b,#059669)"
+                 data-color="linear-gradient(135deg,#064e3b,#059669)"
+                 onclick="selectColor(this)"></div>
+          </div>
+          <input type="hidden" id="catColor" value="linear-gradient(135deg,#0b1628,#b8965a)">
+        </div>
+      </div>
+
+      <!-- Visibility toggle -->
+      <div class="form-section-title">إعدادات الظهور</div>
+
+      <div class="form-toggle-row">
+        <div class="ftrow-icon">👁️</div>
+        <div class="ftrow-text">
+          <div class="toggle-label">مرئي للمستخدمين</div>
+          <div class="toggle-sub">عند التفعيل تظهر الوثيقة في صفحة الوثائق الرسمية للمستخدمين</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="catActive" checked>
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+    </div>
+
+    <p class="modal-error" id="catModalError"></p>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCatModal()">إلغاء</button>
+      <button class="btn-gold" id="catModalBtn" onclick="submitCatModal()">
+        حفظ الوثيقة
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Document Modal ── -->
+<div class="modal-overlay" id="deleteCatModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <h3>حذف الوثيقة</h3>
+      <button class="modal-close-btn" onclick="closeDeleteCatModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="delete-warn-box">
+        <div class="delete-warn-icon">⚠️</div>
+        <div>
+          <div class="delete-warn-text">
+            هل أنت متأكد من حذف وثيقة "<strong id="deleteCatName"></strong>"<br>وجميع بنودها المطلوبة؟
+          </div>
+          <div class="delete-warn-note">هذا الإجراء لا يمكن التراجع عنه.</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteCatModal()">إلغاء</button>
+      <button class="btn-danger" onclick="submitDeleteCat()">حذف نهائياً</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="admin-toast" id="adminToast"></div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+
+/* ── Toast ── */
+function toast(msg, type = 'success') {
+  const t = document.getElementById('adminToast');
+  t.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  t.className = `admin-toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+/* ── POST helper ── */
+async function post(url, data) {
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(data)) fd.append(k, v);
+  fd.append('csrfmiddlewaretoken', CSRF);
+  const r = await fetch(url, { method: 'POST', body: fd });
+  return r.json();
+}
+
+/* ════════════════════════════════
+   ICON PICKER
+════════════════════════════════ */
+function selectIcon(ic) {
+  document.getElementById('catIcon').value = ic;
+  document.getElementById('catPreviewIcon').textContent = ic;
+  document.querySelectorAll('.icon-opt').forEach(b =>
+    b.classList.toggle('selected', b.textContent.trim() === ic)
+  );
+}
+
+/* ════════════════════════════════
+   COLOR PICKER
+════════════════════════════════ */
+function selectColor(el) {
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  const color = el.dataset.color;
+  document.getElementById('catColor').value = color;
+  document.getElementById('catPreviewIcon').style.background = color;
+}
+
+/* ════════════════════════════════
+   LIVE PREVIEW
+════════════════════════════════ */
+function syncCatPreview() {
+  const name = document.getElementById('catName').value.trim();
+  document.getElementById('catModalTitle').textContent = name || 'وثيقة جديدة';
+}
+
+/* ════════════════════════════════
+   INLINE ITEMS BUILDER
+════════════════════════════════ */
+let inlineCounter = 0;
+
+/* itemId: server ID for existing items, null for new ones */
+function addInlineItem(value = '', itemId = null) {
+  inlineCounter++;
+  const list  = document.getElementById('inlineItemsList');
+  const empty = document.getElementById('inlineEmpty');
+  empty.classList.remove('show');
+
+  const row = document.createElement('div');
+  row.className = 'inline-item-row';
+  row.dataset.idx = inlineCounter;
+  if (itemId) {
+    row.dataset.itemId    = itemId;
+    row.dataset.origValue = value;
+  }
+  const n = list.querySelectorAll('.inline-item-row').length + 1;
+  row.innerHTML = `
+    <div class="inline-item-side">
+      <span class="inline-drag">⠿</span>
+      <span class="inline-item-num">${n}</span>
+    </div>
+    <textarea class="inline-item-input"
+              placeholder="اكتب نص البند هنا..." autocomplete="off"
+              rows="3">${value.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+    <button type="button" class="btn-inline-del" onclick="removeInlineItem(this)" title="حذف">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+    </button>`;
+  list.appendChild(row);
+  if (!itemId) row.querySelector('textarea').focus();
+  renumberInlineItems();
+  return row;
+}
+
+function removeInlineItem(btn) {
+  btn.closest('.inline-item-row').remove();
+  renumberInlineItems();
+  const list = document.getElementById('inlineItemsList');
+  if (list.querySelectorAll('.inline-item-row').length === 0) {
+    document.getElementById('inlineEmpty').classList.add('show');
+  }
+}
+
+function renumberInlineItems() {
+  document.querySelectorAll('#inlineItemsList .inline-item-row').forEach((row, i) => {
+    const numEl = row.querySelector('.inline-item-num');
+    if (numEl) numEl.textContent = i + 1;
+  });
+}
+
+function clearInlineItems() {
+  document.getElementById('inlineItemsList').innerHTML = '';
+  document.getElementById('inlineEmpty').classList.add('show');
+  inlineCounter = 0;
+}
+
+function importBulkItems() {
+  const bulk = document.getElementById('bulkItemsText');
+  const text = bulk.value || '';
+  const lines = text.split(/\r?\n/)
+    .map(line => line.replace(/^[-*•]\s*/, '').trim())
+    .filter(Boolean);
+
+  if (!lines.length) return;
+
+  lines.forEach(line => addInlineItem(line));
+  bulk.value = '';
+}
+
+/* ════════════════════════════════
+   CATEGORY MODAL — ADD
+════════════════════════════════ */
+let catEditId = null;
+let catOriginalItemIds = [];
+
+function openAddCatModal() {
+  catEditId = null;
+  catOriginalItemIds = [];
+  document.getElementById('catName').value  = '';
+  document.getElementById('catDesc').value  = '';
+  document.getElementById('catActive').checked = true;
+  document.getElementById('catModalError').style.display = 'none';
+  document.getElementById('catModalTitle').textContent = 'وثيقة جديدة';
+  document.getElementById('catModalBtn').textContent   = 'حفظ الوثيقة';
+  selectIcon('📋');
+  const firstSwatch = document.querySelector('.color-swatch');
+  if (firstSwatch) selectColor(firstSwatch);
+  clearInlineItems();
+  document.getElementById('bulkItemsText').value = '';
+  addInlineItem();
+  document.getElementById('catModal').classList.add('open');
+  document.getElementById('catName').focus();
+}
+
+/* ════════════════════════════════
+   CATEGORY MODAL — EDIT
+════════════════════════════════ */
+function openEditCatModal(id, name, icon, desc, order, active, color) {
+  catEditId = id;
+  catOriginalItemIds = [];
+  document.getElementById('catName').value    = name;
+  document.getElementById('catDesc').value    = desc;
+  document.getElementById('catActive').checked = active;
+  document.getElementById('catModalError').style.display = 'none';
+  document.getElementById('catModalTitle').textContent   = name || 'تعديل الوثيقة';
+  document.getElementById('catModalBtn').textContent     = 'حفظ التعديلات';
+  selectIcon(icon || '📋');
+  /* color */
+  let matched = false;
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    if (s.dataset.color === color) { selectColor(s); matched = true; }
+  });
+  if (!matched && color) {
+    document.getElementById('catColor').value = color;
+    document.getElementById('catPreviewIcon').style.background = color;
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  }
+  /* load existing items with their server IDs */
+  clearInlineItems();
+  document.getElementById('bulkItemsText').value = '';
+  document.querySelectorAll(`#items-${id} .item-row`).forEach(row => {
+    const itemId = row.id.replace('item-', '');
+    const itemName = row.querySelector('.item-name').textContent.trim();
+    catOriginalItemIds.push(itemId);
+    addInlineItem(itemName, itemId);
+  });
+  document.getElementById('catModal').classList.add('open');
+  document.getElementById('catName').focus();
+}
+
+/* ── close ── */
+function closeCatModal() {
+  document.getElementById('catModal').classList.remove('open');
+}
+
+/* ── submit (full CRUD on items) ── */
+async function submitCatModal() {
+  const name = document.getElementById('catName').value.trim();
+  if (!name) {
+    const err = document.getElementById('catModalError');
+    err.textContent = 'العنوان مطلوب'; err.style.display = 'block';
+    return;
+  }
+  const btn = document.getElementById('catModalBtn');
+  btn.disabled = true; btn.textContent = '...';
+
+  const data = {
+    name,
+    icon:        document.getElementById('catIcon').value  || '📋',
+    color:       document.getElementById('catColor').value || 'linear-gradient(135deg,#0b1628,#b8965a)',
+    description: document.getElementById('catDesc').value.trim(),
+    is_active:   document.getElementById('catActive').checked ? 'true' : 'false',
+  };
+  const url = catEditId
+    ? `/admin-panel/official-docs/category/${catEditId}/edit/`
+    : `/admin-panel/official-docs/category/add/`;
+
+  const res = await post(url, data);
+  if (!res.success) {
+    const err = document.getElementById('catModalError');
+    err.textContent = res.error || 'حدث خطأ'; err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = catEditId ? 'حفظ التعديلات' : 'حفظ الوثيقة';
+    return;
+  }
+
+  const catId = res.id;
+  const rows  = document.querySelectorAll('#inlineItemsList .inline-item-row');
+  const saves = [];
+  const keptIds = new Set();
+
+  rows.forEach((row, i) => {
+    const val    = row.querySelector('textarea').value.trim();
+    const itemId = row.dataset.itemId;
+    if (!val) return;
+
+    if (itemId) {
+      /* existing item */
+      keptIds.add(itemId);
+      const origVal = row.dataset.origValue || '';
+      if (val !== origVal) {
+        saves.push(post(`/admin-panel/official-docs/item/${itemId}/edit/`, {
+          name: val, description: '', order: i, is_required: 'true',
+        }));
+      }
+    } else {
+      /* new item */
+      saves.push(post('/admin-panel/official-docs/item/add/', {
+        name: val, category_id: catId,
+        description: '', order: i, is_required: 'true',
+      }));
+    }
+  });
+
+  /* delete items that were removed from the inline list */
+  catOriginalItemIds.forEach(id => {
+    if (!keptIds.has(String(id))) {
+      saves.push(post(`/admin-panel/official-docs/item/${id}/delete/`, {}));
+    }
+  });
+
+  if (saves.length) await Promise.all(saves);
+
+  closeCatModal();
+  toast(catEditId ? 'تم تعديل الوثيقة' : 'تمت إضافة الوثيقة بنجاح');
+  location.reload();
+}
+
+/* ════════════════════════════════
+   QUICK VISIBILITY TOGGLE
+════════════════════════════════ */
+async function quickToggleVisibility(id, btn) {
+  const lbl  = document.getElementById(`vis-lbl-${id}`);
+  const dot  = document.getElementById(`vis-dot-${id}`);
+  const isOn = btn.classList.contains('visible');
+
+  btn.disabled = true;
+  const res = await post(`/admin-panel/official-docs/category/${id}/edit/`, {
+    name: document.querySelector(`#cat-${id} .cat-head-name`).textContent.trim(),
+    is_active: isOn ? 'false' : 'true',
+    icon:  document.querySelector(`#cat-${id} .cat-head-icon-wrap span`)?.textContent?.trim() || '📋',
+    color: '', description: '',
+  });
+
+  if (res.success) {
+    const nowOn = !isOn;
+    btn.classList.toggle('visible', nowOn);
+    btn.classList.toggle('hidden',  !nowOn);
+    dot.classList.toggle('on',  nowOn);
+    dot.classList.toggle('off', !nowOn);
+    lbl.textContent = nowOn ? 'مرئي للمستخدمين' : 'مخفي عن المستخدمين';
+    const badgeEl = document.querySelector(`#cat-${id} .cat-head-meta .badge:last-child`);
+    if (badgeEl) {
+      badgeEl.textContent = nowOn ? 'نشط' : 'معطَّل';
+      badgeEl.className   = `badge ${nowOn ? 'badge-green' : 'badge-gray'}`;
+    }
+    toast(nowOn ? 'تم تفعيل الوثيقة' : 'تم إخفاء الوثيقة');
+  } else {
+    toast('فشل تغيير الحالة', 'error');
+  }
+  btn.disabled = false;
+}
+
+/* ════════════════════════════════
+   DELETE CATEGORY
+════════════════════════════════ */
+let deleteCatId = null;
+
+function openDeleteCatModal(id, name) {
+  deleteCatId = id;
+  document.getElementById('deleteCatName').textContent = name;
+  document.getElementById('deleteCatModal').classList.add('open');
+}
+function closeDeleteCatModal() {
+  document.getElementById('deleteCatModal').classList.remove('open');
+}
+async function submitDeleteCat() {
+  const res = await post(`/admin-panel/official-docs/category/${deleteCatId}/delete/`, {});
+  if (res.success) {
+    closeDeleteCatModal();
+    toast('تم حذف الوثيقة');
+    document.getElementById(`cat-${deleteCatId}`)?.remove();
+    updateStats(); checkEmptyGrid();
+  } else { toast('فشل الحذف', 'error'); }
+}
+
+/* ════════════════════════════════
+   HELPERS
+════════════════════════════════ */
+function updateStats() {
+  document.getElementById('statCats').textContent  = document.querySelectorAll('.cat-card').length;
+  document.getElementById('statItems').textContent = document.querySelectorAll('.item-row').length;
+}
+
+function checkEmptyGrid() {
+  if (document.querySelectorAll('.cat-card').length === 0) {
+    document.getElementById('catsGrid').innerHTML = `
+      <div class="empty-state" id="emptyState" style="grid-column:1/-1;">
+        <div class="empty-icon">📂</div>
+        <div class="empty-title">لا توجد وثائق رسمية بعد</div>
+        <div class="empty-sub">أنشئ أول وثيقة رسمية وابدأ بإضافة البنود</div>
+        <button class="btn-add-doc" onclick="openAddCatModal()" style="margin-top:8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          إنشاء الأولى
+        </button>
+      </div>`;
+  }
+}
+
+/* Close modals on backdrop click */
+['catModal','deleteCatModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+/* Init: mark first icon */
+document.addEventListener('DOMContentLoaded', () => {
+  const first = document.querySelector('.icon-opt');
+  if (first) first.classList.add('selected');
+});
+</script>
+{% endblock %}

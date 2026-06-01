@@ -1,0 +1,578 @@
+{% extends "chatapp/lawyer_base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}ملفي العام{% endblock %}
+{% block page_title %}ملفي العام{% endblock %}
+
+{% block extra_css %}
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+    --gold-star: #f59e0b;
+    --gold-line: rgba(184,150,90,0.28);
+    --cream:     #f5f2eb;
+    --cream-2:   #ece8df;
+    --page-bg:   #f1f3f8;
+    --border:    rgba(0,0,0,.08);
+    --border-2:  rgba(0,0,0,.13);
+    --success:   #16a34a;
+    --danger:    #dc2626;
+}
+
+/* ══ PROFILE HERO ══ */
+.profile-hero {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 24px;
+}
+.hero-banner {
+    height: 140px;
+    background: linear-gradient(135deg, var(--navy) 0%, #0f2240 55%, #1a2e4a 100%);
+    position: relative; overflow: hidden;
+}
+.hero-banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(184,150,90,.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+.hero-banner::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--gold-lt), var(--gold), transparent);
+}
+.hero-body { padding: 0 28px 24px; }
+
+/* Avatar row */
+.hero-av-row {
+    display: flex; align-items: flex-end;
+    justify-content: space-between; gap: 20px;
+    margin-bottom: 18px; flex-wrap: wrap;
+}
+.lawyer-avatar {
+    width: 90px; height: 90px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--navy), var(--navy-2));
+    border: 4px solid var(--white);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative; overflow: hidden;
+    margin-top: -45px;
+    box-shadow: 0 8px 24px rgba(11,22,40,.22);
+}
+.lawyer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-initials { font-family: 'Amiri', serif; font-size: 30px; font-weight: 700; color: var(--gold-lt); }
+.verified-badge {
+    position: absolute; bottom: -2px; left: -2px;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--success); border: 3px solid var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: white; font-weight: 800;
+}
+
+/* Hero info */
+.hero-info-row {
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 20px; align-items: start;
+}
+@media (max-width: 640px) { .hero-info-row { grid-template-columns: 1fr; } }
+
+.lawyer-name {
+    font-family: 'Amiri', serif; font-size: 26px; font-weight: 700;
+    color: var(--navy); line-height: 1.2; margin-bottom: 10px;
+}
+.hero-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+.tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+}
+.tag-spec { background: var(--navy); color: var(--gold-lt); }
+.tag-exp  { background: var(--gold-dim); color: #7a5000; border: 1px solid var(--gold-ln); }
+.tag-avail-yes { background: rgba(22,163,74,.1); color: #15803d; border: 1px solid rgba(22,163,74,.18); }
+.tag-avail-no  { background: rgba(220,38,38,.08); color: #b91c1c; border: 1px solid rgba(220,38,38,.15); }
+.tag-verified  { background: rgba(22,163,74,.1); color: #15803d; border: 1px solid rgba(22,163,74,.18); }
+
+.hero-rating-row { display: flex; align-items: center; gap: 10px; }
+.stars { display: flex; gap: 2px; }
+.star { font-size: 17px; color: #ddd; }
+.star.filled { color: var(--gold-star); }
+.rating-num { font-family: 'Amiri', serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+.rating-count { font-size: 13px; color: var(--ink-3); }
+
+/* Hero stat boxes (right side) */
+.hero-stats-col {
+    display: flex; flex-direction: column; gap: 10px; min-width: 170px;
+}
+@media (max-width: 640px) { .hero-stats-col { flex-direction: row; flex-wrap: wrap; min-width: unset; } }
+.hstat {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 11px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+}
+.hstat-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--white); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+}
+.hstat-label { font-size: 11px; color: var(--ink-3); font-weight: 600; margin-bottom: 2px; }
+.hstat-val { font-size: 13px; font-weight: 700; color: var(--ink); }
+
+/* Divider + Contact row */
+.hero-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.hero-contact-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+.contact-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.contact-item svg { width: 13px; height: 13px; color: var(--gold); flex-shrink: 0; }
+.contact-item a { color: var(--navy); text-decoration: none; font-weight: 600; }
+
+/* ══ CONTENT GRID ══ */
+.content-grid {
+    display: grid; grid-template-columns: 1fr 280px;
+    gap: 20px; align-items: start;
+}
+@media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } }
+
+/* Section Card */
+.section-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,.05); margin-bottom: 18px;
+}
+.section-card:last-child { margin-bottom: 0; }
+.section-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+}
+.section-head-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--gold-dim); border: 1px solid var(--gold-ln);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+}
+.section-head-title { font-family: 'Amiri', serif; font-size: 16px; font-weight: 700; color: #fff; }
+.section-body { padding: 20px; }
+
+/* Description */
+.desc-text { font-size: 14px; color: var(--ink-2); line-height: 1.9; }
+
+/* Office Info */
+.office-list { display: flex; flex-direction: column; gap: 1px; }
+.office-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.office-row:last-child { border-bottom: none; padding-bottom: 0; }
+.or-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--gold-dim); border: 1px solid var(--gold-ln); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.or-label { font-size: 12px; color: var(--ink-3); font-weight: 700; width: 85px; flex-shrink: 0; }
+.or-val { font-size: 13px; color: var(--ink); font-weight: 500; flex: 1; }
+
+/* Map */
+.lawyer-map { width: 100%; height: 260px; overflow: hidden; }
+
+/* Sidebar */
+.sidebar-col { display: flex; flex-direction: column; gap: 16px; }
+.scard { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+.scard-head { background: linear-gradient(135deg, var(--navy), var(--navy-2)); padding: 12px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid var(--gold); }
+.scard-head-title { font-family: 'Amiri', serif; font-size: 15px; font-weight: 700; color: #fff; }
+.scard-body { padding: 16px; }
+
+/* Stat rows in sidebar */
+.stat-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.stat-row:last-child { border-bottom: none; padding-bottom: 0; }
+.stat-icon { width: 30px; height: 30px; border-radius: 7px; background: var(--gold-dim); border: 1px solid var(--gold-ln); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.stat-lbl { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.stat-val { font-size: 13px; font-weight: 700; color: var(--ink); margin-right: auto; }
+.stat-val.green { color: var(--success); }
+.stat-val.red { color: var(--danger); }
+.stat-val.gold { color: #7a5000; }
+
+/* Edit profile link */
+.edit-profile-btn {
+    display: block; width: 100%; padding: 10px; border-radius: 10px; text-align: center;
+    background: linear-gradient(135deg, var(--navy), #1a2e4a);
+    color: var(--gold-lt); font-size: 13px; font-weight: 700;
+    text-decoration: none; transition: opacity .2s;
+}
+.edit-profile-btn:hover { opacity: .85; }
+
+/* Rating */
+.rating-overview { display: flex; gap: 20px; align-items: center; margin-bottom: 18px; }
+.rating-big { text-align: center; flex-shrink: 0; width: 76px; }
+.rating-big-num { font-family: 'Amiri', serif; font-size: 42px; font-weight: 700; color: var(--navy); line-height: 1; }
+.rating-big-stars { display: flex; justify-content: center; gap: 2px; margin: 5px 0 4px; }
+.rating-big-count { font-size: 12px; color: var(--ink-3); }
+.rating-bars { flex: 1; }
+.rating-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.bar-label { font-size: 12px; color: var(--ink-3); width: 28px; text-align: left; flex-shrink: 0; }
+.bar-track { flex: 1; height: 7px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #8a6d38, var(--gold)); border-radius: 4px; }
+.bar-count { font-size: 11px; color: var(--ink-3); width: 18px; flex-shrink: 0; }
+
+/* Review items */
+.reviews-section-title { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.reviews-count-badge { background: var(--navy); color: var(--gold-lt); font-size: 11px; padding: 2px 8px; border-radius: 99px; }
+.review-item { padding: 13px 15px; border-radius: 11px; background: var(--bg); border: 1px solid var(--border); margin-bottom: 10px; }
+.review-item:last-child { margin-bottom: 0; }
+.review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px; }
+.reviewer-meta { display: flex; align-items: center; gap: 9px; }
+.reviewer-av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; background: rgba(99,102,241,.12); color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
+.reviewer-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.review-date { font-size: 11px; color: var(--ink-3); }
+.review-stars { display: flex; gap: 2px; }
+.review-stars .star { font-size: 14px; }
+.review-comment { font-size: 13px; color: var(--ink-2); line-height: 1.65; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.no-reviews { text-align: center; padding: 28px 16px; color: var(--ink-3); font-size: 14px; background: var(--bg); border-radius: 11px; border: 1px dashed var(--border); }
+
+/* Public link notice */
+.public-link-notice {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; background: rgba(184,150,90,.07);
+    border: 1px solid var(--gold-ln); border-radius: 11px; margin-bottom: 18px;
+    font-size: 12.5px; color: var(--ink-2);
+}
+.public-link-notice a { color: var(--navy); font-weight: 700; text-decoration: underline; }
+</style>
+{% endblock %}
+
+{% block lawyer_content %}
+
+<!-- Public link notice -->
+<div class="public-link-notice">
+    🌐 هذا هو ملفك كما يراه المستخدمون في دليل المحامين.
+   
+</div>
+
+<!-- ══ PROFILE HERO ══ -->
+<div class="profile-hero">
+    <div class="hero-banner"></div>
+    <div class="hero-body">
+
+        <div class="hero-av-row">
+            <div class="lawyer-avatar">
+                {% if lawyer.user.profile.avatar %}
+                <img src="{{ lawyer.user.profile.avatar.url }}" alt="">
+                {% else %}
+                <span class="avatar-initials">{{ lawyer.user.first_name|first|upper }}{{ lawyer.user.last_name|first|upper }}</span>
+                {% endif %}
+                {% if lawyer.is_verified %}<span class="verified-badge">✓</span>{% endif %}
+            </div>
+            
+        </div>
+
+        <div class="hero-info-row">
+            <div>
+                <h1 class="lawyer-name">{{ lawyer.user.get_full_name|default:lawyer.user.username }}</h1>
+                <div class="hero-tags">
+                    <span class="tag tag-spec">⚖️ {{ lawyer.get_specialization_display }}</span>
+                    <span class="tag tag-exp">🎓 {{ lawyer.experience_years }} سنة خبرة</span>
+                    {% if lawyer.is_available %}
+                    <span class="tag tag-avail-yes">✓ متاح للاستشارة</span>
+                    {% else %}
+                    <span class="tag tag-avail-no">غير متاح حالياً</span>
+                    {% endif %}
+                    {% if lawyer.is_verified %}
+                    <span class="tag tag-verified">✓ محامٍ موثّق</span>
+                    {% endif %}
+                </div>
+                <div class="hero-rating-row">
+                    <div class="stars">
+                        {% for i in "12345" %}
+                        <span class="star {% if forloop.counter <= lawyer.rating|floatformat:"0"|add:"0" %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <span class="rating-num">{{ lawyer.rating|floatformat:1 }}</span>
+                    <span class="rating-count">({{ lawyer.total_reviews }} تقييم)</span>
+                </div>
+            </div>
+
+            <div class="hero-stats-col">
+                {% if lawyer.city %}
+                <div class="hstat">
+                    <div class="hstat-icon">📍</div>
+                    <div>
+                        <div class="hstat-label">المدينة</div>
+                        <div class="hstat-val">{{ lawyer.city }}</div>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="hstat">
+                    <div class="hstat-icon">📋</div>
+                    <div>
+                        <div class="hstat-label">عدد الاستشارات</div>
+                        <div class="hstat-val">{{ lawyer.user.lawyer_consultations.count|default:"0" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if lawyer.office_phone or lawyer.office_email or lawyer.office_address or lawyer.languages %}
+        <div class="hero-divider"></div>
+        <div class="hero-contact-row">
+            {% if lawyer.office_phone %}
+            <div class="contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42 2 2 0 0 1 3.58 1.23h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.8a16 16 0 0 0 6.29 6.29l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>الهاتف:</span>
+                <a href="tel:{{ lawyer.office_phone }}" dir="ltr">{{ lawyer.office_phone }}</a>
+            </div>
+            {% endif %}
+            {% if lawyer.office_email %}
+            <div class="contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span>البريد:</span>
+                <a href="mailto:{{ lawyer.office_email }}">{{ lawyer.office_email }}</a>
+            </div>
+            {% endif %}
+            {% if lawyer.office_address %}
+            <div class="contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>{{ lawyer.office_address }}</span>
+            </div>
+            {% endif %}
+            {% if lawyer.languages %}
+            <div class="contact-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span>اللغات: {{ lawyer.languages }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- ══ CONTENT GRID ══ -->
+<div class="content-grid">
+
+    <!-- Main Column -->
+    <div>
+
+        {% if lawyer.description %}
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-head-icon">ℹ️</div>
+                <div class="section-head-title">نبذة عن المحامي</div>
+            </div>
+            <div class="section-body">
+                <p class="desc-text">{{ lawyer.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- معلومات المكتب -->
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-head-icon">🏢</div>
+                <div class="section-head-title">معلومات المكتب</div>
+            </div>
+            <div class="section-body">
+                <div class="office-list">
+                    {% if lawyer.office_name %}
+                    <div class="office-row">
+                        <div class="or-icon">🏛️</div>
+                        <div class="or-label">اسم المكتب</div>
+                        <div class="or-val">{{ lawyer.office_name }}</div>
+                    </div>
+                    {% endif %}
+                    {% if lawyer.office_address %}
+                    <div class="office-row">
+                        <div class="or-icon">📍</div>
+                        <div class="or-label">العنوان</div>
+                        <div class="or-val">{{ lawyer.office_address }}</div>
+                    </div>
+                    {% endif %}
+                    {% if lawyer.office_phone %}
+                    <div class="office-row">
+                        <div class="or-icon">📞</div>
+                        <div class="or-label">الهاتف</div>
+                        <div class="or-val" dir="ltr">{{ lawyer.office_phone }}</div>
+                    </div>
+                    {% endif %}
+                    {% if lawyer.office_email %}
+                    <div class="office-row">
+                        <div class="or-icon">✉️</div>
+                        <div class="or-label">البريد</div>
+                        <div class="or-val">{{ lawyer.office_email }}</div>
+                    </div>
+                    {% endif %}
+                    {% if lawyer.languages %}
+                    <div class="office-row">
+                        <div class="or-icon">🌐</div>
+                        <div class="or-label">اللغات</div>
+                        <div class="or-val">{{ lawyer.languages }}</div>
+                    </div>
+                    {% endif %}
+                    {% if lawyer.license_number %}
+                    <div class="office-row">
+                        <div class="or-icon">📜</div>
+                        <div class="or-label">رقم الترخيص</div>
+                        <div class="or-val">{{ lawyer.license_number }}</div>
+                    </div>
+                    {% endif %}
+                    {% if not lawyer.office_name and not lawyer.office_address and not lawyer.office_phone and not lawyer.office_email and not lawyer.languages and not lawyer.license_number %}
+                    <p style="color:var(--ink-3);font-size:13px;text-align:center;padding:16px 0;">لم تُضف معلومات المكتب بعد — <a href="{% url 'lawyer_profile_edit' %}" style="color:var(--navy);font-weight:700;">تعديل الملف</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- الخريطة -->
+        {% if lawyer.latitude and lawyer.longitude %}
+        <div class="section-card" id="map-section">
+            <div class="section-head">
+                <div class="section-head-icon">🗺️</div>
+                <div class="section-head-title">الموقع على الخريطة</div>
+            </div>
+            <div id="map" class="lawyer-map"></div>
+        </div>
+        {% endif %}
+
+        <!-- التقييمات -->
+        <div class="section-card">
+            <div class="section-head">
+                <div class="section-head-icon">⭐</div>
+                <div class="section-head-title">التقييمات ({{ lawyer.total_reviews }})</div>
+            </div>
+            <div class="section-body">
+
+                {% if lawyer.total_reviews > 0 %}
+                <div class="rating-overview">
+                    <div class="rating-big">
+                        <div class="rating-big-num">{{ lawyer.rating|floatformat:1 }}</div>
+                        <div class="rating-big-stars">
+                            {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= lawyer.rating|floatformat:"0"|add:"0" %}filled{% endif %}" style="font-size:14px;">★</span>
+                            {% endfor %}
+                        </div>
+                        <div class="rating-big-count">{{ lawyer.total_reviews }} تقييم</div>
+                    </div>
+                    <div class="rating-bars">
+                        {% for star in "54321" %}
+                        {% with count=rating_distribution|get_item:star %}
+                        <div class="rating-bar-row">
+                            <span class="bar-label">{{ star }} ★</span>
+                            <div class="bar-track">
+                                <div class="bar-fill" style="width:{% if lawyer.total_reviews > 0 %}{% widthratio count lawyer.total_reviews 100 %}{% else %}0{% endif %}%"></div>
+                            </div>
+                            <span class="bar-count">{{ count }}</span>
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if reviews %}
+                <div class="reviews-section-title">
+                    التقييمات
+                    <span class="reviews-count-badge">{{ lawyer.total_reviews }}</span>
+                </div>
+                {% endif %}
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="reviewer-meta">
+                            <div class="reviewer-av">{{ review.user.first_name|first|default:review.user.username|first|upper }}</div>
+                            <div>
+                                <div class="reviewer-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                                <div class="review-date">{{ review.created_at|date:"d/m/Y" }}</div>
+                            </div>
+                        </div>
+                        <div class="review-stars">
+                            {% for i in "12345" %}
+                            <span class="star {% if forloop.counter <= review.rating %}filled{% endif %}">★</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if review.comment %}<p class="review-comment">{{ review.comment }}</p>{% endif %}
+                </div>
+                {% empty %}
+                <div class="no-reviews">⭐ لا توجد تقييمات بعد</div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+    </div><!-- end main col -->
+
+    <!-- Sidebar -->
+    <div class="sidebar-col">
+
+        <!-- Quick Stats -->
+        <div class="scard">
+            <div class="scard-head">
+                <div class="scard-head-title">📊 إحصائياتي</div>
+            </div>
+            <div class="scard-body">
+                <div class="stat-row">
+                    <div class="stat-icon">⚖️</div>
+                    <div class="stat-lbl">التخصص</div>
+                    <div class="stat-val">{{ lawyer.get_specialization_display }}</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-icon">🎓</div>
+                    <div class="stat-lbl">سنوات الخبرة</div>
+                    <div class="stat-val gold">{{ lawyer.experience_years }} سنة</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-lbl">التقييم</div>
+                    <div class="stat-val gold">{{ lawyer.rating|floatformat:1 }} / 5</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-lbl">التقييمات</div>
+                    <div class="stat-val">{{ lawyer.total_reviews }}</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-icon">🔘</div>
+                    <div class="stat-lbl">الحالة</div>
+                    <div class="stat-val {% if lawyer.is_available %}green{% else %}red{% endif %}">
+                        {% if lawyer.is_available %}متاح{% else %}غير متاح{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit profile button -->
+        <a href="{% url 'lawyer_profile_edit' %}" class="edit-profile-btn">✏️ تعديل الملف</a>    
+
+    </div>
+
+</div><!-- end content-grid -->
+
+{% if lawyer.latitude and lawyer.longitude %}
+<link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.js"></script>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+{% if lawyer.latitude and lawyer.longitude and MAPTILER_API_KEY %}
+<script>
+(function() {
+    try {
+        var lat  = parseFloat("{{ lawyer.latitude }}");
+        var lng  = parseFloat("{{ lawyer.longitude }}");
+        var name = "{{ lawyer.office_name|default:lawyer.user.get_full_name|escapejs }}";
+        var key  = "{{ MAPTILER_API_KEY|escapejs }}";
+        if (isNaN(lat) || isNaN(lng) || !key) return;
+
+        maptilersdk.config.apiKey = key;
+        var map = new maptilersdk.Map({
+            container: 'map',
+            style: maptilersdk.MapStyle.STREETS,
+            center: [lng, lat],
+            zoom: 14,
+        });
+        map.on('load', function() {
+            new maptilersdk.Marker({ color: '#b8965a' })
+                .setLngLat([lng, lat])
+                .setPopup(new maptilersdk.Popup({ offset: 25 }).setHTML(
+                    '<div style="font-family:Tajawal,sans-serif;font-size:13px;font-weight:700;padding:4px 2px;">' + name + '</div>'
+                ))
+                .addTo(map);
+        });
+    } catch(err) { console.warn('Map init failed:', err); }
+})();
+</script>
+{% endif %}
+{% endblock %}

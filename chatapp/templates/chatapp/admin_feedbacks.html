@@ -1,193 +1,107 @@
-{% extends "chatapp/base.html" %}
-{% load static %}
-{% block title %}إدارة الملاحظات{% endblock %}
+{% extends "chatapp/admin_base.html" %}
+{% block title %}الملاحظات{% endblock %}
+{% block page_title %}الملاحظات{% endblock %}
+
 {% block extra_css %}
 <style>
-.admin-layout { display:flex; min-height:calc(100vh - 64px); }
-.admin-sidebar { width:220px; background:#1a1a2e; flex-shrink:0; padding:24px 0; position:sticky; top:64px; height:calc(100vh - 64px); overflow-y:auto; }
-.admin-nav-section { margin-bottom:24px; }
-.admin-nav-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:#4a5568; padding:0 20px; margin-bottom:8px; display:block; }
-.admin-nav-link { display:flex; align-items:center; gap:10px; padding:9px 20px; color:#94a3b8; text-decoration:none; font-size:13px; font-weight:500; transition:all .15s; margin-bottom:2px; }
-.admin-nav-link:hover { background:rgba(255,255,255,.08); color:white; }
-.admin-nav-link.active { background:rgba(59,130,246,.2); color:#60a5fa; }
-.admin-nav-link .nav-badge { margin-right:auto; background:#ef4444; color:white; border-radius:10px; padding:1px 7px; font-size:11px; }
-.admin-content { flex:1; padding:28px; background:#f8fafc; min-width:0; }
-.admin-page-header { margin-bottom:24px; }
-.admin-page-header h1 { font-size:22px; font-weight:800; color:#1a1a2e; }
-
-/* ─── Filters ─── */
-.filters-bar {
-    background:white; border-radius:12px; padding:14px 16px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #f0f0f0;
-    margin-bottom:20px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+.fb-card {
+  background: var(--white); border-radius: 14px;
+  border: 1px solid var(--border); border-right: 4px solid var(--border);
+  padding: 18px 20px; margin-bottom: 14px;
+  box-shadow: var(--shadow-sm); transition: box-shadow .2s;
 }
-.filters-bar select {
-    padding:8px 12px; border:1.5px solid #e0e0e0;
-    border-radius:9px; font-size:14px; font-family:inherit;
-    outline:none; background:white; transition:border-color .2s;
+.fb-card:hover { box-shadow: var(--shadow-md); }
+.fb-card.unread   { border-right-color: #f59e0b; }
+.fb-card.resolved { border-right-color: var(--success); }
+.fb-head  { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 12px; }
+.fb-inner { display: flex; gap: 12px; align-items: flex-start; }
+.fb-type-ico {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
 }
-.filters-bar select:focus { border-color:#007bff; }
-.btn-filter {
-    padding:8px 18px; background:#007bff; border:none;
-    border-radius:9px; color:white; font-size:14px;
-    font-weight:600; cursor:pointer; font-family:inherit;
-}
-.btn-filter:hover { background:#0056b3; }
-
-/* ─── Feedback Cards ─── */
-.feedbacks-list { display:flex; flex-direction:column; gap:14px; }
-.feedback-card {
-    background:white; border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,.05); border:1px solid #f0f0f0;
-    padding:18px 20px; border-right:4px solid #e0e0e0;
-    transition:box-shadow .2s;
-}
-.feedback-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
-.feedback-card.unread { border-right-color:#f59e0b; }
-.feedback-card.resolved { border-right-color:#10b981; }
-.feedback-header {
-    display:flex; justify-content:space-between;
-    align-items:flex-start; margin-bottom:10px; gap:12px;
-}
-.feedback-title { font-size:15px; font-weight:700; color:#1a1a2e; margin-bottom:3px; }
-.feedback-meta  { font-size:12px; color:#94a3b8; }
-.feedback-body  { font-size:14px; color:#64748b; line-height:1.6; margin-bottom:14px; }
-.feedback-footer{ display:flex; align-items:center; justify-content:space-between; }
-
-/* Status badges */
-.badge-pill { display:inline-block; padding:4px 12px; border-radius:14px; font-size:11px; font-weight:700; }
-.badge-new      { background:#fef3c7; color:#92400e; }
-.badge-pending  { background:#dbeafe; color:#1e40af; }
-.badge-resolved { background:#d1fae5; color:#065f46; }
-
-/* Type icon */
-.type-icon {
-    width:36px; height:36px; border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:18px; flex-shrink:0;
-}
-.type-bug        { background:rgba(239,68,68,.1); }
-.type-suggestion { background:rgba(16,185,129,.1); }
-.type-complaint  { background:rgba(245,158,11,.1); }
-.type-other      { background:rgba(99,102,241,.1); }
-
-/* Empty state */
-.admin-empty { text-align:center; padding:56px 20px; color:#94a3b8; }
-.admin-empty .ei { font-size:48px; margin-bottom:14px; }
-.admin-empty h3  { font-size:18px; font-weight:700; color:#374151; margin-bottom:8px; }
-
-/* Pagination */
-.admin-pagination { display:flex; align-items:center; justify-content:space-between; margin-top:20px; }
-.pg-info  { font-size:13px; color:#64748b; }
-.pg-btns  { display:flex; gap:6px; }
-.pg-btn { padding:6px 12px; border-radius:7px; border:1px solid #e0e0e0; background:white; font-size:13px; cursor:pointer; text-decoration:none; color:#1a1a2e; transition:all .2s; }
-.pg-btn:hover { border-color:#007bff; color:#007bff; }
-.pg-btn.current { background:#007bff; color:white; border-color:#007bff; }
-
-@media(max-width:900px) { .admin-layout{flex-direction:column;} .admin-sidebar{width:100%;height:auto;position:static;} .admin-content{padding:16px;} }
+.fb-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.fb-meta  { font-size: 12px; color: var(--text-3); }
+.fb-body  { font-size: 14px; color: var(--text-2); line-height: 1.6; margin-bottom: 14px; }
+.fb-foot  { display: flex; align-items: center; justify-content: space-between; }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="admin-layout">
-
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">الرئيسي</span>
-            <a href="{% url 'admin_dashboard' %}" class="admin-nav-link">🏠 لوحة التحكم</a>
-            <a href="{% url 'admin_statistics' %}" class="admin-nav-link">📊 الإحصائيات</a>
-        </div>
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">إدارة</span>
-            <a href="{% url 'admin_lawyers' %}" class="admin-nav-link">👨‍⚖️ المحامون</a>
-            <a href="{% url 'admin_feedbacks' %}" class="admin-nav-link active">💬 الملاحظات</a>
-            <a href="{% url 'admin_documents' %}" class="admin-nav-link">📄 قاعدة البيانات</a>
-        </div>
-        <div class="admin-nav-section">
-            <span class="admin-nav-label">النظام</span>
-            <a href="{% url 'admin:index' %}" class="admin-nav-link">🔧 Django Admin</a>
-            <a href="{% url 'index' %}" class="admin-nav-link">🌐 الموقع</a>
-        </div>
-    </aside>
-
-    <main class="admin-content">
-        <div class="admin-page-header">
-            <h1>💬 إدارة الملاحظات</h1>
-        </div>
-
-        <!-- فلاتر -->
-        <div class="filters-bar">
-            <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <select name="status">
-                    <option value="">كل الحالات</option>
-                    <option value="unread"   {% if current_status == 'unread'   %}selected{% endif %}>غير مقروءة</option>
-                    <option value="pending"  {% if current_status == 'pending'  %}selected{% endif %}>بانتظار الرد</option>
-                    <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>تم الحل</option>
-                </select>
-                <select name="type">
-                    <option value="">كل الأنواع</option>
-                    {% for code, name in feedback_types %}
-                    <option value="{{ code }}" {% if current_type == code %}selected{% endif %}>{{ name }}</option>
-                    {% endfor %}
-                </select>
-                <button type="submit" class="btn-filter">فلترة</button>
-            </form>
-        </div>
-
-        {% if feedbacks %}
-        <div class="feedbacks-list">
-            {% for feedback in feedbacks %}
-            <div class="feedback-card {% if not feedback.is_read %}unread{% elif feedback.is_resolved %}resolved{% endif %}">
-                <div class="feedback-header">
-                    <div style="display:flex;gap:12px;align-items:flex-start;">
-                        <div class="type-icon type-{{ feedback.feedback_type }}">
-                            {% if feedback.feedback_type == 'bug' %}🐛
-                            {% elif feedback.feedback_type == 'suggestion' %}💡
-                            {% elif feedback.feedback_type == 'complaint' %}⚠️
-                            {% else %}📝{% endif %}
-                        </div>
-                        <div>
-                            <div class="feedback-title">{{ feedback.subject }}</div>
-                            <div class="feedback-meta">
-                                {{ feedback.user.get_full_name|default:feedback.user.username }}
-                                &nbsp;·&nbsp; {{ feedback.created_at|date:"d/m/Y H:i" }}
-                            </div>
-                        </div>
-                    </div>
-                    <span class="badge-pill {% if feedback.is_resolved %}badge-resolved{% elif feedback.is_read %}badge-pending{% else %}badge-new{% endif %}">
-                        {% if feedback.is_resolved %}✓ تم الحل{% elif feedback.is_read %}قيد المراجعة{% else %}جديد{% endif %}
-                    </span>
-                </div>
-                <p class="feedback-body">{{ feedback.message|truncatewords:40 }}</p>
-                <div class="feedback-footer">
-                    <a href="{% url 'admin_feedback_detail' feedback.id %}" class="btn btn-small btn-primary">عرض التفاصيل</a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        {% if feedbacks.has_other_pages %}
-        <div class="admin-pagination">
-            <div class="pg-info">الصفحة {{ feedbacks.number }} من {{ feedbacks.paginator.num_pages }}</div>
-            <div class="pg-btns">
-                {% if feedbacks.has_previous %}
-                <a href="?page={{ feedbacks.previous_page_number }}" class="pg-btn">←</a>
-                {% endif %}
-                <span class="pg-btn current">{{ feedbacks.number }}</span>
-                {% if feedbacks.has_next %}
-                <a href="?page={{ feedbacks.next_page_number }}" class="pg-btn">→</a>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% else %}
-        <div class="admin-empty">
-            <div class="ei">💬</div>
-            <h3>لا توجد ملاحظات</h3>
-            <p>لم يرسل المستخدمون أي ملاحظات بعد</p>
-        </div>
-        {% endif %}
-    </main>
+<div class="adm-ph">
+  <h1>الملاحظات</h1>
+  <p>ملاحظات ومقترحات المستخدمين</p>
 </div>
+
+<!-- Filters -->
+<div class="adm-filters">
+  <form method="get" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;">
+    <select name="status" class="adm-input">
+      <option value="">كل الحالات</option>
+      <option value="unread"   {% if current_status == 'unread'   %}selected{% endif %}>غير مقروءة</option>
+      <option value="pending"  {% if current_status == 'pending'  %}selected{% endif %}>بانتظار الرد</option>
+      <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>تم الحل</option>
+    </select>
+    <select name="type" class="adm-input">
+      <option value="">كل الأنواع</option>
+      {% for code, name in feedback_types %}
+      <option value="{{ code }}" {% if current_type == code %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-navy btn-sm">فلترة</button>
+  </form>
+</div>
+
+{% if feedbacks %}
+<div>
+  {% for feedback in feedbacks %}
+  <div class="fb-card {% if not feedback.is_read %}unread{% elif feedback.is_resolved %}resolved{% endif %}">
+    <div class="fb-head">
+      <div class="fb-inner">
+        <div class="fb-type-ico" style="background:{% if feedback.feedback_type == 'bug' %}rgba(220,38,38,.1){% elif feedback.feedback_type == 'suggestion' %}rgba(16,185,129,.1){% elif feedback.feedback_type == 'complaint' %}rgba(245,158,11,.1){% else %}rgba(99,102,241,.1){% endif %}">
+          {% if feedback.feedback_type == 'bug' %}🐛
+          {% elif feedback.feedback_type == 'suggestion' %}💡
+          {% elif feedback.feedback_type == 'complaint' %}⚠️
+          {% else %}📝{% endif %}
+        </div>
+        <div>
+          <div class="fb-title">{{ feedback.subject }}</div>
+          <div class="fb-meta">
+            {{ feedback.user.get_full_name|default:feedback.user.username }}
+            &nbsp;·&nbsp; {{ feedback.created_at|date:"d/m/Y H:i" }}
+          </div>
+        </div>
+      </div>
+      <span class="bdg {% if feedback.is_resolved %}bdg-ok{% elif feedback.is_read %}bdg-info{% else %}bdg-new{% endif %}">
+        {% if feedback.is_resolved %}✓ تم الحل{% elif feedback.is_read %}قيد المراجعة{% else %}جديد{% endif %}
+      </span>
+    </div>
+    <p class="fb-body">{{ feedback.message|truncatewords:40 }}</p>
+    <div class="fb-foot">
+      <a href="{% url 'admin_feedback_detail' feedback.id %}" class="btn btn-ghost btn-sm">عرض التفاصيل →</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if feedbacks.has_other_pages %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;">
+  <div class="pg-info">الصفحة {{ feedbacks.number }} من {{ feedbacks.paginator.num_pages }}</div>
+  <div class="pg-btns">
+    {% if feedbacks.has_previous %}<a href="?page={{ feedbacks.previous_page_number }}" class="pg-btn">←</a>{% endif %}
+    <span class="pg-btn current">{{ feedbacks.number }}</span>
+    {% if feedbacks.has_next %}<a href="?page={{ feedbacks.next_page_number }}" class="pg-btn">→</a>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="adm-card">
+  <div class="adm-empty">
+    <div class="ei">💬</div>
+    <h3>لا توجد ملاحظات</h3>
+    <p>لم يرسل المستخدمون أي ملاحظات بعد</p>
+  </div>
+</div>
+{% endif %}
 {% endblock %}

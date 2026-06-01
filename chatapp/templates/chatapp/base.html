@@ -49,7 +49,7 @@
                     </button>
                     <div class="user-dropdown" id="userDropdown">
                         {% if request.user.profile.user_type == 'lawyer' %}
-                        <a href="{% url 'lawyer_dashboard' %}">⚡ لوحة التحكم</a>
+                        <a href="{% url 'lawyer_dashboard' %}"> لوحتي</a>
                         <a href="{% url 'lawyer_profile_edit' %}">👤 الملف الشخصي</a>
                         <a href="{% url 'lawyer_consultations' %}">📋 الاستشارات</a>
                         {% elif request.user.is_staff %}

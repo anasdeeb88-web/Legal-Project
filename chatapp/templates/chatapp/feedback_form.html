@@ -1,107 +1,317 @@
-{% extends "chatapp/base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>إرسال ملاحظة — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-{% block title %}إرسال ملاحظة{% endblock %}
+:root {
+    --navy:      #0b1628;
+    --navy-2:    #111f38;
+    --gold:      #b8965a;
+    --gold-lt:   #d4b07a;
+    --gold-dim:  rgba(184,150,90,0.14);
+    --gold-line: rgba(184,150,90,0.28);
+    --white:     #ffffff;
+    --page-bg:   #f1f3f8;
+    --ink:       #1a1a2a;
+    --ink-2:     #3d3d52;
+    --ink-3:     #7a7a94;
+    --border:    rgba(0,0,0,.08);
+    --border-2:  rgba(0,0,0,.13);
+    --success:   #16a34a;
+    --danger:    #dc2626;
+}
 
-{% block content %}
-<div class="feedback-page">
+html { scroll-behavior: smooth; }
+body { font-family: 'Tajawal', sans-serif; background: var(--page-bg); color: var(--ink); min-height: 100dvh; }
+
+/* ══ NAVBAR ══ */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--navy); border-bottom: 1px solid rgba(184,150,90,.18); transition: box-shadow .3s; }
+.navbar.scrolled { box-shadow: 0 4px 24px rgba(0,0,0,.35); }
+.nav-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.nav-emblem { width: 36px; height: 36px; border-radius: 9px; background: var(--gold-dim); border: 1px solid var(--gold-line); display: flex; align-items: center; justify-content: center; }
+.nav-emblem svg { width: 18px; height: 18px; }
+.nav-brand-text { font-family: 'Amiri', serif; font-size: 15px; color: var(--gold-lt); line-height: 1; }
+.nav-links { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+.nav-link { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); text-decoration: none; padding: 7px 14px; border-radius: 8px; transition: background .2s, color .2s; white-space: nowrap; }
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,.08); color: #fff; }
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.btn-nav-ghost { padding: 8px 18px; border-radius: 10px; border: 1.5px solid var(--gold-line); background: none; color: var(--gold-lt); font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 600; cursor: pointer; text-decoration: none; transition: background .2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn-nav-ghost:hover { background: var(--gold-dim); }
+.user-menu { position: relative; }
+.user-btn { display: flex; align-items: center; gap: 9px; background: none; border: 1.5px solid var(--gold-line); border-radius: 10px; padding: 6px 14px 6px 10px; cursor: pointer; color: var(--gold-lt); font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600; transition: background .2s; }
+.user-btn:hover { background: var(--gold-dim); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #8a6d38, var(--gold)); color: #1a0f00; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chevron { font-size: 10px; color: rgba(255,255,255,.4); margin-right: 2px; transition: transform .2s; }
+.user-menu.open .chevron { transform: rotate(180deg); }
+.user-dropdown { position: absolute; top: calc(100% + 8px); left: 0; background: var(--navy-2); border: 1px solid var(--gold-line); border-radius: 12px; min-width: 180px; box-shadow: 0 16px 40px rgba(0,0,0,.4); overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: all .2s; z-index: 200; }
+.user-menu.open .user-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.user-dropdown a, .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 11px 16px; text-decoration: none; color: rgba(255,255,255,.8); font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 500; transition: background .15s, color .15s; border: none; background: none; width: 100%; cursor: pointer; text-align: right; }
+.user-dropdown a:hover, .user-dropdown button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.dropdown-divider { height: 1px; background: var(--gold-line); margin: 4px 0; }
+.hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; background: none; border: none; padding: 6px; cursor: pointer; width: 36px; height: 36px; }
+.hamburger span { display: block; height: 2px; background: var(--gold-lt); border-radius: 2px; transition: all .25s; }
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.mobile-nav { display: none; flex-direction: column; background: var(--navy-2); border-top: 1px solid var(--gold-line); padding: 12px 0; }
+.mobile-nav.open { display: flex; }
+.mobile-link { padding: 12px 24px; color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .15s; border: none; background: none; font-family: 'Tajawal', sans-serif; cursor: pointer; text-align: right; width: 100%; display: flex; align-items: center; gap: 8px; }
+.mobile-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.mobile-divider { height: 1px; background: var(--gold-line); margin: 6px 24px; }
+@media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } }
+
+/* ══ PAGE ══ */
+.page-wrap { max-width: 700px; margin: 0 auto; padding: 36px 20px 60px; }
+
+.page-header { margin-bottom: 28px; }
+.page-header h1 { font-family: 'Amiri', serif; font-size: 28px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+.page-header p { font-size: 14px; color: var(--ink-3); line-height: 1.7; }
+
+/* Banner */
+#form-banner { display: none; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 600; }
+
+/* Form card */
+.form-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,.05); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+.fg { margin-bottom: 18px; }
+.fg label { display: block; font-size: 13px; font-weight: 700; color: var(--ink-2); margin-bottom: 7px; }
+.fg label span { color: var(--danger); }
+.fg-input, .fg-select, .fg-textarea {
+    width: 100%; background: #f8f9fc; border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 14px; color: var(--ink); font-family: 'Tajawal', sans-serif;
+    outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.fg-input:focus, .fg-select:focus, .fg-textarea:focus {
+    border-color: var(--gold); box-shadow: 0 0 0 4px rgba(184,150,90,.1);
+    background: #fff;
+}
+.fg-textarea { resize: vertical; min-height: 140px; line-height: 1.7; }
+.fg-hint { font-size: 12px; color: var(--ink-3); margin-top: 5px; }
+
+.form-footer { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
+.btn-submit {
+    padding: 11px 28px; border-radius: 11px;
+    background: linear-gradient(135deg, #7a5e2a, var(--gold), var(--gold-lt));
+    border: none; color: #1a0f00; font-size: 14px; font-weight: 800;
+    font-family: 'Tajawal', sans-serif; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(184,150,90,.35); transition: box-shadow .2s, transform .2s;
+}
+.btn-submit:hover { box-shadow: 0 6px 22px rgba(184,150,90,.5); transform: translateY(-1px); }
+.btn-submit:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; transform: none; }
+.btn-cancel {
+    padding: 10px 22px; border-radius: 11px;
+    border: 1.5px solid var(--border-2); background: none;
+    color: var(--ink-3); font-size: 14px; font-weight: 600;
+    font-family: 'Tajawal', sans-serif; cursor: pointer; text-decoration: none;
+    transition: background .2s, border-color .2s;
+    display: inline-flex; align-items: center;
+}
+.btn-cancel:hover { background: var(--page-bg); border-color: var(--gold-line); color: var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <a href="{% url 'index' %}" class="nav-brand">
+            <div class="nav-emblem">
+                <svg viewBox="0 0 28 28" fill="none"><path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/><path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="nav-brand-text">المستشار القانوني السوري</span>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'index' %}" class="nav-link">الرئيسية</a>
+            <a href="{% url 'chat_new' %}" class="nav-link">المستشار الذكي</a>
+            <a href="{% url 'lawyers_list' %}" class="nav-link">دليل المحامين</a>
+            <a href="{% url 'lawyers_map' %}" class="nav-link">خريطة المحامين</a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" class="nav-link">الإدارة</a>
+            {% elif request.user.profile.user_type == 'lawyer' %}
+            <a href="{% url 'lawyer_dashboard' %}" class="nav-link">لوحتي</a>
+            {% else %}
+            <a href="{% url 'my_consultations' %}" class="nav-link">استشاراتي</a>
+            {% endif %}
+        </div>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+            <div class="user-menu" id="userMenu">
+                <button class="user-btn" onclick="toggleUserMenu(event)">
+                    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+                    <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+                    <span class="chevron">▾</span>
+                </button>
+                <div class="user-dropdown">
+                    {% if request.user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}">⚖️ لوحتي</a>
+                    <a href="{% url 'admin_documents' %}">📄 قاعدة البيانات</a>
+                    {% elif request.user.profile.user_type == 'lawyer' %}
+                    <a href="{% url 'lawyer_dashboard' %}">⚖️ لوحتي</a>
+                    <a href="{% url 'lawyer_consultations' %}">📋 استشارات العملاء</a>
+                    {% else %}
+                    
+                    <a href="{% url 'submit_feedback' %}">💬 إرسال ملاحظة</a>
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                        {% csrf_token %}<button type="submit">🚪 تسجيل الخروج</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-nav-ghost">تسجيل الدخول</a>
+            {% endif %}
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+    <div class="mobile-nav" id="mobileNav">
+        <a href="{% url 'index' %}" class="mobile-link">🏠 الرئيسية</a>
+        <a href="{% url 'chat_new' %}" class="mobile-link">🤖 المستشار الذكي</a>
+        <a href="{% url 'lawyers_list' %}" class="mobile-link">👨‍⚖️ دليل المحامين</a>
+        <a href="{% url 'lawyers_map' %}" class="mobile-link">🗺️ خريطة المحامين</a>
+        {% if request.user.is_authenticated %}
+        <div class="mobile-divider"></div>
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" class="mobile-link">⚖️ لوحتي</a>
+        {% elif request.user.profile.user_type == 'lawyer' %}
+        <a href="{% url 'lawyer_dashboard' %}" class="mobile-link">⚖️ لوحتي</a>
+        {% else %}
+        <a href="{% url 'my_consultations' %}" class="mobile-link">📋 استشاراتي</a>
+        {% endif %}
+        <div class="mobile-divider"></div>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}<button type="submit" class="mobile-link">🚪 تسجيل الخروج</button>
+        </form>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- ══ PAGE ══ -->
+<div class="page-wrap">
+
     <div class="page-header">
-        <h1>إرسال ملاحظة للإدارة</h1>
-        <p class="subtitle">نحن نقدر ملاحظاتك ونسعى لتحسين خدماتنا</p>
+        <h1>💬 إرسال ملاحظة</h1>
+        <p>آراؤكم تساعدنا في تحسين الخدمة — سنراجع ملاحظتك في أقرب وقت</p>
     </div>
 
-    <div class="feedback-form-card card">
-        <form id="feedback-form" method="POST" enctype="multipart/form-data">
+    <div id="form-banner"></div>
+
+    <div class="form-card">
+        <form id="feedback-form" method="POST">
             {% csrf_token %}
 
-            <div class="form-group">
-                <label for="feedback_type">نوع الملاحظة *</label>
-                <select name="feedback_type" id="feedback_type" required>
-                    {% for code, name in feedback_types %}
-                    <option value="{{ code }}">{{ name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="subject">الموضوع *</label>
-                <input type="text" id="subject" name="subject" required placeholder="اكتب عنوان الملاحظة">
-            </div>
-
-            <div class="form-group">
-                <label for="message">الرسالة *</label>
-                <textarea id="message" name="message" rows="8" required placeholder="اشرح ملاحظتك بالتفصيل..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>إرفاق تسجيل صوتي (اختياري)</label>
-                <div class="audio-section">
-                    <button type="button" class="btn btn-outline" onclick="startRecording()" id="record-btn">
-                        🎤 بدء التسجيل
-                    </button>
-                    <span class="or-text">أو</span>
-                    <input type="file" name="audio_file" accept="audio/*" id="audio-file-input" style="display:none;">
-                    <label for="audio-file-input" class="btn btn-outline">📎 رفع ملف صوتي</label>
+            <div class="form-grid">
+                <div class="fg" style="margin-bottom:0;">
+                    <label for="feedback_type">نوع الملاحظة <span>*</span></label>
+                    <select name="feedback_type" id="feedback_type" class="fg-select" required>
+                        {% for code, name in feedback_types %}
+                        <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-
-                <div id="recording-indicator" class="recording-indicator" style="display:none;">
-                    <div class="recording-dot"></div>
-                    <span>جارٍ التسجيل...</span>
-                    <span id="recording-time">0:00</span>
-                    <button type="button" class="btn btn-small" style="background:var(--error);color:white;border:none;" onclick="stopRecording()">⏹ إيقاف</button>
+                <div class="fg" style="margin-bottom:0;">
+                    <label for="subject">الموضوع <span>*</span></label>
+                    <input type="text" id="subject" name="subject" class="fg-input" required placeholder="عنوان مختصر للملاحظة">
                 </div>
-
-                <div id="audio-preview" class="audio-preview" style="display:none;">
-                    <p>✓ تم رفع الملف الصوتي</p>
-                    <audio controls id="audio-player"></audio>
-                </div>
-                <p class="help-text">الحد الأقصى: 10 MB</p>
             </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-large">📤 إرسال الملاحظة</button>
-                <a href="{% url 'index' %}" class="btn btn-outline">إلغاء</a>
+            <div class="fg">
+                <label for="message">الرسالة <span>*</span></label>
+                <textarea id="message" name="message" class="fg-textarea" rows="7" required placeholder="اشرح ملاحظتك بوضوح وتفصيل..."></textarea>
+                <div class="fg-hint" id="char-hint">الحد الأقصى: 2000 حرف</div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" id="submit-btn" class="btn-submit">إرسال الملاحظة</button>
+                <a href="{% url 'index' %}" class="btn-cancel">إلغاء</a>
             </div>
         </form>
     </div>
+
 </div>
 
-<script src="{% static 'chatapp/audio-recorder.js' %}"></script>
 <script>
+/* ── Navbar ── */
+window.addEventListener('scroll', function() {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+});
+function toggleUserMenu(e) {
+    e.stopPropagation();
+    document.getElementById('userMenu').classList.toggle('open');
+}
+document.addEventListener('click', function() {
+    var m = document.getElementById('userMenu');
+    if (m) m.classList.remove('open');
+});
+function toggleMobileMenu() {
+    document.getElementById('hamburger').classList.toggle('active');
+    document.getElementById('mobileNav').classList.toggle('open');
+}
+
+/* ── Form Submit ── */
 document.getElementById('feedback-form').addEventListener('submit', async function(e) {
     e.preventDefault();
+    const banner  = document.getElementById('form-banner');
+    const btn     = document.getElementById('submit-btn');
     const formData = new FormData(this);
-    const submitBtn = this.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '⏳ جارٍ الإرسال...';
+
+    btn.disabled = true;
+    btn.textContent = 'جارٍ الإرسال…';
+    banner.style.display = 'none';
+
     try {
         const response = await fetch('{% url "submit_feedback" %}', {
-            method: 'POST', body: formData,
+            method: 'POST',
+            body: formData,
             headers: { 'X-CSRFToken': formData.get('csrfmiddlewaretoken') }
         });
         const data = await response.json();
+
         if (data.success) {
-            alert('✓ ' + data.message);
-            window.location.href = '{% url "index" %}';
+            banner.style.cssText = 'display:block; background:rgba(22,163,74,.08); color:#15803d; border:1px solid rgba(22,163,74,.2); padding:12px 18px; border-radius:10px; margin-bottom:20px; font-size:14px; font-weight:600;';
+            banner.textContent = '✓ ' + data.message;
+            this.reset();
+            setTimeout(() => { window.location.href = '{% url "index" %}'; }, 1800);
         } else {
-            alert('❌ ' + (data.error || 'حدث خطأ'));
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '📤 إرسال الملاحظة';
+            banner.style.cssText = 'display:block; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:12px 18px; border-radius:10px; margin-bottom:20px; font-size:14px; font-weight:600;';
+            banner.textContent = '✗ ' + (data.error || 'حدث خطأ، يرجى المحاولة مجدداً');
+            btn.disabled = false;
+            btn.textContent = 'إرسال الملاحظة';
         }
-    } catch (error) {
-        alert('❌ حدث خطأ في الاتصال');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '📤 إرسال الملاحظة';
+    } catch {
+        banner.style.cssText = 'display:block; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; padding:12px 18px; border-radius:10px; margin-bottom:20px; font-size:14px; font-weight:600;';
+        banner.textContent = '✗ حدث خطأ في الاتصال، يرجى المحاولة مجدداً';
+        btn.disabled = false;
+        btn.textContent = 'إرسال الملاحظة';
     }
 });
 
-document.getElementById('audio-file-input').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const preview = document.getElementById('audio-preview');
-        document.getElementById('audio-player').src = URL.createObjectURL(file);
-        preview.style.display = 'block';
+/* ── Character counter ── */
+document.getElementById('message').addEventListener('input', function() {
+    const max = 2000;
+    const hint = document.getElementById('char-hint');
+    const remaining = max - this.value.length;
+    if (remaining < 200) {
+        hint.textContent = remaining + ' حرف متبقٍ';
+        hint.style.color = remaining < 50 ? '#dc2626' : '#7a7a94';
+    } else {
+        hint.textContent = 'الحد الأقصى: 2000 حرف';
+        hint.style.color = '#7a7a94';
     }
 });
 </script>
-{% endblock %}
+</body>
+</html>

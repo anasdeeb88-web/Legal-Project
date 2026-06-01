@@ -1,0 +1,613 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}لوحة الإدارة{% endblock %} — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ADMIN DESIGN SYSTEM — SHARED BASE
+   ═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:      #0b1628;
+  --navy-2:    #111f38;
+  --gold:      #b8965a;
+  --gold-lt:   #d4b07a;
+  --gold-dim:  rgba(184,150,90,.14);
+  --gold-line: rgba(184,150,90,.28);
+  --cream:     #f5f2eb;
+  --bg:        #f1f3f8;
+  --white:     #ffffff;
+  --border:    #e8eef5;
+  --border-2:  #d0d8e8;
+  --text:      #1a2642;
+  --text-2:    #4a5568;
+  --text-3:    #94a3b8;
+  --success:   #16a34a;
+  --warning:   #d97706;
+  --danger:    #dc2626;
+  --info:      #2563eb;
+  --sidebar-w: 240px;
+  --topbar-h:  60px;
+  --shadow-sm: 0 1px 4px rgba(11,22,40,.06);
+  --shadow-md: 0 4px 16px rgba(11,22,40,.1);
+}
+
+html, body { height: 100%; }
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  direction: rtl;
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; }
+
+/* ─── Shell ─── */
+.adm-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── Sidebar (right side in RTL) ─── */
+.adm-sidebar {
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+  display: none;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 200;
+  transition: transform .3s;
+}
+.adm-sidebar.mob-open {
+  display: flex;
+}
+
+/* Brand */
+.adm-brand {
+  padding: 20px 16px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+}
+.adm-brand-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  background: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.adm-brand-name { font-size: 13px; font-weight: 800; color: var(--navy); line-height: 1.3; }
+.adm-brand-sub  { font-size: 11px; color: var(--gold); font-weight: 700; margin-top: 1px; }
+
+/* Nav */
+.adm-nav {
+  padding: 10px 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+.adm-nav-section { margin-bottom: 6px; }
+.adm-nav-label {
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--text-3);
+  padding: 12px 10px 5px;
+  display: block;
+}
+.adm-nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  color: var(--text-2); font-size: 13px; font-weight: 600;
+  transition: all .2s; margin-bottom: 2px;
+}
+.adm-nav-link:hover { background: #f4f6fa; color: var(--navy); }
+.adm-nav-link.active {
+  background: var(--navy); color: white;
+}
+.adm-nav-link .nav-ic { font-size: 16px; width: 22px; text-align: center; flex-shrink: 0; }
+.adm-nav-link .nav-badge {
+  margin-right: auto;
+  background: #ef4444; color: white;
+  border-radius: 20px; padding: 1px 7px; font-size: 11px;
+}
+.adm-nav-link.active .nav-badge { background: rgba(255,255,255,.25); }
+
+/* Footer */
+.adm-sidebar-footer {
+  padding: 12px 8px 16px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.adm-user-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 10px; border-radius: 12px;
+  background: #f8fafc; margin-bottom: 6px;
+}
+.adm-user-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--navy); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; flex-shrink: 0;
+}
+.adm-user-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+.adm-user-role { font-size: 11px; color: var(--gold); font-weight: 700; }
+.adm-signout {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: 8px;
+  color: var(--text-2); font-size: 13px; font-weight: 500;
+  transition: all .2s; background: none; border: none; width: 100%;
+}
+.adm-signout:hover { background: #fee2e2; color: var(--danger); }
+
+/* ─── Main area ─── */
+.adm-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ─── Topbar ─── */
+.adm-topbar {
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+.adm-topbar-start { display: flex; align-items: center; gap: 10px; }
+.adm-topbar-center { text-align: center; }
+.adm-topbar-end   { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.adm-topbar-title { font-size: 15px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+.adm-tb-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: #f4f6fa; display: flex; align-items: center;
+  justify-content: center; font-size: 17px; border: none;
+  color: var(--text-2); transition: background .2s;
+}
+.adm-tb-btn:hover { background: var(--border); }
+
+/* ─── Content ─── */
+.adm-content {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}
+
+/* ─── Page header ─── */
+.adm-ph { margin-bottom: 24px; }
+.adm-ph h1 {
+  font-size: 24px; font-weight: 900;
+  color: var(--navy); font-family: 'Amiri', serif;
+  margin-bottom: 4px;
+}
+.adm-ph p { font-size: 14px; color: var(--text-2); }
+
+/* ─── Stats grid ─── */
+.adm-stats-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.adm-stats-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.adm-stats-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+
+/* ─── Stat card ─── */
+.adm-sc {
+  background: var(--white); border-radius: 16px;
+  padding: 20px; border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+}
+.adm-sc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.adm-sc-ico {
+  width: 46px; height: 46px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.si-blue   { background: rgba(37,99,235,.1); }
+.si-green  { background: rgba(22,163,74,.1); }
+.si-gold   { background: rgba(184,150,90,.12); }
+.si-red    { background: rgba(220,38,38,.1); }
+.si-purple { background: rgba(124,58,237,.1); }
+.si-teal   { background: rgba(20,184,166,.1); }
+.si-navy   { background: rgba(11,22,40,.08); }
+.si-orange { background: rgba(249,115,22,.1); }
+.adm-sc-chip {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px;
+}
+.chip-up   { background: rgba(22,163,74,.1); color: var(--success); }
+.chip-warn { background: rgba(217,119,6,.1); color: var(--warning); }
+.chip-info { background: rgba(37,99,235,.1); color: var(--info); }
+.adm-sc-num   { font-size: 34px; font-weight: 900; color: var(--navy); line-height: 1; margin-bottom: 5px; }
+.adm-sc-label { font-size: 13px; color: var(--text-2); font-weight: 500; }
+
+/* ─── Activity row (smaller stat) ─── */
+.adm-act-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.adm-act-card {
+  background: var(--cream); border-radius: 14px;
+  padding: 18px 16px; border: 1px solid rgba(184,150,90,.15);
+  text-align: center;
+}
+.adm-act-num   { font-size: 32px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.adm-act-label { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.act-c1 { color: #7c3aed; }
+.act-c2 { color: #16a34a; }
+.act-c3 { color: #2563eb; }
+.act-c4 { color: #0d9488; }
+
+/* ─── Card / Panel ─── */
+.adm-card {
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); overflow: hidden;
+  margin-bottom: 20px;
+}
+.adm-card-h {
+  padding: 15px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.adm-card-title { font-size: 15px; font-weight: 800; color: var(--navy); }
+.adm-card-link  { font-size: 13px; color: var(--info); font-weight: 600; }
+.adm-card-link:hover { text-decoration: underline; }
+.adm-card-body  { padding: 8px 0; }
+
+/* ─── Table ─── */
+.adm-table-wrap { overflow-x: auto; }
+.adm-table { width: 100%; border-collapse: collapse; }
+.adm-table thead tr { background: #f8fafc; }
+.adm-table th {
+  padding: 11px 16px; text-align: right;
+  font-size: 11px; font-weight: 800; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: .5px;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.adm-table td {
+  padding: 13px 16px; border-bottom: 1px solid #f5f7fa;
+  font-size: 14px; vertical-align: middle; color: var(--text);
+}
+.adm-table tbody tr:hover td { background: #fafbfc; }
+.adm-table tbody tr:last-child td { border-bottom: none; }
+
+/* ─── Badges ─── */
+.bdg { display: inline-block; padding: 3px 10px; border-radius: 14px; font-size: 11px; font-weight: 700; }
+.bdg-ok      { background: rgba(22,163,74,.1);  color: #16a34a; }
+.bdg-pending { background: rgba(217,119,6,.1);  color: #d97706; }
+.bdg-new     { background: rgba(220,38,38,.1);  color: #dc2626; }
+.bdg-info    { background: rgba(37,99,235,.1);  color: #2563eb; }
+.bdg-purple  { background: rgba(124,58,237,.1); color: #7c3aed; }
+
+/* ─── Buttons ─── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; font-family: inherit; transition: all .2s;
+  text-decoration: none;
+}
+.btn-navy  { background: var(--navy); color: white; }
+.btn-navy:hover { background: var(--navy-2); box-shadow: 0 4px 14px rgba(11,22,40,.25); }
+.btn-gold  { background: var(--gold); color: white; }
+.btn-gold:hover { background: var(--gold-lt); }
+.btn-ghost { background: #f4f6fa; color: var(--text-2); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--navy); color: var(--navy); }
+.btn-danger { background: #fee2e2; color: var(--danger); }
+.btn-danger:hover { background: #fecaca; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+
+/* ─── Action buttons (table) ─── */
+.btn-act {
+  padding: 5px 12px; border-radius: 7px; font-size: 12px;
+  font-weight: 700; cursor: pointer; border: none; transition: all .2s; font-family: inherit;
+}
+.btn-act-approve { background: rgba(22,163,74,.1); color: #16a34a; }
+.btn-act-approve:hover { background: rgba(22,163,74,.2); }
+.btn-act-reject  { background: rgba(220,38,38,.1); color: #dc2626; }
+.btn-act-reject:hover  { background: rgba(220,38,38,.2); }
+.btn-act-edit    { background: rgba(37,99,235,.1); color: #2563eb; }
+.btn-act-edit:hover    { background: rgba(37,99,235,.2); }
+
+/* ─── Item rows ─── */
+.adm-item-row { display: flex; align-items: center; gap: 12px; padding: 10px 20px; transition: background .15s; }
+.adm-item-row:hover { background: #f9fafb; }
+.adm-item-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+.adm-item-info { flex: 1; min-width: 0; }
+.adm-item-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adm-item-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* ─── Filters bar ─── */
+.adm-filters {
+  background: var(--white); border-radius: 14px;
+  padding: 14px 16px; border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); margin-bottom: 20px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+
+/* ─── Filter tabs ─── */
+.ftabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.ftab {
+  padding: 7px 16px; border-radius: 9px;
+  border: 1.5px solid var(--border); background: var(--white);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; color: var(--text-2);
+  transition: all .2s; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.ftab:hover { border-color: var(--navy); color: var(--navy); }
+.ftab.active { background: var(--navy); border-color: var(--navy); color: white; }
+.ftab.warn.active { background: var(--warning); border-color: var(--warning); color: white; }
+.ftab .fc {
+  display: inline-block; background: rgba(255,255,255,.3);
+  border-radius: 8px; padding: 0 6px; font-size: 11px;
+}
+.ftab:not(.active) .fc { background: #f0f0f0; color: var(--text-2); }
+
+/* ─── Input ─── */
+.adm-input {
+  padding: 9px 14px; border: 1.5px solid var(--border-2);
+  border-radius: 10px; font-size: 14px; font-family: inherit;
+  outline: none; background: var(--white); color: var(--text);
+  transition: border-color .2s;
+}
+.adm-input:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(11,22,40,.07); }
+
+/* ─── Pending banner ─── */
+.adm-pending-banner {
+  background: linear-gradient(135deg,#fef3c7,#fde68a);
+  border: 1.5px solid #f59e0b; border-radius: 14px;
+  padding: 16px 20px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+.pb-icon { font-size: 28px; flex-shrink: 0; }
+.pb-text h3 { font-size: 15px; font-weight: 700; color: #92400e; }
+.pb-text p  { font-size: 13px; color: #78350f; margin-top: 2px; }
+.pb-action  { margin-right: auto; flex-shrink: 0; }
+
+/* ─── Pagination ─── */
+.adm-pag { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-top: 1px solid var(--border); }
+.pg-info { font-size: 13px; color: var(--text-2); }
+.pg-btns { display: flex; gap: 6px; }
+.pg-btn {
+  padding: 5px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--white);
+  font-size: 13px; cursor: pointer; text-decoration: none;
+  color: var(--text); transition: all .2s;
+}
+.pg-btn:hover   { border-color: var(--navy); color: var(--navy); }
+.pg-btn.current { background: var(--navy); color: white; border-color: var(--navy); }
+
+/* ─── Panels row ─── */
+.adm-panels-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+/* ─── Quick actions ─── */
+.adm-qa-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.adm-qa-card {
+  background: var(--white); border-radius: 14px; padding: 18px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  text-decoration: none; color: inherit; transition: all .2s; display: block;
+}
+.adm-qa-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--navy); }
+.qa-ico   { font-size: 28px; margin-bottom: 10px; }
+.qa-title { font-size: 13px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+.qa-desc  { font-size: 11px; color: var(--text-3); }
+.qa-badge { display: inline-block; background: #ef4444; color: white; border-radius: 10px; padding: 1px 8px; font-size: 11px; margin-top: 6px; }
+
+/* ─── Empty state ─── */
+.adm-empty { text-align: center; padding: 52px 20px; color: var(--text-3); }
+.adm-empty .ei { font-size: 48px; margin-bottom: 14px; }
+.adm-empty h3  { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+
+/* ─── Toast ─── */
+.adm-toasts { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+.adm-toast {
+  padding: 11px 24px; border-radius: 12px; font-size: 14px;
+  font-weight: 600; color: white; box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  animation: tadIn .3s ease; white-space: nowrap;
+}
+@keyframes tadIn { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+.adm-toast.ok   { background: #16a34a; }
+.adm-toast.err  { background: #dc2626; }
+.adm-toast.info { background: #2563eb; }
+
+/* ─── Section header (activity) ─── */
+.adm-section-h {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.adm-section-h span { font-size: 15px; font-weight: 800; color: var(--navy); }
+.adm-section-sep { flex: 1; height: 1px; background: var(--border); }
+
+/* ─── Django Admin section ─── */
+.adm-django-link {
+  color: var(--text-2);
+  border-right: 2px solid transparent;
+  transition: all .2s;
+}
+.adm-django-link:hover {
+  background: rgba(124,58,237,.07);
+  color: #7c3aed;
+  border-right-color: #7c3aed;
+}
+.dj-ext-icon {
+  margin-right: auto;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.adm-nav-label:has(+ .adm-django-link),
+.adm-nav-section:has(.adm-django-link) .adm-nav-label {
+  color: #7c3aed;
+}
+
+/* ─── Responsive ─── */
+@media(max-width: 1200px) {
+  .adm-stats-4   { grid-template-columns: repeat(2, 1fr); }
+  .adm-act-grid  { grid-template-columns: repeat(2, 1fr); }
+  .adm-panels-3  { grid-template-columns: 1fr 1fr; }
+  .adm-qa-grid   { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 900px) {
+  .adm-shell { flex-direction: column-reverse; }
+  .adm-sidebar { width: 100%; height: auto; position: static; flex-direction: row; }
+  .adm-brand { border-bottom: none; padding: 12px 16px; }
+  .adm-nav { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+  .adm-nav-label { display: none; }
+  .adm-nav-link { padding: 6px 10px; font-size: 12px; }
+  .adm-sidebar-footer { display: none; }
+  .adm-content { padding: 16px; }
+}
+@media(max-width: 600px) {
+  .adm-stats-4 { grid-template-columns: 1fr 1fr; }
+  .adm-act-grid { grid-template-columns: 1fr 1fr; }
+  .adm-panels-3 { grid-template-columns: 1fr; }
+  .adm-qa-grid  { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="adm-shell">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="adm-sidebar" id="admSidebar">
+
+    <div class="adm-brand">
+      <div class="adm-brand-icon">⚖️</div>
+      <div>
+        <div class="adm-brand-name">المستشار القانوني</div>
+        <div class="adm-brand-sub">السوري</div>
+      </div>
+    </div>
+
+    <nav class="adm-nav">
+      <div class="adm-nav-section">
+        <span class="adm-nav-label">الرئيسي</span>
+        <a href="{% url 'admin_dashboard' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+          <span class="nav-ic">🏠</span> لوحة التحكم
+        </a>
+        <a href="{% url 'admin_statistics' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_statistics' %}active{% endif %}">
+          <span class="nav-ic">📊</span> الإحصائيات
+        </a>
+      </div>
+      <div class="adm-nav-section">
+        <span class="adm-nav-label">إدارة</span>
+        <a href="{% url 'admin_lawyers' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_lawyers' %}active{% endif %}">
+          <span class="nav-ic">👨‍⚖️</span> المحامون
+          {% block sb_lawyers_badge %}{% endblock %}
+        </a>
+        <a href="{% url 'admin_feedbacks' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_feedbacks' %}active{% endif %}">
+          <span class="nav-ic">💬</span> الملاحظات
+          {% block sb_feedbacks_badge %}{% endblock %}
+        </a>
+        <a href="{% url 'admin_documents' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_documents' %}active{% endif %}">
+          <span class="nav-ic">📄</span> الوثائق القانونية
+        </a>
+        <a href="{% url 'admin_official_docs' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_official_docs' %}active{% endif %}">
+          <span class="nav-ic">📂</span> الوثائق الرسمية
+        </a>
+        <a href="{% url 'admin_legal_docs' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_legal_docs' %}active{% endif %}">
+          <span class="nav-ic">📝</span> منشئ الوثائق
+        </a>
+      </div>
+      <div class="adm-nav-section">
+        <span class="adm-nav-label">النظام</span>
+        <a href="{% url 'admin_rag_status' %}" class="adm-nav-link {% if request.resolver_match.url_name == 'admin_rag_status' %}active{% endif %}">
+          <span class="nav-ic">⚙️</span> حالة RAG
+        </a>
+        <a href="{% url 'index' %}" class="adm-nav-link">
+          <span class="nav-ic">🌐</span> الموقع
+        </a>
+      </div>
+
+      <!-- Django Admin -->
+      <div class="adm-nav-section">
+        <span class="adm-nav-label">إعدادات Django</span>
+        <a href="/admin/" target="_blank" class="adm-nav-link adm-django-link">
+          <span class="nav-ic">🛠️</span>
+          <span>لوحة Django</span>
+          <span class="dj-ext-icon">↗</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="adm-sidebar-footer">
+      <div class="adm-user-card">
+        <div class="adm-user-av">{{ request.user.username|first|upper }}</div>
+        <div>
+          <div class="adm-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+          <div class="adm-user-role">مدير النظام</div>
+        </div>
+      </div>
+      <form method="post" action="{% url 'logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="adm-signout">
+          <span style="font-size:15px;">→</span> تسجيل الخروج
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <div class="adm-main">
+
+    <!-- Topbar -->
+    <div class="adm-topbar">
+      <div class="adm-topbar-start">
+        <button class="adm-tb-btn" onclick="document.getElementById('admSidebar').classList.toggle('mob-open')" title="القائمة">☰</button>
+      </div>
+      <div class="adm-topbar-center">
+        <span class="adm-topbar-title">{% block page_title %}لوحة الإدارة{% endblock %}</span>
+      </div>
+      <div class="adm-topbar-end">
+      
+      </div>
+    </div>
+
+    <!-- Content -->
+    <main class="adm-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+</div>
+
+<div class="adm-toasts" id="admToasts"></div>
+
+<script>
+function admToast(msg, type='info') {
+  const wrap = document.getElementById('admToasts');
+  const el = document.createElement('div');
+  el.className = 'adm-toast ' + type;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0'; el.style.transition = 'opacity .3s';
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+// alias
+function toast(msg, type) { admToast(msg, type); }
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

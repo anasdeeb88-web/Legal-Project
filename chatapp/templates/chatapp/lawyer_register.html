@@ -1,314 +1,867 @@
-{% extends "chatapp/base.html" %}
 {% load static %}
-{% block title %}تسجيل محامٍ جديد{% endblock %}
-{% block extra_css %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تسجيل محامٍ جديد — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.css">
 <style>
-.reg-container { max-width: 680px; margin: 40px auto; }
-.reg-header { text-align: center; margin-bottom: 36px; }
-.reg-header .badge {
-    display: inline-block; background: rgba(201,168,76,0.1);
-    border: 1px solid rgba(201,168,76,0.35); border-radius: 20px;
-    padding: 6px 16px; font-size: 13px; color: #a16207;
-    margin-bottom: 14px;
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    /* اليمين — أخضر داكن */
+    --green-d:    #0d1f09;
+    --green-2:    #142a0f;
+    --gold:       #b8965a;
+    --gold-lt:    #d4b07a;
+    --gold-dim:   rgba(184,150,90,0.18);
+    --gold-line:  rgba(184,150,90,0.35);
+    /* اليسار — كريمي */
+    --cream:      #e8ecf5;
+    --cream-2:    #dde2f0;
+    --ink:        #1a1a2a;
+    --ink-2:      #3d3d52;
+    --ink-3:      #7a7a94;
 }
-.reg-header h1 { font-size: 28px; color: var(--text, #0f172a); margin-bottom: 8px; }
-.reg-header p { color: var(--text-muted, #64748b); }
-.form-card { background: var(--surface); border-radius: 16px; padding: 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-.section-title {
-    font-size: 15px; font-weight: 700; color: var(--primary, #2563eb);
-    border-bottom: 2px solid var(--primary, #2563eb);
-    padding-bottom: 8px; margin: 28px 0 18px 0;
+
+html { height: 100%; }
+body {
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100%; min-height: 100dvh;
+    background: var(--cream);
+    display: flex;
 }
-.section-title:first-child { margin-top: 0; }
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%; padding: 11px 14px;
-    border: 1.5px solid var(--border); border-radius: 10px;
-    font-size: 14px; font-family: inherit; transition: border-color 0.2s; outline: none;
-    background: var(--surface-2, #f8fafc); color: var(--text);
+
+/* ══════════════════════════════════════
+   اللوحة اليمنى الداكنة
+══════════════════════════════════════ */
+.panel-right {
+    width: 40%;
+    background: var(--green-d);
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 52px;
+    overflow: hidden;
+    flex-shrink: 0;
+    height: 100vh;
 }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    border-color: var(--primary, #2563eb); background: var(--surface);
+.panel-right::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+        linear-gradient(135deg, rgba(184,150,90,0.07) 0%, transparent 55%),
+        linear-gradient(315deg, rgba(13,31,9,0.04) 0%, transparent 50%);
+    pointer-events: none;
 }
-.help-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-.error-box {
-    background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.2); border-radius: 10px;
-    padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #e53e3e;
+.dots {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 24px 24px;
 }
-.error-box ul { list-style: none; }
-.error-box li { margin: 4px 0; }
-.notice-box {
-    background: rgba(217,119,6,0.06); border: 1px solid rgba(217,119,6,0.25); border-radius: 10px;
-    padding: 14px 16px; margin-bottom: 20px; font-size: 13px; color: var(--warning, #d97706);
+/* خط ذهبي جانبي يسار */
+.panel-right::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: linear-gradient(to bottom,
+        transparent 5%,
+        var(--gold-line) 30%,
+        var(--gold) 60%,
+        transparent 95%);
 }
-.btn-register {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, var(--primary, #2563eb), var(--primary-dark, #1d4ed8));
-    border: none; border-radius: 12px;
-    color: white; font-size: 16px; font-weight: 700;
-    font-family: inherit; cursor: pointer; transition: all 0.3s; margin-top: 12px;
+
+/* الشعار */
+.brand {
+    display: flex; align-items: center; gap: 14px;
+    position: relative; z-index: 1;
+    justify-content: flex-end;
+    animation: fade-up .6s ease .05s both;
 }
-.btn-register:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,123,255,0.35); }
-.login-link { text-align: center; margin-top: 18px; font-size: 14px; color: var(--text-muted); }
-.login-link a { color: var(--primary, #2563eb); font-weight: 600; text-decoration: none; }
-@media(max-width:600px) { .form-row-2{grid-template-columns:1fr;} .form-card{padding:24px;} }
-.map-picker { margin-top:14px; }
-.map-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
-#register-map { width:100%; height:280px; border-radius:12px; border:1.5px solid rgba(226,232,240,.95); overflow:hidden; direction:ltr; }
-.loc-status { margin-top:10px; font-size:13px; color:#2563eb; }
+.brand-wordmark { text-align: left; }
+.brand-name {
+    font-family: 'Amiri', serif;
+    font-size: 16px; color: #fff; line-height: 1.3;
+}
+.brand-tagline {
+    font-size: 10px; color: var(--gold);
+    letter-spacing: 2.5px; text-transform: uppercase; font-weight: 600;
+}
+.brand-emblem {
+    width: 50px; height: 50px;
+    border: 1.5px solid var(--gold-line);
+    border-radius: 13px;
+    background: var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.brand-emblem svg { width: 26px; height: 26px; }
+
+/* بادج */
+.lawyer-badge {
+    position: relative; z-index: 1;
+    display: flex; align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    align-self: flex-end;
+    animation: fade-up .5s ease .1s both;
+}
+.badge-line { width: 28px; height: 1px; background: var(--gold); opacity: .6; }
+.badge-text {
+    font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--gold); font-weight: 600;
+}
+
+/* Hero */
+.panel-content {
+    flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; z-index: 1;
+    padding-top: 16px;
+    animation: fade-up .6s ease .15s both;
+}
+.hero-heading {
+    font-family: 'Amiri', serif;
+    font-size: clamp(36px, 3.5vw, 54px);
+    line-height: 1.2; color: #fff;
+    margin-bottom: 32px; font-weight: 700;
+    word-spacing: -0.2em;
+    line-height: 1.5em;
+}
+.hero-heading .accent { color: var(--gold); display: block; }
+
+.features { display: flex; flex-direction: column; gap: 16px; }
+.feature  { display: flex; align-items: flex-start; gap: 12px; }
+.feature-bullet {
+    width: 34px; height: 34px; flex-shrink: 0;
+    border: 1px solid var(--gold-line);
+    border-radius: 9px; background: var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+}
+.feature-bullet svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 1.8; }
+.feature-title { font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,.9); margin-bottom: 2px; }
+.feature-desc  { font-size: 11.5px; color: rgba(255,255,255,.38); line-height: 1.5; }
+
+.panel-footer {
+    position: relative; z-index: 1;
+    font-size: 11px; color: rgba(255,255,255,.2);
+    text-align: center; padding-top: 10px;
+    animation: fade-up .5s ease .4s both;
+}
+
+/* ══════════════════════════════════════
+   اللوحة اليسرى
+══════════════════════════════════════ */
+.panel-left {
+    flex: 1;
+    display: flex; flex-direction: column;
+    padding: 36px 52px 44px;
+    background: var(--cream);
+    position: absolute;
+    left: 0;
+    overflow-y: auto;
+    width: 60%;
+}
+.panel-left::before {
+    content: '';
+    position: absolute; top: -100px; left: -100px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(184,150,90,0.055) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-3); text-decoration: none;
+    margin-bottom: 28px; transition: color .2s; font-weight: 500;
+    animation: fade-up .4s ease .1s both;
+}
+.back-link:hover { color: var(--ink); }
+
+.page-emblem {
+    width: 54px; height: 54px;
+    border: 1.5px solid var(--gold-line);
+    border-radius: 14px;
+    background: var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px;
+    animation: fade-up .4s ease .15s both;
+}
+.page-emblem svg { width: 26px; height: 26px; fill: none; stroke: var(--gold); stroke-width: 1.7; }
+
+.form-title {
+    font-family: 'Amiri', serif;
+    font-size: 30px; font-weight: 700;
+    color: var(--ink); margin-bottom: 4px; line-height: 1.2;
+    animation: fade-up .4s ease .2s both;
+}
+.form-sub {
+    font-size: 13px; color: var(--ink-3); margin-bottom: 28px;
+    animation: fade-up .4s ease .25s both;
+}
+
+/* Server errors */
+.srv-err {
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 10px; padding: 11px 14px;
+    margin-bottom: 20px; font-size: 13px; color: #b91c1c;
+    display: flex; gap: 9px; align-items: flex-start;
+    animation: shake .35s ease;
+}
+.srv-err svg { width: 15px; height: 15px; stroke: #dc2626; fill: none; stroke-width: 2; flex-shrink: 0; margin-top: 1px; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+/* ── Tabs ── */
+.tabs-nav {
+    display: flex;
+    border-bottom: 1.5px solid rgba(0,0,0,.1);
+    margin-bottom: 26px;
+    animation: fade-up .4s ease .3s both;
+}
+.tab-btn {
+    flex: 1;
+    padding: 11px 6px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13.5px; font-weight: 700;
+    color: var(--ink-3);
+    background: none; border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--gold); }
+.tab-btn:disabled { opacity: .4; cursor: default; }
+.tab-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 19px; height: 19px; border-radius: 50%;
+    font-size: 11px; font-weight: 700;
+    background: rgba(0,0,0,.07); color: var(--ink-3);
+    transition: background .2s, color .2s;
+    flex-shrink: 0;
+}
+.tab-btn.active .tab-num { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-line); }
+.tab-btn.done   .tab-num { background: rgba(22,163,74,.1); color: #16a34a; border: 1px solid rgba(22,163,74,.25); }
+
+/* Tab panes */
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fade-up .3s ease; }
+
+/* ── Section heading ── */
+.sec-head {
+    font-size: 12px; font-weight: 700;
+    color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 1px;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px;
+}
+.sec-head::after { content:''; flex:1; height:1px; background:rgba(0,0,0,.07); }
+
+/* ── Form groups ── */
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.fg { margin-bottom: 15px; }
+.fg label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--ink-2); margin-bottom: 6px;
+}
+.opt-lbl { font-size: 11px; font-weight: 400; color: var(--ink-3); margin-right: 3px; }
+
+.inp-wrap { position: relative; }
+.inp-icon {
+    position: absolute; right: 13px; top: 50%;
+    transform: translateY(-50%); pointer-events: none;
+}
+.inp-icon svg { width: 16px; height: 16px; fill: none; stroke-width: 1.8; stroke: var(--ink-3); }
+
+.fg input, .fg select, .fg textarea {
+    width: 100%;
+    padding: 12px 42px 12px 14px;
+    border: 1.5px solid rgba(0,0,0,.1); border-radius: 12px;
+    font-family: 'Tajawal', sans-serif; font-size: 15px;
+    color: var(--ink); background: var(--cream);
+    outline: none;
+    transition: border-color .22s, background .22s, box-shadow .22s;
+    -webkit-appearance: none; appearance: none; direction: rtl;
+}
+.fg input::placeholder, .fg textarea::placeholder { color: var(--ink-3); opacity: .55; }
+.fg input:hover, .fg select:hover, .fg textarea:hover { border-color: rgba(0,0,0,.18); }
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+    border-color: var(--gold);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(184,150,90,.12);
+}
+.fg select {
+    padding-right: 42px; padding-left: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='.5.5l5 5 5-5' stroke='%237a7a94' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: left 13px center;
+}
+.fg textarea { resize: vertical; min-height: 86px; padding: 12px 14px; }
+
+/* Field errors */
+.ferr { font-size: 11.5px; color: #dc2626; margin-top: 4px; display: none; }
+.django-err { font-size: 11.5px; color: #dc2626; margin-top: 4px; display: block; }
+.fg.has-error input, .fg.has-error select, .fg.has-error textarea {
+    border-color: #f87171 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(239,68,68,.1) !important;
+}
+.fg.has-error .ferr { display: block; }
+
+/* Password eye */
+.pw-eye {
+    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    color: var(--ink-3); font-size: 16px; padding: 0; line-height: 1;
+}
+.pw-eye:hover { color: var(--ink); }
+.str-bar { height: 3px; border-radius: 3px; background: rgba(0,0,0,.08); margin-top: 5px; overflow: hidden; }
+.str-fill { height: 100%; width: 0; border-radius: 3px; transition: width .3s, background .3s; }
+
+/* ── Map ── */
+#reg-map {
+    height: 260px; border-radius: 14px;
+    border: 1.5px solid rgba(0,0,0,.1);
+    margin-top: 6px; margin-bottom: 8px;
+}
+.coords-row { display: flex; gap: 10px; margin-top: 6px; }
+.coord-chip {
+    flex: 1; padding: 9px 13px;
+    background: var(--cream-2); border: 1px solid rgba(0,0,0,.07);
+    border-radius: 10px; font-size: 12px; color: var(--ink-2);
+    display: flex; align-items: center; gap: 6px;
+}
+.coord-chip b   { font-weight: 700; color: var(--ink); }
+.coord-chip span { font-family: monospace; color: var(--ink-2); }
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 10px; margin-top: 14px; }
+
+.btn-next {
+    flex: 1; padding: 13px; border: none; border-radius: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 15px; font-weight: 800;
+    cursor: pointer; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #8a6d38, var(--gold), var(--gold-lt));
+    color: #1a0f00;
+    box-shadow: 0 4px 16px rgba(184,150,90,.28);
+    transition: all .25s;
+}
+.btn-next::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    transform: translateX(-100%); transition: transform .55s;
+}
+.btn-next:hover::after { transform: translateX(100%); }
+.btn-next:hover { box-shadow: 0 8px 24px rgba(184,150,90,.42); transform: translateY(-1px); }
+
+.btn-back {
+    padding: 12px 20px; border-radius: 12px;
+    border: 1.5px solid rgba(0,0,0,.12);
+    background: none; cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px; font-weight: 600; color: var(--ink-2);
+    transition: background .2s, border-color .2s;
+}
+.btn-back:hover { background: var(--cream-2); border-color: rgba(0,0,0,.2); }
+
+.btn-submit {
+    flex: 1; padding: 14px; border: none; border-radius: 12px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 16px; font-weight: 800;
+    cursor: pointer; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #8a6d38, var(--gold), var(--gold-lt));
+    color: #1a0f00;
+    box-shadow: 0 6px 20px rgba(184,150,90,.32);
+    transition: all .25s; letter-spacing: .3px;
+}
+.btn-submit::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    transform: translateX(-100%); transition: transform .55s;
+}
+.btn-submit:hover::after { transform: translateX(100%); }
+.btn-submit:hover { box-shadow: 0 10px 30px rgba(184,150,90,.45); transform: translateY(-2px); }
+.btn-submit:active { transform: translateY(0); }
+
+.login-link {
+    text-align: center; margin-top: 20px;
+    font-size: 13px; color: var(--ink-3);
+}
+.login-link a { font-weight: 700; color: var(--gold); text-decoration: none; }
+.login-link a:hover { text-decoration: underline; }
+
+/* Animations */
+@keyframes fade-up { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* Responsive */
+@media (max-width: 820px) {
+    body { flex-direction: column; overflow: auto; }
+    .panel-right { width: 100%; padding: 28px 28px 32px; flex-direction: column; min-height: auto; }
+    .panel-right::after { top:auto; bottom:0; left:0; width:100%; height:1px;
+        background: linear-gradient(to right, transparent, var(--gold), transparent); }
+    .brand { justify-content: space-between; }
+    .panel-content { padding-top: 24px; }
+    .hero-heading { font-size: clamp(28px,6vw,40px); margin-bottom: 24px; }
+    .panel-left { padding: 28px 28px 40px; }
+}
+@media (max-width: 600px) {
+    .panel-content, .panel-footer { display: none; }
+    .brand { justify-content: center; }
+    .panel-left { padding: 24px 20px 40px; }
+    .row-2 { grid-template-columns: 1fr; }
+    .tab-btn { font-size: 12px; }
+}
 </style>
-{% endblock %}
-{% block content %}
-<div class="reg-container">
-    <div class="reg-header">
-        <div class="badge">⚖️ انضم كمحامٍ</div>
-        <h1>تسجيل محامٍ جديد</h1>
-        <p>أنشئ حسابك وابدأ تلقّي الاستشارات من العملاء</p>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     اللوحة اليمنى الداكنة
+══════════════════════════════════════ -->
+<div class="panel-right">
+    <div class="dots"></div>
+
+    <div class="brand">
+        <div class="brand-wordmark">
+            <div class="brand-name">المستشار القانوني السوري</div>
+            <div class="brand-tagline">منصة قانونية متكاملة</div>
+        </div>
+        <div class="brand-emblem">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.1)"/>
+                <path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
     </div>
 
-    <div class="form-card">
-        <div class="notice-box">
-            ⏳ سيتم مراجعة بياناتك من قبل الإدارة قبل تفعيل حسابك على المنصة.
+    <div class="lawyer-badge">
+        <div class="badge-line"></div>
+        <div class="badge-text">منصة المحامين</div>
+    </div>
+
+    <div class="panel-content">
+        <h1 class="hero-heading">
+            وسّع نطاق
+            <span class="accent">عملك القانوني</span>
+        </h1>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-bullet">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4" stroke-linecap="round"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="feature-body">
+                    <div class="feature-title">تواصل مع عملاء جدد</div>
+                    <div class="feature-desc">وسّع قاعدة عملائك بسهولة عبر المنصة</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-bullet">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg>
+                </div>
+                <div class="feature-body">
+                    <div class="feature-title">أدر استشاراتك بسهولة</div>
+                    <div class="feature-desc">لوحة تحكم احترافية ومتكاملة</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-bullet">
+                    <svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 1 9 9c0 4-2.5 7.5-6 9l-3-2-3 2c-3.5-1.5-6-5-6-9a9 9 0 0 1 9-9z" stroke-linecap="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round"/></svg>
+                </div>
+                <div class="feature-body">
+                    <div class="feature-title">ملف مهني موثّق</div>
+                    <div class="feature-desc">احترافية وموثوقية في عرض خدماتك</div>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-bullet">
+                    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="feature-body">
+                    <div class="feature-title">ابنِ سمعتك المهنية</div>
+                    <div class="feature-desc">تقييمات حقيقية من العملاء تبرز خبرتك</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-footer">© 2025 المستشار القانوني السوري — جميع الحقوق محفوظة</div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     اللوحة اليسرى — نموذج التسجيل
+══════════════════════════════════════ -->
+<div class="panel-left">
+
+    <a href="{% url 'login' %}" class="back-link">رجوع ←</a>
+
+    <div class="page-emblem">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke-linecap="round"/><line x1="12" y1="12" x2="12" y2="16" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke-linecap="round"/></svg>
+    </div>
+
+    <h2 class="form-title">تسجيل محامٍ جديد</h2>
+    <p class="form-sub">سيتم مراجعة طلبك من الإدارة قبل تفعيل الحساب</p>
+
+    {% if form.errors or email_error %}
+    <div class="srv-err">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+            {% if email_error %}<div>{{ email_error }}</div>{% endif %}
+            {% for field in form %}{% for e in field.errors %}<div>{{ field.label }}: {{ e }}</div>{% endfor %}{% endfor %}
+            {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tabs nav -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" id="tbtn-0" type="button" onclick="goTab(0)">
+            معلومات الحساب <span class="tab-num">1</span>
+        </button>
+        <button class="tab-btn" id="tbtn-1" type="button" onclick="goTab(1)" disabled>
+            معلومات المحامي <span class="tab-num">2</span>
+        </button>
+        <button class="tab-btn" id="tbtn-2" type="button" onclick="goTab(2)" disabled>
+            معلومات المكتب <span class="tab-num">3</span>
+        </button>
+    </div>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- ════ TAB 0: Account ════ -->
+        <div class="tab-pane active" id="pane-0">
+            <div class="sec-head">بيانات الحساب</div>
+
+            <div class="row-2">
+                <div class="fg" id="f-fn">
+                    <label>الاسم الأول</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" stroke-linecap="round"/></svg></div>
+                        <input type="text" name="first_name" value="{{ request.POST.first_name }}" placeholder="محمد" autocomplete="given-name">
+                    </div>
+                    <span class="ferr">الاسم الأول مطلوب</span>
+                </div>
+                <div class="fg" id="f-ln">
+                    <label>الاسم الأخير</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" stroke-linecap="round"/></svg></div>
+                        <input type="text" name="last_name" value="{{ request.POST.last_name }}" placeholder="الأحمد" autocomplete="family-name">
+                    </div>
+                    <span class="ferr">الاسم الأخير مطلوب</span>
+                </div>
+            </div>
+
+            <div class="fg {% if form.username.errors %}has-error{% endif %}" id="f-un">
+                <label>اسم المستخدم</label>
+                <div class="inp-wrap">
+                    <div class="inp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" stroke-linecap="round"/></svg></div>
+                    {{ form.username }}
+                </div>
+                {% for e in form.username.errors %}<span class="django-err">{{ e }}</span>{% endfor %}
+                <span class="ferr">اسم المستخدم مطلوب</span>
+            </div>
+
+            <div class="fg {% if email_error %}has-error{% endif %}" id="f-em">
+                <label>البريد الإلكتروني</label>
+                <div class="inp-wrap">
+                    <div class="inp-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                    <input type="email" name="email" id="id_email" value="{{ request.POST.email }}" placeholder="lawyer@example.com" autocomplete="email">
+                </div>
+                {% if email_error %}<span class="django-err">{{ email_error }}</span>{% endif %}
+                <span class="ferr">بريد إلكتروني صحيح مطلوب</span>
+            </div>
+
+            <div class="row-2">
+                <div class="fg {% if form.password1.errors %}has-error{% endif %}" id="f-pw1">
+                    <label>كلمة المرور</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-linecap="round"/></svg></div>
+                        {{ form.password1 }}
+                        <button type="button" class="pw-eye" onclick="togglePw('{{ form.password1.id_for_label }}',this)">&#128065;</button>
+                    </div>
+                    <div class="str-bar"><div class="str-fill" id="str-fill"></div></div>
+                    {% for e in form.password1.errors %}<span class="django-err">{{ e }}</span>{% endfor %}
+                    <span class="ferr">8 أحرف على الأقل</span>
+                </div>
+                <div class="fg {% if form.password2.errors %}has-error{% endif %}" id="f-pw2">
+                    <label>تأكيد كلمة المرور</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-linecap="round"/></svg></div>
+                        {{ form.password2 }}
+                        <button type="button" class="pw-eye" onclick="togglePw('{{ form.password2.id_for_label }}',this)">&#128065;</button>
+                    </div>
+                    {% for e in form.password2.errors %}<span class="django-err">{{ e }}</span>{% endfor %}
+                    <span class="ferr">كلمتا المرور غير متطابقتين</span>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn-next" onclick="validateTab0()">متابعة ←</button>
+            </div>
         </div>
 
-        {% if form.errors %}
-        <div class="error-box">
-            <ul>
-                {% for field in form %}{% for error in field.errors %}<li>❌ {{ error }}</li>{% endfor %}{% endfor %}
-                {% for error in form.non_field_errors %}<li>❌ {{ error }}</li>{% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+        <!-- ════ TAB 1: Lawyer ════ -->
+        <div class="tab-pane" id="pane-1">
+            <div class="sec-head">البيانات المهنية</div>
 
-        <form method="POST">
-            {% csrf_token %}
-
-            <div class="section-title">بيانات الحساب</div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>الاسم الأول *</label>
-                    <input type="text" name="first_name" required placeholder="محمد">
+            <div class="row-2">
+                <div class="fg" id="f-lic">
+                    <label>رقم الترخيص / الإجازة</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4" stroke-linecap="round"/></svg></div>
+                        <input type="text" name="license_number" value="{{ request.POST.license_number }}" placeholder="SYR-2024-XXXX">
+                    </div>
+                    <span class="ferr">رقم الترخيص مطلوب</span>
                 </div>
-                <div class="form-group">
-                    <label>الاسم الأخير *</label>
-                    <input type="text" name="last_name" required placeholder="العلي">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>البريد الإلكتروني *</label>
-                <input type="email" name="email" required placeholder="lawyer@example.com">
-            </div>
-            <div class="form-group">
-                <label>اسم المستخدم *</label>
-                {{ form.username }}
-                {% if form.username.help_text %}<p class="help-text">{{ form.username.help_text }}</p>{% endif %}
-            </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>كلمة المرور *</label>
-                    {{ form.password1 }}
-                    {% if form.password1.help_text %}<p class="help-text">{{ form.password1.help_text }}</p>{% endif %}
-                </div>
-                <div class="form-group">
-                    <label>تأكيد كلمة المرور *</label>
-                    {{ form.password2 }}
+                <div class="fg">
+                    <label>سنوات الخبرة</label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14" stroke-linecap="round"/></svg></div>
+                        <input type="number" name="experience_years" value="{{ request.POST.experience_years|default:'0' }}" min="0" max="60">
+                    </div>
                 </div>
             </div>
 
-            <div class="section-title">المعلومات المهنية</div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>رقم الترخيص *</label>
-                    <input type="text" name="license_number" required placeholder="SY-2024-XXXX">
-                </div>
-                <div class="form-group">
-                    <label>التخصص *</label>
-                    <select name="specialization" required>
-                        {% for code, name in specializations %}
-                        <option value="{{ code }}">{{ name }}</option>
+            <div class="fg">
+                <label>التخصص</label>
+                <div class="inp-wrap">
+                    <div class="inp-icon"><svg viewBox="0 0 24 24"><path d="M12 2a9 9 0 0 1 9 9c0 4-2.5 7.5-6 9l-3-2-3 2c-3.5-1.5-6-5-6-9a9 9 0 0 1 9-9z" stroke-linecap="round"/></svg></div>
+                    <select name="specialization">
+                        {% for val, label in specializations %}
+                        <option value="{{ val }}" {% if request.POST.specialization == val %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>سنوات الخبرة</label>
-                    <input type="number" name="experience_years" min="0" max="60" placeholder="5">
-                </div>
-                <div class="form-group">
-                    <label>رسوم الاستشارة (ل.س)</label>
-                    <input type="number" name="consultation_fee" min="0" step="500" placeholder="50000">
-                </div>
+
+            <div class="fg">
+                <label>نبذة مهنية <span class="opt-lbl">(اختياري)</span></label>
+                <textarea name="description" placeholder="اكتب نبذة مختصرة عن خبرتك ومجالات عملك...">{{ request.POST.description }}</textarea>
             </div>
 
-            <div class="section-title">معلومات المكتب</div>
-            <div class="form-group">
-                <label>اسم المكتب</label>
-                <input type="text" name="office_name" placeholder="مكتب المحامي محمد للاستشارات">
+            <div class="btn-row">
+                <button type="button" class="btn-back" onclick="goTab(0)">← رجوع</button>
+                <button type="button" class="btn-next" onclick="validateTab1()">متابعة ←</button>
             </div>
-            <div class="form-group">
-                <label>العنوان الكامل *</label>
-                <input type="text" id="office_address" name="office_address" required placeholder="دمشق - المزة - شارع الجلاء">
-            </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>خط العرض (Latitude)</label>
-                    <input type="text" id="reg-lat" name="latitude" readonly placeholder="حدد الموقع على الخريطة أو اضغط بحث">
-                </div>
-                <div class="form-group">
-                    <label>خط الطول (Longitude)</label>
-                    <input type="text" id="reg-lng" name="longitude" readonly placeholder="حدد الموقع على الخريطة أو اضغط بحث">
-                </div>
-            </div>
-            <div class="section-title">موقع المكتب</div>
-            <div class="form-group">
-                <div class="map-picker">
-                    <div class="map-actions">
-                        <button type="button" class="btn-register" id="btn-find-address" style="margin-right:8px;">🔍 بحث بالعنوان</button>
-                        <button type="button" class="btn-register" id="btn-use-location">📍 موقعك الحالي</button>
+        </div>
+
+        <!-- ════ TAB 2: Office + Map ════ -->
+        <div class="tab-pane" id="pane-2">
+            <div class="sec-head">معلومات المكتب <span style="font-size:10px;letter-spacing:0;color:var(--ink-3);text-transform:none;font-weight:400;">(جميع الحقول اختيارية)</span></div>
+
+            <div class="row-2">
+                <div class="fg">
+                    <label>اسم المكتب <span class="opt-lbl">(اختياري)</span></label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4" stroke-linecap="round"/></svg></div>
+                        <input type="text" name="office_name" value="{{ request.POST.office_name }}" placeholder="مكتب العدالة للمحاماة">
                     </div>
-                    <div id="register-map"></div>
-                    <p class="help-text">يمكنك النقر على الخريطة لتعيين موقع المكتب يدوياً.</p>
-                    <div class="loc-status" id="reg-loc-status"></div>
                 </div>
-            </div>
-            <div class="form-row-2">
-                <div class="form-group">
-                    <label>رقم الهاتف *</label>
-                    <input type="tel" name="office_phone" required placeholder="+963 11 XXX XXXX">
+                <div class="fg">
+                    <label>هاتف المكتب <span class="opt-lbl">(اختياري)</span></label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.3 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.92-8.52A2 2 0 0 1 3.26 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16.92z" stroke-linecap="round"/></svg></div>
+                        <input type="tel" name="office_phone" value="{{ request.POST.office_phone }}" placeholder="+963 11 XXXXXX">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>بريد المكتب *</label>
-                    <input type="email" name="office_email" required placeholder="office@example.com">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>نبذة مختصرة</label>
-                <textarea name="description" rows="3" placeholder="اكتب نبذة عن خبرتك ومجالات عملك..."></textarea>
             </div>
 
-            <button type="submit" class="btn-register">إنشاء الحساب وإرسال طلب التوثيق ←</button>
-        </form>
-        <div class="login-link">لديك حساب؟ <a href="{% url 'login' %}">تسجيل الدخول</a></div>
+            <div class="row-2">
+                <div class="fg">
+                    <label>رقم الموبايل <span class="opt-lbl">(اختياري)</span></label>
+                    <div class="inp-wrap">
+                        <div class="inp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-linecap="round" stroke-width="2.5"/></svg></div>
+                        <input type="tel" name="mobile_phone" value="{{ request.POST.mobile_phone }}" placeholder="+963 9XX XXX XXX" dir="ltr">
+                    </div>
+                </div>
+                <div class="fg"></div>
+            </div>
+
+            <div class="fg">
+                <label>بريد المكتب <span class="opt-lbl">(اختياري)</span></label>
+                <div class="inp-wrap">
+                    <div class="inp-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                    <input type="email" name="office_email" value="{{ request.POST.office_email }}" placeholder="office@example.com">
+                </div>
+            </div>
+
+            <div class="fg">
+                <label>عنوان المكتب <span class="opt-lbl">(اختياري)</span></label>
+                <div class="inp-wrap">
+                    <div class="inp-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+                    <input type="text" name="office_address" id="id_office_address" value="{{ request.POST.office_address }}" placeholder="دمشق — الشالكي — شارع...">
+                </div>
+            </div>
+
+            <!-- MapTiler -->
+            <div class="fg" style="margin-bottom:6px;">
+                <label>تحديد الموقع على الخريطة <span class="opt-lbl">(اختياري — انقر لتثبيت موقع المكتب)</span></label>
+                <div id="reg-map"></div>
+                <div class="coords-row">
+                    <div class="coord-chip">
+                        <svg style="width:13px;height:13px;stroke:var(--ink-3);fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <b>خط العرض:</b> <span id="lat-disp">—</span>
+                    </div>
+                    <div class="coord-chip">
+                        <svg style="width:13px;height:13px;stroke:var(--ink-3);fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <b>خط الطول:</b> <span id="lng-disp">—</span>
+                    </div>
+                </div>
+                <input type="hidden" name="latitude"  id="id_lat" value="{{ request.POST.latitude }}">
+                <input type="hidden" name="longitude" id="id_lng" value="{{ request.POST.longitude }}">
+            </div>
+
+            <div class="btn-row" style="margin-top:16px;">
+                <button type="button" class="btn-back" onclick="goTab(1)">← رجوع</button>
+                <button type="submit" class="btn-submit">إرسال طلب التسجيل ←</button>
+            </div>
+        </div>
+
+    </form>
+
+    <div class="login-link">
+        لديك حساب؟ <a href="{% url 'login' %}">تسجيل الدخول</a>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js"></script>
+</div><!-- /panel-left -->
+
+<script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.0.0/maptiler-sdk.umd.js"></script>
 <script>
-function enableRTLTextPlugin() {
-    const url = 'https://cdn.jsdelivr.net/npm/mapbox-gl-rtl-text@0.2.3/index.js';
-    if (window.maptilersdk?.setRTLTextPlugin) {
-        window.maptilersdk.setRTLTextPlugin(url, null, true);
-    } else if (window.maplibregl?.setRTLTextPlugin) {
-        window.maplibregl.setRTLTextPlugin(url, null, true);
-    } else if (window.mapboxgl?.setRTLTextPlugin) {
-        window.mapboxgl.setRTLTextPlugin(url, null, true);
+/* ════ Tabs ════ */
+const TOTAL = 3;
+function goTab(n) {
+    for (let i = 0; i < TOTAL; i++) {
+        document.getElementById('pane-'+i).classList.remove('active');
+        document.getElementById('tbtn-'+i).classList.remove('active');
     }
+    document.getElementById('pane-'+n).classList.add('active');
+    document.getElementById('tbtn-'+n).classList.add('active');
+    for (let i = 0; i <= n; i++) document.getElementById('tbtn-'+i).disabled = false;
+    if (n === 2) initMap();
+    window.scrollTo(0, 0);
+}
+function markDone(i) { document.getElementById('tbtn-'+i).classList.add('done'); }
+
+/* ════ Field validation helper ════ */
+function setErr(id, bad) {
+    const el = document.getElementById(id); if (!el) return !bad;
+    el.classList.toggle('has-error', bad); return !bad;
 }
 
-const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
-const addressInput = document.getElementById('office_address');
-const latInput = document.getElementById('reg-lat');
-const lngInput = document.getElementById('reg-lng');
-const locStatus = document.getElementById('reg-loc-status');
-let map = null;
-let marker = null;
+/* ════ Tab 0 ════ */
+function validateTab0() {
+    let ok = true;
+    if (!document.querySelector('[name="first_name"]').value.trim())  { setErr('f-fn',true);  ok=false; } else setErr('f-fn',false);
+    if (!document.querySelector('[name="last_name"]').value.trim())   { setErr('f-ln',true);  ok=false; } else setErr('f-ln',false);
+    const un = document.querySelector('[name="username"]');
+    if (!un||!un.value.trim()) { setErr('f-un',true); ok=false; } else setErr('f-un',false);
+    const em = (document.getElementById('id_email')||{}).value||'';
+    const emOk = em&&em.includes('@')&&em.split('@')[1]?.includes('.');
+    setErr('f-em',!emOk); if(!emOk) ok=false;
+    const pw1 = document.querySelector('[name="password1"]')?.value||'';
+    setErr('f-pw1', pw1.length<8); if(pw1.length<8) ok=false;
+    const pw2 = document.querySelector('[name="password2"]')?.value||'';
+    setErr('f-pw2', !pw2||pw2!==pw1); if(!pw2||pw2!==pw1) ok=false;
+    if (ok) { markDone(0); goTab(1); }
+}
 
-function initRegisterMap() {
-    if (!window.maptilersdk) {
-        setTimeout(initRegisterMap, 50);
-        return;
-    }
+/* ════ Tab 1 ════ */
+function validateTab1() {
+    const lic = document.querySelector('[name="license_number"]')?.value||'';
+    setErr('f-lic', !lic.trim()); if (!lic.trim()) return;
+    markDone(1); goTab(2);
+}
 
-    enableRTLTextPlugin();
-    maptilersdk.config.apiKey = MAPTILER_KEY;
-    map = new maptilersdk.Map({
-        container: 'register-map',
-        style: maptilersdk.MapStyle.STREETS,
-        center: [36.3, 33.5],
-        zoom: 6.5,
-        language: maptilersdk.Language.ENGLISH,
-    });
+/* ════ Password toggle ════ */
+function togglePw(id, btn) {
+    const inp = document.getElementById(id); if(!inp) return;
+    inp.type = inp.type==='password' ? 'text' : 'password';
+    btn.innerHTML = inp.type==='password' ? '&#128065;' : '&#128064;';
+}
 
-    map.on('load', () => {
-        map.on('click', e => {
-            placeMarker(e.lngLat.lng, e.lngLat.lat);
+/* ════ Password strength ════ */
+document.addEventListener('DOMContentLoaded', () => {
+    const pw = document.querySelector('[name="password1"]');
+    const fill = document.getElementById('str-fill');
+    if (pw && fill) {
+        pw.addEventListener('input', () => {
+            const v=pw.value; let s=0;
+            if(v.length>=8) s++; if(/[A-Z]/.test(v)) s++; if(/[0-9]/.test(v)) s++; if(/[^A-Za-z0-9]/.test(v)) s++;
+            fill.style.width      = s ? ['25%','50%','75%','100%'][s-1] : '0';
+            fill.style.background = s ? ['#ef4444','#f97316','#eab308','#22c55e'][s-1] : 'transparent';
         });
+    }
+
+    /* Style Django widgets to match other inputs */
+    const S = {
+        width:'100%', padding:'12px 42px 12px 14px',
+        border:'1.5px solid rgba(0,0,0,.1)', borderRadius:'12px',
+        fontFamily:"'Tajawal',sans-serif", fontSize:'15px',
+        color:'#1a1a2a', background:'#e8ecf5',
+        outline:'none', direction:'rtl', boxSizing:'border-box',
+        WebkitAppearance:'none', appearance:'none',
+        transition:'border-color .22s,background .22s,box-shadow .22s',
+    };
+    ['id_username','id_password1','id_password2'].forEach(id => {
+        const el = document.getElementById(id); if(el) Object.assign(el.style, S);
     });
 
-    document.getElementById('btn-find-address').addEventListener('click', geocodeAddress);
-    document.getElementById('btn-use-location').addEventListener('click', useMyLocation);
+    /* Unlock all tabs on server error */
+    if (document.querySelector('.srv-err')) {
+        for(let i=0;i<TOTAL;i++) document.getElementById('tbtn-'+i).disabled=false;
+    }
+
+    /* Restore coords */
+    const lv = document.getElementById('id_lat').value;
+    const gv = document.getElementById('id_lng').value;
+    if (lv) document.getElementById('lat-disp').textContent = parseFloat(lv).toFixed(5);
+    if (gv) document.getElementById('lng-disp').textContent = parseFloat(gv).toFixed(5);
+});
+
+/* ════ MapTiler ════ */
+const MAPTILER_KEY = '{{ MAPTILER_API_KEY }}';
+let mapInst=null, mapMarker=null;
+
+function initMap() {
+    if (mapInst) { mapInst.resize(); return; }
+    const latEl = document.getElementById('id_lat');
+    const lngEl = document.getElementById('id_lng');
+    const iLat  = latEl.value ? parseFloat(latEl.value) : 33.5138;
+    const iLng  = lngEl.value ? parseFloat(lngEl.value) : 36.2765;
+
+    maptilersdk.config.apiKey = MAPTILER_KEY;
+    mapInst = new maptilersdk.Map({
+        container: 'reg-map',
+        style:     maptilersdk.MapStyle.STREETS,
+        center:    [iLng, iLat],
+        zoom:      latEl.value ? 13 : 7,
+        language:  maptilersdk.Language.ENGLISH,
+    });
+    mapInst.on('load', () => { if(latEl.value&&lngEl.value) placePin(iLng,iLat); });
+    mapInst.on('click', e => placePin(e.lngLat.lng, e.lngLat.lat));
 }
 
-function placeMarker(lng, lat) {
-    if (marker) marker.remove();
-    const el = document.createElement('div');
-    el.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="42">
-        <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".28"/></filter>
-        <path filter="url(#sh)" fill="#2563eb" d="M17 0C7.6 0 0 7.6 0 17c0 12.7 17 25 17 25S34 29.7 34 17C34 7.6 26.4 0 17 0z"/>
-        <text x="17" y="21" font-size="14" text-anchor="middle" fill="white" font-family="Arial">⚖</text>
-    </svg>`;
-    el.style.cssText = 'cursor:pointer;width:34px;height:42px;';
-    marker = new maptilersdk.Marker({ element: el, anchor: 'bottom' })
-        .setLngLat([lng, lat])
-        .addTo(map);
+function placePin(lng, lat) {
+    if (mapMarker) mapMarker.remove();
+    mapMarker = new maptilersdk.Marker({ color:'#b8965a', draggable:true })
+        .setLngLat([lng, lat]).addTo(mapInst);
+    mapMarker.on('dragend', () => { const p=mapMarker.getLngLat(); setCoords(p.lat,p.lng); });
     setCoords(lat, lng);
 }
-
 function setCoords(lat, lng) {
-    latInput.value = lat.toFixed(6);
-    lngInput.value = lng.toFixed(6);
-    locStatus.textContent = `✅ تم تحديد الموقع: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    document.getElementById('id_lat').value = lat.toFixed(6);
+    document.getElementById('id_lng').value = lng.toFixed(6);
+    document.getElementById('lat-disp').textContent = lat.toFixed(5);
+    document.getElementById('lng-disp').textContent = lng.toFixed(5);
 }
-
-function geocodeAddress() {
-    const query = addressInput.value.trim();
-    if (!query) {
-        locStatus.textContent = '❌ أدخل العنوان أولاً.';
-        return;
-    }
-    locStatus.textContent = '⏳ جاري البحث...';
-    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ' سوريا')}&format=json&limit=1`, {
-        headers: { 'Accept-Language': 'ar' }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (!data.length) {
-            locStatus.textContent = '❌ لم يُعثر على العنوان.';
-            return;
-        }
-        const lat = parseFloat(data[0].lat);
-        const lng = parseFloat(data[0].lon);
-        map.flyTo({ center: [lng, lat], zoom: 15, speed: 1.4 });
-        placeMarker(lng, lat);
-    })
-    .catch(() => {
-        locStatus.textContent = '❌ حدث خطأ أثناء البحث.';
-    });
-}
-
-function useMyLocation() {
-    if (!navigator.geolocation) {
-        locStatus.textContent = '❌ المتصفح لا يدعم تحديد الموقع.';
-        return;
-    }
-    locStatus.textContent = '⏳ جارٍ تحديد الموقع...';
-    navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        map.flyTo({ center: [lng, lat], zoom: 15, speed: 1.4 });
-        placeMarker(lng, lat);
-    }, () => {
-        locStatus.textContent = '❌ تعذّر تحديد موقعك.';
-    });
-}
-
-initRegisterMap();
 </script>
-{% endblock %}
+</body>
+</html>

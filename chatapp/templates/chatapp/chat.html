@@ -18,7 +18,6 @@
       <nav class="nav-links">
         <a href="{% url 'index' %}">الرئيسية</a>
         <a href="{% url 'chat' %}" class="active">الدردشة</a>
-        <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع الليلي">🌙</button>
         <!-- ✅ صحيح - POST request -->
         <form method="post" action="{% url 'logout' %}" style="display: inline-block;">
             {% csrf_token %}

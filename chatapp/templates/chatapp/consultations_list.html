@@ -1,53 +1,330 @@
-{% extends "chatapp/base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استشاراتي — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --navy:    #0b1628; --navy-2: #111f38; --navy-3: #1a2e4a;
+  --gold:    #b8965a; --gold-lt: #d4b07a;
+  --gold-dim: rgba(184,150,90,.13); --gold-ln: rgba(184,150,90,.28);
+  --bg:      #eef0f6; --white:  #fff;
+  --ink:     #1a1a2a; --ink-2:  #3d3d52; --ink-3: #7a7a94;
+  --border:  rgba(0,0,0,.08); --success: #16a34a; --danger: #dc2626;
+}
+html { height: 100%; }
+body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--ink); min-height: 100%; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
 
-{% block title %}الاستشارات{% endblock %}
+/* Navbar */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--navy); border-bottom: 1px solid var(--gold-ln); box-shadow: 0 2px 16px rgba(0,0,0,.28); }
+.nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-emblem { width: 34px; height: 34px; border-radius: 9px; background: var(--gold-dim); border: 1px solid var(--gold-ln); display: flex; align-items: center; justify-content: center; }
+.nav-brand-text { font-family: 'Amiri', serif; font-size: 14px; color: var(--gold-lt); }
+.nav-links { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
+.nav-link { font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,.7); padding: 6px 13px; border-radius: 8px; transition: background .2s, color .2s; white-space: nowrap; }
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,.08); color: #fff; }
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.user-menu { position: relative; }
+.user-btn { display: flex; align-items: center; gap: 8px; background: none; border: 1.5px solid var(--gold-ln); border-radius: 10px; padding: 5px 13px 5px 9px; cursor: pointer; color: var(--gold-lt); font-size: 13px; font-weight: 600; transition: background .2s; }
+.user-btn:hover { background: var(--gold-dim); }
+.user-av { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,#8a6d38,var(--gold)); color: #1a0f00; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.user-dropdown { position: absolute; top: calc(100% + 8px); left: 0; background: var(--navy-2); border: 1px solid var(--gold-ln); border-radius: 12px; min-width: 180px; box-shadow: 0 16px 40px rgba(0,0,0,.4); overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: all .2s; z-index: 200; }
+.user-menu.open .user-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.user-dropdown a, .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 11px 16px; color: rgba(255,255,255,.8); font-size: 13px; font-weight: 500; transition: background .15s; border: none; background: none; width: 100%; cursor: pointer; text-align: right; }
+.user-dropdown a:hover, .user-dropdown button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.dd-div { height: 1px; background: var(--gold-ln); margin: 4px 0; }
+.hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; padding: 6px; cursor: pointer; width: 36px; height: 36px; justify-content: center; }
+.hamburger span { display: block; height: 2px; background: var(--gold-lt); border-radius: 2px; transition: all .25s; }
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.mobile-nav { display: none; flex-direction: column; background: var(--navy-2); border-top: 1px solid var(--gold-ln); padding: 10px 0; }
+.mobile-nav.open { display: flex; }
+.mobile-link { padding: 11px 24px; color: rgba(255,255,255,.8); font-size: 14px; transition: background .15s; }
+.mobile-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+@media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } }
 
-{% block content %}
-<div class="container">
-    <div class="page-header">
-        <h1>{{ title }}</h1>
+/* Page */
+.page { max-width: 860px; margin: 0 auto; padding: 28px 20px 48px; }
+
+/* Page header */
+.ph { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+.ph-left h1 { font-family: 'Amiri', serif; font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.ph-left p  { font-size: 13px; color: var(--ink-3); }
+.btn-new {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 11px; border: none;
+  background: linear-gradient(135deg, #8a6d38, var(--gold));
+  color: #1a0f00; font-size: 14px; font-weight: 800;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(184,150,90,.28);
+  transition: box-shadow .2s;
+}
+.btn-new:hover { box-shadow: 0 6px 20px rgba(184,150,90,.42); }
+
+/* Stats row */
+.stats-row { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.stat-card {
+  flex: 1; min-width: 130px; background: var(--white);
+  border-radius: 13px; border: 1px solid var(--border);
+  padding: 14px 18px; text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.stat-num  { font-size: 24px; font-weight: 900; color: var(--navy); margin-bottom: 3px; }
+.stat-lbl  { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.stat-card.pending .stat-num   { color: #b45309; }
+.stat-card.completed .stat-num { color: var(--success); }
+
+/* Consultation card */
+.cc {
+  background: var(--white); border-radius: 16px;
+  border: 1px solid var(--border); border-right: 4px solid var(--border);
+  margin-bottom: 13px; overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,.06);
+  transition: box-shadow .2s, transform .2s;
+}
+.cc:hover { box-shadow: 0 4px 18px rgba(0,0,0,.1); transform: translateY(-1px); }
+.cc.pending   { border-right-color: #f59e0b; }
+.cc.accepted  { border-right-color: #3b82f6; }
+.cc.completed { border-right-color: var(--success); }
+.cc.rejected  { border-right-color: var(--danger); }
+.cc.cancelled { border-right-color: var(--ink-3); }
+
+.cc-inner { display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px 0; }
+.cc-av {
+  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  background: var(--navy); border: 2px solid var(--gold-ln);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Amiri', serif; font-size: 18px; color: var(--gold-lt);
+}
+.cc-main { flex: 1; min-width: 0; }
+.cc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+.cc-title { font-size: 15px; font-weight: 800; color: var(--navy); }
+.cc-meta  { font-size: 12px; color: var(--ink-3); margin-bottom: 8px; }
+.cc-meta strong { color: var(--ink-2); font-weight: 700; }
+.cc-preview {
+  font-size: 13.5px; color: var(--ink-2); line-height: 1.6;
+  overflow: hidden; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  margin-bottom: 10px;
+}
+
+/* Response preview */
+.cc-response-preview {
+  padding: 10px 14px; margin: 0 20px 0;
+  background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;
+  display: flex; gap: 9px; align-items: flex-start;
+}
+.crp-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.crp-body strong { display: block; font-size: 11px; color: var(--success); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; margin-bottom: 3px; }
+.crp-text { font-size: 13px; color: var(--ink); line-height: 1.6; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+.cc-foot { padding: 12px 20px; display: flex; align-items: center; gap: 8px; }
+
+/* Badges */
+.bdg { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; flex-shrink: 0; }
+.bdg.pending   { background: rgba(245,158,11,.12); color: #b45309; }
+.bdg.accepted  { background: rgba(59,130,246,.12);  color: #1d4ed8; }
+.bdg.completed { background: rgba(22,163,74,.12);   color: #15803d; }
+.bdg.rejected  { background: rgba(220,38,38,.12);   color: #b91c1c; }
+.bdg.cancelled { background: rgba(148,163,184,.12); color: #64748b; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: 'Tajawal', sans-serif; transition: all .2s; }
+.btn-navy  { background: var(--navy); color: #fff; box-shadow: 0 2px 8px rgba(11,22,40,.2); }
+.btn-navy:hover  { background: var(--navy-2); box-shadow: 0 4px 14px rgba(11,22,40,.3); }
+.btn-ghost { background: none; border: 1.5px solid rgba(0,0,0,.12); color: var(--ink-2); }
+.btn-ghost:hover { background: var(--bg); }
+.btn-gold  { background: linear-gradient(135deg,#8a6d38,var(--gold)); color: #1a0f00; box-shadow: 0 2px 8px rgba(184,150,90,.2); }
+.btn-gold:hover  { box-shadow: 0 4px 14px rgba(184,150,90,.35); }
+
+/* Empty state */
+.empty {
+  text-align: center; padding: 64px 24px;
+  background: var(--white); border-radius: 18px;
+  border: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+.empty-icon { font-size: 52px; margin-bottom: 16px; }
+.empty h3   { font-size: 19px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+.empty p    { font-size: 14px; color: var(--ink-3); margin-bottom: 22px; }
+
+/* Pagination */
+.pag { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
+.pag-info { font-size: 13px; color: var(--ink-3); }
+.pag-btns { display: flex; gap: 6px; }
+
+@media (max-width: 600px) {
+  .page { padding: 16px 12px 40px; }
+  .stats-row { gap: 8px; }
+  .stat-card { padding: 12px 14px; }
+  .cc-inner { padding: 14px 16px 0; }
+  .cc-foot  { padding: 10px 16px; }
+  .cc-response-preview { margin: 0 16px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'index' %}" class="nav-brand">
+      <div class="nav-emblem">
+        <svg viewBox="0 0 28 28" fill="none" width="17" height="17">
+          <path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/>
+          <path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="nav-brand-text">المستشار القانوني السوري</span>
+    </a>
+    <div class="nav-links">
+      <a href="{% url 'index' %}"           class="nav-link">الرئيسية</a>
+      <a href="{% url 'chat_new' %}"        class="nav-link">المستشار الذكي</a>
+      <a href="{% url 'lawyers_list' %}"    class="nav-link">دليل المحامين</a>
+      <a href="{% url 'lawyers_map' %}"     class="nav-link">خريطة المحامين</a>
+      <a href="{% url 'my_consultations' %}" class="nav-link active">استشاراتي</a>
     </div>
-
-    {% if consultations %}
-    <div class="consultations-list">
-        {% for consultation in consultations %}
-        <div class="consultation-card card">
-            <div class="consultation-header">
-                <h3>{{ consultation.title }}</h3>
-                <span class="status-badge status-{{ consultation.status }}">{{ consultation.get_status_display }}</span>
-            </div>
-            <p class="consultation-desc">{{ consultation.description|truncatewords:50 }}</p>
-            <div class="consultation-meta">
-                <span>{{ consultation.created_at|date:"d/m/Y" }}</span>
-            </div>
-            <div class="card-actions">
-                <a href="{% url 'consultation_detail' consultation.id %}" class="btn btn-small">عرض التفاصيل</a>
-            </div>
+    <div class="nav-actions">
+      {% if request.user.is_authenticated %}
+      <div class="user-menu" id="userMenu">
+        <button class="user-btn" onclick="toggleMenu(event)">
+          <div class="user-av">{{ request.user.username|first|upper }}</div>
+          <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+          <span style="font-size:10px;color:rgba(255,255,255,.4);">▾</span>
+        </button>
+        <div class="user-dropdown">
+          
+          <a href="{% url 'submit_feedback' %}">💬 إرسال ملاحظة</a>
+          <div class="dd-div"></div>
+          <form method="post" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}<button type="submit">🚪 تسجيل الخروج</button>
+          </form>
         </div>
-        {% endfor %}
+      </div>
+      {% endif %}
+      <button class="hamburger" id="hamburger" onclick="toggleMobile()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="{% url 'index' %}"           class="mobile-link">🏠 الرئيسية</a>
+    <a href="{% url 'chat_new' %}"        class="mobile-link">🤖 المستشار الذكي</a>
+    <a href="{% url 'lawyers_list' %}"    class="mobile-link">👨‍⚖️ دليل المحامين</a>
+    <a href="{% url 'lawyers_map' %}"     class="mobile-link">🗺️ خريطة المحامين</a>
+    <a href="{% url 'my_consultations' %}" class="mobile-link">📋 استشاراتي</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="ph">
+    <div class="ph-left">
+      <h1>استشاراتي</h1>
+      <p>متابعة طلبات الاستشارة القانونية مع المحامين</p>
+    </div>
+    <a href="{% url 'lawyers_list' %}" class="btn-new">
+      <svg viewBox="0 0 24 24" fill="none" width="15" height="15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      طلب استشارة جديدة
+    </a>
+  </div>
+
+  {% if consultations %}
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">{{ consultations.paginator.count }}</div>
+      <div class="stat-lbl">إجمالي الاستشارات</div>
+    </div>
+    <div class="stat-card pending">
+      <div class="stat-num">{{ pending_count|default:"0" }}</div>
+      <div class="stat-lbl">قيد الانتظار</div>
+    </div>
+    <div class="stat-card completed">
+      <div class="stat-num">{{ accepted_count|default:"0" }}</div>
+      <div class="stat-lbl">تم الرد</div>
+    </div>
+  </div>
+
+  <!-- List -->
+  {% for c in consultations %}
+  <div class="cc {{ c.status }}">
+    <div class="cc-inner">
+      <div class="cc-av">{{ c.lawyer.first_name|first|default:c.lawyer.username|first|upper }}</div>
+      <div class="cc-main">
+        <div class="cc-top">
+          <div class="cc-title">{{ c.title }}</div>
+          <span class="bdg {{ c.status }}">{{ c.get_status_display }}</span>
+        </div>
+        <div class="cc-meta">
+          المحامي: <strong>{{ c.lawyer.get_full_name|default:c.lawyer.username }}</strong>
+          &nbsp;·&nbsp; {{ c.created_at|date:"d/m/Y · H:i" }}
+        </div>
+        <div class="cc-preview">{{ c.description }}</div>
+      </div>
     </div>
 
-    {% if consultations.has_other_pages %}
-    <div class="pagination">
-        {% if consultations.has_previous %}
-        <a href="?page=1" class="page-link">الأولى</a>
-        <a href="?page={{ consultations.previous_page_number }}" class="page-link">السابقة</a>
-        {% endif %}
-        <span class="current-page">{{ consultations.number }} / {{ consultations.paginator.num_pages }}</span>
-        {% if consultations.has_next %}
-        <a href="?page={{ consultations.next_page_number }}" class="page-link">التالية</a>
-        <a href="?page={{ consultations.paginator.num_pages }}" class="page-link">الأخيرة</a>
-        {% endif %}
+    {% if c.response %}
+    <div class="cc-response-preview">
+      <div class="crp-icon">⚖️</div>
+      <div class="crp-body">
+        <strong>رد المحامي</strong>
+        <div class="crp-text">{{ c.response }}</div>
+      </div>
     </div>
     {% endif %}
 
-    {% else %}
-    <div class="no-data">
-        <span style="font-size:3rem;">📋</span>
-        <p>لا توجد استشارات بعد</p>
-        <a href="{% url 'lawyers_list' %}" class="btn btn-primary">ابحث عن محامٍ</a>
+    <div class="cc-foot">
+      <a href="{% url 'consultation_detail' c.id %}" class="btn btn-navy">عرض المحادثة →</a>
+      {% if c.response %}
+     
+      {% endif %}
     </div>
-    {% endif %}
+  </div>
+  {% endfor %}
+
+  <!-- Pagination -->
+  {% if consultations.has_other_pages %}
+  <div class="pag">
+    <div class="pag-info">الصفحة {{ consultations.number }} من {{ consultations.paginator.num_pages }}</div>
+    <div class="pag-btns">
+      {% if consultations.has_previous %}
+      <a href="?page={{ consultations.previous_page_number }}" class="btn btn-ghost">←</a>
+      {% endif %}
+      <span class="btn btn-navy">{{ consultations.number }}</span>
+      {% if consultations.has_next %}
+      <a href="?page={{ consultations.next_page_number }}" class="btn btn-ghost">→</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon">📭</div>
+    <h3>لا توجد استشارات بعد</h3>
+    <p>ابدأ بالبحث عن محامٍ متخصص وأرسل استشارتك القانونية الأولى</p>
+    <a href="{% url 'lawyers_list' %}" class="btn-new">ابحث عن محامٍ</a>
+  </div>
+  {% endif %}
+
 </div>
-{% endblock %}
+
+<script>
+function toggleMenu(e) { e.stopPropagation(); document.getElementById('userMenu').classList.toggle('open'); }
+document.addEventListener('click', () => { const m = document.getElementById('userMenu'); if(m) m.classList.remove('open'); });
+function toggleMobile() {
+  document.getElementById('mobileNav').classList.toggle('open');
+  document.getElementById('hamburger').classList.toggle('active');
+}
+</script>
+</body>
+</html>

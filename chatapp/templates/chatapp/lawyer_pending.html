@@ -1,168 +1,241 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>طلبك قيد المراجعة — المستشار القانوني</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold: #c9a84c; --gold-light: #e8c97a;
-            --dark: #f1f5f9; --dark-2: #ffffff; --dark-3: #f8fafc;
-            --text: #0f172a; --text-muted: #64748b;
-            --border: rgba(0,0,0,0.1);
-        }
-        [data-theme="dark"] {
-            --gold: #c9a84c; --gold-light: #e8c97a;
-            --dark: #0a0e1a; --dark-2: #111827; --dark-3: #1a2235;
-            --text: #e6edf3; --text-muted: #8b949e;
-            --border: rgba(255,255,255,0.08);
-        }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: var(--dark); color: var(--text);
-            min-height: 100vh; display: flex; align-items: center;
-            justify-content: center; padding: 20px;
-        }
-        .bg { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-        .orb {
-            position:absolute; border-radius:50%; filter:blur(100px); animation:float 20s linear infinite;
-        }
-        .o1 { width:400px;height:400px;background:radial-gradient(#2563eb,transparent);top:-100px;right:-80px;opacity:.06; }
-        .o2 { width:350px;height:350px;background:radial-gradient(#c9a84c,transparent);bottom:-80px;left:-60px;opacity:.06;animation-direction:reverse;animation-duration:26s; }
-        @keyframes float { 0%{transform:translate(0,0)}33%{transform:translate(25px,-35px)}66%{transform:translate(-15px,25px)}100%{transform:translate(0,0)} }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>طلبك قيد المراجعة — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .card {
-            position:relative; z-index:1;
-            background: var(--dark-2); border-radius: 24px;
-            padding: 52px 48px; max-width: 520px; width: 100%;
-            border: 1px solid var(--border);
-            box-shadow: 0 32px 80px rgba(0,0,0,0.5);
-            text-align: center;
-            animation: cardIn .6s cubic-bezier(0.16,1,0.3,1) both;
-        }
-        @keyframes cardIn { from{opacity:0;transform:scale(.93) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+:root {
+    --green-d:   #0d1f09;
+    --gold:      #b8965a;
+    --gold-lt:   #d4b07a;
+    --gold-dim:  rgba(184,150,90,0.18);
+    --gold-line: rgba(184,150,90,0.35);
+    --cream:     #e8ecf5;
+    --cream-2:   #dde2f0;
+    --ink:       #1a1a2a;
+    --ink-2:     #3d3d52;
+    --ink-3:     #7a7a94;
+    --green-ok:  #16a34a;
+}
 
-        .status-icon {
-            width: 88px; height: 88px; border-radius: 50%;
-            background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05));
-            border: 2px solid rgba(201,168,76,0.3);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 40px; margin: 0 auto 28px;
-            animation: pulse 2.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); }
-            50%      { box-shadow: 0 0 0 14px rgba(201,168,76,0); }
-        }
+html { height: 100%; }
+body {
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100dvh;
+    background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px;
+}
 
-        h1 { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
-        .subtitle { font-size: 15px; color: var(--text-muted); line-height: 1.7; margin-bottom: 36px; }
-        .subtitle strong { color: var(--gold); }
+/* subtle bg circle */
+body::before {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(184,150,90,0.07) 0%, transparent 65%);
+    pointer-events: none;
+}
+body::after {
+    content: '';
+    position: fixed; bottom: -100px; left: -80px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(13,31,9,0.055) 0%, transparent 65%);
+    pointer-events: none;
+}
 
-        .steps {
-            background: var(--dark-3); border-radius: 16px;
-            padding: 24px; margin-bottom: 32px; text-align: right;
-        }
-        .steps-title { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
-        .step {
-            display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
-        }
-        .step:last-child { margin-bottom: 0; }
-        .step-num {
-            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 700;
-        }
-        .step-done { background: rgba(22,163,74,0.12); color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
-        .step-wait { background: rgba(201,168,76,0.12); color: #a16207; border: 1px solid rgba(201,168,76,0.4); animation: stepPulse 2s ease-in-out infinite; }
-        .step-pending { background: var(--surface, rgba(0,0,0,0.04)); color: var(--text-muted); border: 1px solid var(--border); }
-        @keyframes stepPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        .step-text h4 { font-size: 14px; color: var(--text); font-weight: 600; }
-        .step-text p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 44px 44px 36px;
+    max-width: 500px; width: 100%;
+    box-shadow: 0 32px 80px rgba(26,26,42,.12);
+    border: 1px solid rgba(0,0,0,.07);
+    text-align: center;
+    position: relative; z-index: 1;
+    animation: card-in .5s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes card-in {
+    from { opacity:0; transform:scale(.94) translateY(18px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+}
 
-        .info-box {
-            background: rgba(47,129,247,0.08); border: 1px solid rgba(47,129,247,0.2);
-            border-radius: 12px; padding: 16px; margin-bottom: 28px;
-            font-size: 13px; color: #79c0ff; text-align: right; line-height: 1.6;
-            display: flex; gap: 10px; align-items: flex-start;
-        }
-        .info-box .ii { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+/* top gold accent line */
+.card::before {
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 2.5px; border-radius: 0 0 3px 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
 
-        .actions { display: flex; flex-direction: column; gap: 10px; }
-        .btn-back {
-            padding: 13px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-light));
-            border: none; color: var(--dark); font-size: 15px; font-weight: 700;
-            font-family: inherit; cursor: pointer; transition: all .3s; text-decoration: none;
-            display: block; text-align: center;
-        }
-        .btn-back:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(201,168,76,0.4); }
-        .btn-logout {
-            padding: 11px; border-radius: 12px; border: 1px solid var(--border);
-            background: none; color: var(--text-muted); font-size: 14px;
-            font-family: inherit; cursor: pointer; transition: all .2s;
-        }
-        .btn-logout:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+/* logo */
+.card-brand {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-bottom: 28px;
+}
+.brand-emblem {
+    width: 42px; height: 42px;
+    border: 1.5px solid var(--gold-line);
+    border-radius: 11px; background: var(--gold-dim);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.brand-emblem svg { width: 22px; height: 22px; }
+.brand-text .t1 {
+    font-family: 'Amiri', serif;
+    font-size: 14px; color: var(--ink); display: block; line-height: 1.3;
+}
+.brand-text .t2 {
+    font-size: 10px; color: var(--ink-3); letter-spacing: 1px; text-transform: uppercase;
+}
 
-        @media(max-width:480px) { .card { padding: 36px 24px; } }
-    </style>
+/* status ring */
+.status-ring {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--gold-dim);
+    border: 2px solid var(--gold-line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px; margin: 0 auto 22px;
+    animation: ring-pulse 2.8s ease-in-out infinite;
+}
+@keyframes ring-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(184,150,90,.28); }
+    50%      { box-shadow: 0 0 0 12px rgba(184,150,90,.0); }
+}
+
+h1 {
+    font-family: 'Amiri', serif;
+    font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 10px;
+}
+.subtitle {
+    font-size: 14px; color: var(--ink-3); line-height: 1.75; margin-bottom: 28px;
+}
+.subtitle strong { color: var(--gold); font-weight: 700; }
+
+/* steps */
+.steps-box {
+    background: var(--cream); border-radius: 14px;
+    padding: 20px 18px; margin-bottom: 22px;
+    border: 1px solid rgba(0,0,0,.06); text-align: right;
+}
+.steps-label {
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+}
+.step { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.step:last-child { margin-bottom: 0; }
+.snum {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+}
+.s-done { background: rgba(22,163,74,.1); color: var(--green-ok); border: 1px solid rgba(22,163,74,.25); }
+.s-wait { background: var(--gold-dim); color: #a16207; border: 1px solid var(--gold-line); animation: step-blink 2s ease-in-out infinite; }
+.s-late { background: rgba(0,0,0,.04); color: var(--ink-3); border: 1px solid rgba(0,0,0,.07); }
+@keyframes step-blink { 0%,100%{opacity:1} 50%{opacity:.48} }
+.sinfo h4 { font-size: 13px; font-weight: 700; color: var(--ink); }
+.sinfo p  { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* notice */
+.notice {
+    display: flex; gap: 10px; align-items: flex-start; text-align: right;
+    background: var(--cream-2); border: 1px solid rgba(0,0,0,.06);
+    border-radius: 12px; padding: 14px 14px; margin-bottom: 24px;
+    font-size: 13px; color: var(--ink-2); line-height: 1.65;
+}
+.notice svg { width: 16px; height: 16px; fill: none; stroke: var(--gold); stroke-width: 2; flex-shrink: 0; margin-top: 2px; }
+
+/* actions */
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-home {
+    display: block; text-align: center; text-decoration: none;
+    padding: 14px; border-radius: 12px;
+    background: linear-gradient(135deg, #8a6d38, var(--gold), var(--gold-lt));
+    color: #1a0f00; font-size: 15px; font-weight: 800;
+    font-family: 'Tajawal', sans-serif;
+    box-shadow: 0 6px 20px rgba(184,150,90,.32);
+    position: relative; overflow: hidden;
+    transition: all .25s;
+}
+.btn-home::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+    transform: translateX(-100%); transition: transform .55s;
+}
+.btn-home:hover::after { transform: translateX(100%); }
+.btn-home:hover { box-shadow: 0 10px 30px rgba(184,150,90,.45); transform: translateY(-2px); }
+
+.btn-logout {
+    padding: 12px; border-radius: 12px;
+    border: 1.5px solid rgba(0,0,0,.1);
+    background: none; color: var(--ink-3);
+    font-size: 13px; font-family: 'Tajawal', sans-serif;
+    cursor: pointer; width: 100%;
+    transition: background .2s, color .2s, border-color .2s;
+}
+.btn-logout:hover { background: var(--cream); color: var(--ink); border-color: rgba(0,0,0,.18); }
+
+@media (max-width: 480px) { .card { padding: 36px 22px 28px; } }
+</style>
 </head>
 <body>
-<div class="bg"><div class="orb o1"></div><div class="orb o2"></div></div>
 
 <div class="card">
-    <div class="status-icon">⏳</div>
+    <div class="card-brand">
+        <div class="brand-emblem">
+            <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.1)"/>
+                <path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="brand-text">
+            <span class="t1">المستشار القانوني السوري</span>
+            <span class="t2">منصة قانونية متكاملة</span>
+        </div>
+    </div>
+
+    <div class="status-ring">⏳</div>
+
     <h1>طلبك قيد المراجعة</h1>
     <p class="subtitle">
-        شكراً لتسجيلك في المنصة! تم استلام بياناتك وسيتم مراجعتها من قبل الإدارة.<br>
+        شكراً لتسجيلك في المنصة! تم استلام بياناتك وسيتم مراجعتها من قِبل الإدارة.<br>
         ستتمكن من الدخول فور <strong>موافقة الإدارة</strong> على حسابك.
     </p>
 
-    <div class="steps">
-        <div class="steps-title">مراحل التسجيل</div>
+    <div class="steps-box">
+        <div class="steps-label">مراحل التسجيل</div>
         <div class="step">
-            <div class="step-num step-done">✓</div>
-            <div class="step-text">
-                <h4>تقديم الطلب</h4>
-                <p>تم استلام بياناتك بنجاح</p>
-            </div>
+            <div class="snum s-done">✓</div>
+            <div class="sinfo"><h4>تقديم الطلب</h4><p>تم استلام بياناتك بنجاح</p></div>
         </div>
         <div class="step">
-            <div class="step-num step-wait">⋯</div>
-            <div class="step-text">
-                <h4>مراجعة الإدارة</h4>
-                <p>جارٍ التحقق من بيانات الترخيص</p>
-            </div>
+            <div class="snum s-wait">⋯</div>
+            <div class="sinfo"><h4>مراجعة الإدارة</h4><p>جارٍ التحقق من بيانات الترخيص</p></div>
         </div>
         <div class="step">
-            <div class="step-num step-pending">3</div>
-            <div class="step-text">
-                <h4>تفعيل الحساب</h4>
-                <p>الوصول الكامل للوحة التحكم</p>
-            </div>
+            <div class="snum s-late">3</div>
+            <div class="sinfo"><h4>تفعيل الحساب</h4><p>الوصول الكامل للوحة التحكم</p></div>
         </div>
     </div>
 
-    <div class="info-box">
-        <span class="ii">ℹ️</span>
-        <span>عادةً تستغرق المراجعة من <strong>24 إلى 48 ساعة</strong>. إذا لم تصلك إشعار خلال يومين، تواصل مع الإدارة عبر صفحة الموقع.</span>
+    <div class="notice">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>عادةً تستغرق المراجعة من <strong>24 إلى 48 ساعة</strong>. إذا لم يصلك إشعار خلال يومين، تواصل مع الإدارة عبر صفحة الموقع.</span>
     </div>
 
     <div class="actions">
-        <a href="/" class="btn-back">العودة لصفحة الدخول</a>
+        <a href="/" class="btn-home">العودة لصفحة الدخول ←</a>
         <form method="post" action="/logout/" style="margin:0;">
             {% csrf_token %}
-            <button type="submit" class="btn-logout" style="width:100%;">تسجيل الخروج</button>
+            <button type="submit" class="btn-logout">تسجيل الخروج</button>
         </form>
     </div>
 </div>
-<script>
-(function() {
-    var t = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
+
 </body>
 </html>

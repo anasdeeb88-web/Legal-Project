@@ -16,8 +16,8 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-
+#ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['*']
 # ==================== Auth URLs ====================
 # "/" هو صفحة تسجيل الدخول
 LOGIN_URL = '/'
@@ -45,6 +45,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Database backend
+SESSION_COOKIE_AGE = 3600 
+SESSION_SAVE_EVERY_REQUEST = True
+
 ROOT_URLCONF = 'mcp_app.urls'
 
 TEMPLATES = [
@@ -68,8 +72,12 @@ WSGI_APPLICATION = 'mcp_app.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -116,6 +124,18 @@ MAX_AUDIO_SIZE = 10 * 1024 * 1024
 ALLOWED_AUDIO_FORMATS = ['.mp3', '.wav', '.m4a', '.ogg', '.webm']
 
 # ==================== Email ====================
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'anasdib49@gmail.com' 
+EMAIL_HOST_PASSWORD = 'gfsxpepayeliwlan'
+DEFAULT_FROM_EMAIL =  'legal <anasdib49@gmail.com>'
+
+
+''' 
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
@@ -123,7 +143,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-
+''' 
 # ==================== Upload Limits ====================
 MAX_PDF_SIZE = 20 * 1024 * 1024
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
@@ -145,8 +165,8 @@ LOGGING = {
         'verbose': {'format': '{levelname} {asctime} {module} {message}', 'style': '{'},
     },
     'handlers': {
-        'console': {'class': 'logging.StreamHandler', 'formatter': 'verbose'},
-        'file': {'class': 'logging.FileHandler', 'filename': BASE_DIR / 'logs' / 'django.log', 'formatter': 'verbose'},
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'verbose','stream': 'ext://sys.stdout'},
+        'file': {'class': 'logging.FileHandler', 'filename': BASE_DIR / 'logs' / 'django.log', 'formatter': 'verbose','encoding': 'utf-8'},
     },
     'root': {'handlers': ['console', 'file'], 'level': 'INFO'},
     'loggers': {

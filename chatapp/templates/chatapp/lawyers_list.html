@@ -1,184 +1,669 @@
-{% extends "chatapp/base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>دليل المحامين — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-{% block title %}دليل المحامين - المستشار القانوني السوري{% endblock %}
+:root {
+    --navy:      #0b1628;
+    --navy-2:    #111f38;
+    --gold:      #b8965a;
+    --gold-lt:   #d4b07a;
+    --gold-dim:  rgba(184,150,90,0.14);
+    --gold-line: rgba(184,150,90,0.28);
+    --cream:     #f5f2eb;
+    --cream-2:   #ece8df;
+    --white:     #ffffff;
+    --page-bg:   #f5f2eb;
+    --ink:       var(--navy);
+    --ink-2:     var(--navy-2);
+    --ink-3:     rgba(17,31,56,.75);
+    --border:    rgba(11,22,40,.08);
+    --border-2:  rgba(11,22,40,.12);
+    --success:   #16a34a;
+    --danger:    #dc2626;
+    --gold-star: #f59e0b;
+}
 
-{% block content %}
-<div class="container lawyers-page">
+html { scroll-behavior: smooth; }
+body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--page-bg);
+    color: var(--ink);
+    min-height: 100dvh;
+}
+h1, h2, h3, h4, h5, h6 { font-family: 'Amiri', serif; }
+
+/* ══════════════════ NAVBAR ══════════════════ */
+.navbar { position: sticky; top: 0; z-index: 100; background: var(--navy); border-bottom: 1px solid rgba(184,150,90,.18); transition: box-shadow .3s; }
+.navbar.scrolled { box-shadow: 0 4px 24px rgba(11,22,40,.35); }
+.nav-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+.nav-emblem { width: 36px; height: 36px; border-radius: 9px; background: var(--gold-dim); border: 1px solid var(--gold-line); display: flex; align-items: center; justify-content: center; }
+.nav-emblem svg { width: 18px; height: 18px; }
+.nav-brand-text { font-family: 'Amiri', serif; font-size: 15px; color: var(--gold-lt); line-height: 1; }
+.nav-links { display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center; }
+.nav-link { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.7); text-decoration: none; padding: 7px 14px; border-radius: 8px; transition: background .2s, color .2s; white-space: nowrap; }
+.nav-link:hover, .nav-link.active { background: rgba(255,255,255,.08); color: #fff; }
+.nav-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.btn-nav-ghost { padding: 8px 18px; border-radius: 10px; border: 1.5px solid var(--gold-line); background: none; color: var(--gold-lt); font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 600; cursor: pointer; text-decoration: none; transition: background .2s; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn-nav-ghost:hover { background: var(--gold-dim); }
+.user-menu { position: relative; }
+.user-btn { display: flex; align-items: center; gap: 9px; background: none; border: 1.5px solid var(--gold-line); border-radius: 10px; padding: 6px 14px 6px 10px; cursor: pointer; color: var(--gold-lt); font-family: 'Tajawal', sans-serif; font-size: 13px; font-weight: 600; transition: background .2s; }
+.user-btn:hover { background: var(--gold-dim); }
+.user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #8a6d38, var(--gold)); color: var(--navy); font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chevron { font-size: 10px; color: rgba(255,255,255,.4); margin-right: 2px; transition: transform .2s; }
+.user-menu.open .chevron { transform: rotate(180deg); }
+.user-dropdown { position: absolute; top: calc(100% + 8px); left: 0; background: var(--navy-2); border: 1px solid var(--gold-line); border-radius: 12px; min-width: 180px; box-shadow: 0 16px 40px rgba(11,22,40,.4); overflow: hidden; opacity: 0; pointer-events: none; transform: translateY(-6px); transition: all .2s; z-index: 200; }
+.user-menu.open .user-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.user-dropdown a, .user-dropdown button { display: flex; align-items: center; gap: 8px; padding: 11px 16px; text-decoration: none; color: rgba(255,255,255,.8); font-size: 13px; font-family: 'Tajawal', sans-serif; font-weight: 500; transition: background .15s, color .15s; border: none; background: none; width: 100%; cursor: pointer; text-align: right; }
+.user-dropdown a:hover, .user-dropdown button:hover { background: rgba(255,255,255,.06); color: #fff; }
+.dropdown-divider { height: 1px; background: var(--gold-line); margin: 4px 0; }
+.hamburger { display: none; flex-direction: column; justify-content: center; gap: 5px; background: none; border: none; padding: 6px; cursor: pointer; width: 36px; height: 36px; }
+.hamburger span { display: block; height: 2px; background: var(--gold-lt); border-radius: 2px; transition: all .25s; }
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.mobile-nav { display: none; flex-direction: column; background: var(--navy-2); border-top: 1px solid var(--gold-line); padding: 12px 0; }
+.mobile-nav.open { display: flex; }
+.mobile-link { padding: 12px 24px; color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; font-weight: 500; transition: background .15s; border: none; background: none; font-family: 'Tajawal', sans-serif; cursor: pointer; text-align: right; width: 100%; display: flex; align-items: center; gap: 8px; }
+.mobile-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.mobile-divider { height: 1px; background: var(--gold-line); margin: 6px 24px; }
+@media (max-width: 768px) { .nav-links { display: none; } .hamburger { display: flex; } }
+
+/* ══════════════════ PAGE CONTENT ══════════════════ */
+.page-wrap {
+    max-width: 1200px; margin: 0 auto;
+    padding: 32px 24px 48px;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 24px;
+}
+.page-header h1 {
+    font-family: 'Amiri', serif;
+    font-size: 30px; font-weight: 700; color: var(--navy); margin-bottom: 6px;
+}
+.page-header p { font-size: 14px; color: var(--ink-3); }
+
+/* ══════════════════ FILTER BAR ══════════════════ */
+.filter-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(11,22,40,.05);
+}
+.filters-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+
+/* Map button */
+.btn-map {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 18px; border-radius: 10px;
+    background: var(--navy); border: none;
+    color: var(--gold-lt); font-size: 13px; font-weight: 700;
+    font-family: 'Tajawal', sans-serif; cursor: pointer;
+    text-decoration: none; transition: background .2s;
+    white-space: nowrap; flex-shrink: 0;
+}
+.btn-map:hover { background: var(--navy-2); }
+.btn-map svg { width: 15px; height: 15px; }
+
+/* Sort select */
+.filter-select-wrap {
+    position: relative; flex-shrink: 0;
+}
+.filter-select-wrap svg {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    width: 14px; height: 14px; color: var(--ink-3); pointer-events: none;
+}
+.filter-select {
+    appearance: none; -webkit-appearance: none;
+    background: var(--cream); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 9px 14px 9px 32px;
+    font-size: 13px; color: var(--ink); font-family: 'Tajawal', sans-serif;
+    cursor: pointer; outline: none;
+    transition: border-color .2s;
+    min-width: 140px;
+}
+.filter-select:focus { border-color: var(--gold-line); }
+
+/* City input */
+.filter-input {
+    background: var(--cream); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 9px 14px;
+    font-size: 13px; color: var(--ink); font-family: 'Tajawal', sans-serif;
+    outline: none; transition: border-color .2s;
+    min-width: 120px;
+}
+.filter-input:focus { border-color: var(--gold-line); }
+.filter-input::placeholder { color: var(--ink-3); }
+
+/* Search input */
+.search-wrap {
+    position: relative; flex: 1; min-width: 200px;
+}
+.search-wrap svg {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    width: 16px; height: 16px; color: var(--ink-3); pointer-events: none;
+}
+.search-input {
+    width: 100%; background: var(--cream); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 9px 38px 9px 14px;
+    font-size: 13px; color: var(--ink); font-family: 'Tajawal', sans-serif;
+    outline: none; transition: border-color .2s, box-shadow .2s;
+}
+.search-input:focus {
+    border-color: var(--gold-line);
+    box-shadow: 0 0 0 4px rgba(184,150,90,.1);
+}
+.search-input::placeholder { color: var(--ink-3); }
+
+/* Nearby button */
+.btn-nearby {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: none;
+    color: var(--ink-2); font-size: 13px; font-weight: 600;
+    font-family: 'Tajawal', sans-serif; cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+    white-space: nowrap; flex-shrink: 0;
+}
+.btn-nearby:hover { border-color: var(--gold-line); color: var(--gold); background: var(--gold-dim); }
+.btn-nearby svg { width: 14px; height: 14px; }
+
+/* Submit search (hidden, triggered by select changes) */
+.btn-search {
+    padding: 9px 20px; border-radius: 10px;
+    background: linear-gradient(135deg, #8a6d38, var(--gold), var(--gold-lt));
+    border: none; color: var(--navy); font-size: 13px; font-weight: 700;
+    font-family: 'Tajawal', sans-serif; cursor: pointer;
+    box-shadow: 0 3px 12px rgba(184,150,90,.3);
+    transition: box-shadow .2s; white-space: nowrap; flex-shrink: 0;
+}
+.btn-search:hover { box-shadow: 0 5px 18px rgba(184,150,90,.45); }
+
+/* ══════════════════ RESULTS ══════════════════ */
+.results-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 8px;
+}
+.results-count {
+    font-size: 14px; color: var(--ink-2); font-weight: 600;
+}
+.results-count span { color: var(--navy); font-weight: 700; }
+
+/* ══════════════════ LAWYERS GRID ══════════════════ */
+.lawyers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+/* Lawyer Card */
+.lawyer-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px;
+    box-shadow: 0 2px 10px rgba(15, 33, 62, 0.05);
+    transition: all .25s; position: relative;
+    display: flex; flex-direction: column; gap: 14px;
+}
+.lawyer-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(16, 36, 67, 0.1);
+    border-color: var(--gold-line);
+}
+
+/* Card Header */
+.card-header {
+    display: flex; align-items: flex-start; gap: 14px;
+}
+.lawyer-avatar {
+    width: 52px; height: 52px; border-radius: 13px;
+    background: var(--navy);
+    border: 1px solid var(--gold-line);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative; overflow: hidden;
+}
+.lawyer-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-initials {
+    font-family: 'Amiri', serif; font-size: 20px;
+    font-weight: 700; color: var(--gold-lt);
+}
+.verified-badge {
+    position: absolute; bottom: -2px; left: -2px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--success); border: 2px solid var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: white; font-weight: 700;
+}
+
+.lawyer-header-info { flex: 1; min-width: 0; }
+.lawyer-name {
+    font-family: 'Amiri', serif;
+    font-size: 17px; font-weight: 700; color: var(--navy);
+    text-decoration: none; display: block; margin-bottom: 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    transition: color .2s;
+}
+.lawyer-name:hover { color: var(--gold); }
+
+.spec-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.spec-badge {
+    padding: 3px 10px; border-radius: 6px;
+    background: var(--navy); color: var(--gold-lt);
+    font-size: 11px; font-weight: 600;
+}
+
+/* Info button */
+.info-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--navy); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold-lt); font-size: 13px; font-weight: 800;
+    flex-shrink: 0; text-decoration: none;
+    transition: background .2s;
+}
+.info-btn:hover { background: var(--navy-2); }
+
+/* Rating */
+.card-rating {
+    display: flex; align-items: center; gap: 6px;
+}
+.stars { display: flex; gap: 1px; }
+.star { font-size: 15px; color: #d1d5db; }
+.star.filled { color: var(--gold-star); }
+.star.half { color: var(--gold-star); position: relative; }
+.rating-num { font-size: 14px; font-weight: 700; color: var(--ink); }
+.rating-count { font-size: 12px; color: var(--ink-3); }
+
+/* Meta pills */
+.card-meta {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+}
+.meta-pill {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--ink-3);
+}
+.meta-pill svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* Description */
+.card-desc {
+    font-size: 13px; color: var(--ink-2); line-height: 1.65;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Card Footer */
+.card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; border-top: 1px solid var(--border);
+    flex-wrap: wrap; gap: 8px;
+}
+.fee-badge {
+    padding: 5px 12px; border-radius: 8px;
+    font-size: 13px; font-weight: 700;
+}
+.fee-free { background: rgba(22,163,74,.1); color: var(--success); }
+.fee-paid { background: var(--gold-dim); color: #92400e; }
+
+.btn-profile {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 10px;
+    background: var(--navy); color: var(--gold-lt);
+    font-size: 13px; font-weight: 700; font-family: 'Tajawal', sans-serif;
+    text-decoration: none; transition: background .2s;
+}
+.btn-profile:hover { background: var(--navy-2); }
+
+.btn-consult {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 10px;
+    background: linear-gradient(135deg,#8a6d38,var(--gold));
+    color: #1a0f00; font-size: 13px; font-weight: 700;
+    font-family: 'Tajawal', sans-serif; text-decoration: none;
+    transition: box-shadow .2s; box-shadow: 0 2px 8px rgba(184,150,90,.25);
+}
+.btn-consult:hover { box-shadow: 0 4px 14px rgba(184,150,90,.45); }
+
+/* Distance badge */
+.distance-badge {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 7px;
+    background: rgba(11,22,40,.07);
+    font-size: 12px; color: var(--ink-2); font-weight: 600;
+}
+.distance-badge svg { width: 13px; height: 13px; }
+
+/* ══════════════════ NO RESULTS ══════════════════ */
+.no-results {
+    grid-column: 1 / -1; text-align: center;
+    padding: 64px 24px;
+    background: var(--white); border-radius: 16px;
+    border: 1px solid var(--border);
+}
+.no-results-icon {
+    width: 64px; height: 64px; border-radius: 18px;
+    background: var(--navy); margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+}
+.no-results-icon svg { width: 30px; height: 30px; }
+.no-results h3 { font-family: 'Amiri', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+.no-results p { font-size: 14px; color: var(--ink-3); }
+
+/* ══════════════════ PAGINATION ══════════════════ */
+.pagination {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 32px; flex-wrap: wrap;
+}
+.page-link {
+    padding: 9px 18px; border-radius: 10px;
+    background: var(--white); border: 1px solid var(--border);
+    color: var(--ink-2); font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: all .2s;
+    font-family: 'Tajawal', sans-serif;
+}
+.page-link:hover { border-color: var(--gold-line); color: var(--navy); }
+.page-current {
+    padding: 9px 18px; border-radius: 10px;
+    background: var(--navy); color: var(--white);
+    font-size: 13px; font-weight: 700;
+    font-family: 'Tajawal', sans-serif;
+}
+
+@media (max-width: 640px) {
+    .page-wrap { padding: 20px 16px 40px; }
+    .filters-row { flex-direction: column; align-items: stretch; }
+    .btn-map, .btn-nearby, .btn-search { width: 100%; justify-content: center; }
+    .filter-select-wrap, .filter-input, .search-wrap { width: 100%; }
+    .filter-select { width: 100%; }
+    .lawyers-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ NAVBAR ══════════════════ -->
+<nav class="navbar" id="navbar">
+    <div class="nav-inner">
+        <a href="{% url 'index' %}" class="nav-brand">
+            <div class="nav-emblem">
+                <svg viewBox="0 0 28 28" fill="none"><path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/><path d="M10 14l3 3 5-5" stroke="#b8965a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="nav-brand-text">المستشار القانوني السوري</span>
+        </a>
+        <div class="nav-links">
+            <a href="{% url 'index' %}" class="nav-link">الرئيسية</a>
+            <a href="{% url 'chat_new' %}" class="nav-link">المستشار الذكي</a>
+            <a href="{% url 'lawyers_list' %}" class="nav-link active">دليل المحامين</a>
+            <a href="{% url 'lawyers_map' %}" class="nav-link">خريطة المحامين</a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}" class="nav-link">الإدارة</a>
+            {% elif request.user.profile.user_type == 'lawyer' %}
+            <a href="{% url 'lawyer_dashboard' %}" class="nav-link">لوحتي</a>
+            {% else %}
+            <a href="{% url 'my_consultations' %}" class="nav-link">استشاراتي</a>
+            {% endif %}
+        </div>
+        <div class="nav-actions">
+            {% if request.user.is_authenticated %}
+            <div class="user-menu" id="userMenu">
+                <button class="user-btn" onclick="toggleUserMenu(event)">
+                    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+                    <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+                    <span class="chevron">▾</span>
+                </button>
+                <div class="user-dropdown">
+                    {% if request.user.is_staff %}
+                    <a href="{% url 'admin_dashboard' %}">🛡️ لوحة الإدارة</a>
+                    <a href="{% url 'admin_documents' %}">📄 قاعدة البيانات</a>
+                    {% elif request.user.profile.user_type == 'lawyer' %}
+                    
+                    
+                    <a href="{% url 'lawyer_consultations' %}">📋 استشارات العملاء</a>
+                    {% else %}
+                    <a href="{% url 'my_consultations' %}">📋 استشاراتي</a>
+                    <a href="{% url 'submit_feedback' %}">💬 إرسال ملاحظة</a>
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <form method="post" action="{% url 'logout' %}" style="margin:0;">
+                        {% csrf_token %}<button type="submit">🚪 تسجيل الخروج</button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-nav-ghost">تسجيل الدخول</a>
+            {% endif %}
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+    <div class="mobile-nav" id="mobileNav">
+        <a href="{% url 'index' %}" class="mobile-link">🏠 الرئيسية</a>
+        <a href="{% url 'chat_new' %}" class="mobile-link">🤖 المستشار الذكي</a>
+        <a href="{% url 'lawyers_list' %}" class="mobile-link">👨‍⚖️ دليل المحامين</a>
+        <a href="{% url 'lawyers_map' %}" class="mobile-link">🗺️ خريطة المحامين</a>
+        {% if request.user.is_authenticated %}
+        <div class="mobile-divider"></div>
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" class="mobile-link">🛡️ لوحة الإدارة</a>
+        {% elif request.user.profile.user_type == 'lawyer' %}
+        <a href="{% url 'lawyer_dashboard' %}" class="mobile-link">⚡ لوحة التحكم</a>
+        {% else %}
+        <a href="{% url 'my_consultations' %}" class="mobile-link">📋 استشاراتي</a>
+        {% endif %}
+        <div class="mobile-divider"></div>
+        <form method="post" action="{% url 'logout' %}" style="margin:0;">
+            {% csrf_token %}<button type="submit" class="mobile-link">🚪 تسجيل الخروج</button>
+        </form>
+        {% endif %}
+    </div>
+</nav>
+
+
+<!-- ══════════════════ PAGE CONTENT ══════════════════ -->
+<div class="page-wrap">
+
+    <!-- Header -->
     <div class="page-header">
         <h1>دليل المحامين</h1>
-        <p class="subtitle">ابحث عن محامي متخصص في مجالك</p>
+        <p>ابحث عن محامٍ متخصص ومناسب لقضيتك</p>
     </div>
 
-    <!-- شريط البحث والفلترة -->
-    <div class="search-filters card">
+    <!-- Filter Bar -->
+    <div class="filter-card">
         <form method="get" id="search-form">
             <div class="filters-row">
-                <div class="filter-item">
-                    <input 
-                        type="text" 
-                        name="q" 
-                        placeholder="ابحث عن محامي..." 
-                        value="{{ request.GET.q }}"
-                        class="search-input"
-                    >
+
+                <!-- Map Button -->
+                {% comment %} <a href="{% url 'lawyers_map' %}" class="btn-map">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                    خريطة
+                </a> {% endcomment %}
+
+                <!-- Sort -->
+                <div class="filter-select-wrap">
+                    <select name="sort" class="filter-select" onchange="document.getElementById('search-form').submit()">
+                        <option value="rating" {% if request.GET.sort == 'rating' or not request.GET.sort %}selected{% endif %}>الأعلى تقييماً</option>
+                        <option value="experience" {% if request.GET.sort == 'experience' %}selected{% endif %}>الأكثر خبرة</option>
+                        <option value="price_low" {% if request.GET.sort == 'price_low' %}selected{% endif %}>الأقل سعراً</option>
+                        <option value="price_high" {% if request.GET.sort == 'price_high' %}selected{% endif %}>الأعلى سعراً</option>
+                    </select>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
 
-                <div class="filter-item">
-                    <select name="specialization" class="filter-select">
-                        <option value="">كل التخصصات</option>
+                <!-- City -->
+                <input type="text" name="city" class="filter-input"
+                    placeholder="المدينة..." value="{{ request.GET.city }}">
+
+                <!-- Specialization -->
+                <div class="filter-select-wrap">
+                    <select name="specialization" class="filter-select" onchange="document.getElementById('search-form').submit()">
+                        <option value="">جميع التخصصات</option>
                         {% for code, name in specializations %}
-                        <option value="{{ code }}" {% if request.GET.specialization == code %}selected{% endif %}>
-                            {{ name }}
-                        </option>
+                        <option value="{{ code }}" {% if request.GET.specialization == code %}selected{% endif %}>{{ name }}</option>
                         {% endfor %}
                     </select>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
 
-                <div class="filter-item">
-                    <input 
-                        type="text" 
-                        name="city" 
-                        placeholder="المدينة" 
-                        value="{{ request.GET.city }}"
-                        class="filter-input"
-                    >
+                <!-- Search -->
+                <div class="search-wrap">
+                    <input type="text" name="q" class="search-input"
+                        placeholder="ابحث بالاسم أو المكتب..."
+                        value="{{ request.GET.q }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </div>
 
-                <div class="filter-item">
-                    <select name="sort" class="filter-select">
-                        <option value="rating">الأعلى تقييماً</option>
-                        <option value="experience">الأكثر خبرة</option>
-                        <option value="price_low">الأقل سعراً</option>
-                        <option value="price_high">الأعلى سعراً</option>
-                    </select>
-                </div>
+                <!-- Nearby -->
+                {% comment %} <button type="button" class="btn-nearby" onclick="searchNearby()" id="nearby-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    قريب مني
+                </button> {% endcomment %}
 
-                <div class="filter-item">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="icon-search"></i> بحث
-                    </button>
-                </div>
+                <!-- Submit -->
+                <button type="submit" class="btn-search">بحث</button>
 
-                <div class="filter-item">
-                    <button 
-                        type="button" 
-                        class="btn btn-outline" 
-                        onclick="searchNearby()"
-                        id="nearby-btn"
-                    >
-                        <i class="icon-location"></i> قريب مني
-                    </button>
-                </div>
             </div>
         </form>
     </div>
 
-    <!-- نتائج البحث -->
+    <!-- Results meta -->
+    <div class="results-meta">
+        <div class="results-count">
+            <span>{{ lawyers_count }}</span> محامٍ متاح
+        </div>
+        {% if request.GET.q or request.GET.specialization or request.GET.city %}
+        <a href="{% url 'lawyers_list' %}" style="font-size:13px;color:var(--ink-3);text-decoration:none;display:flex;align-items:center;gap:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            مسح الفلاتر
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Lawyers Grid -->
     <div class="lawyers-grid">
         {% if lawyers_with_distance %}
-            <!-- نتائج البحث الجغرافي -->
             {% for item in lawyers_with_distance %}
+            {% with lawyer=item.lawyer %}
             <div class="lawyer-card">
-                <div class="lawyer-avatar">
-                    {% if item.lawyer.user.profile.avatar %}
-                    <img src="{{ item.lawyer.user.profile.avatar.url }}" alt="{{ item.lawyer.user.get_full_name }}">
-                    {% else %}
-                    <div class="avatar-placeholder">{{ item.lawyer.user.first_name.0 }}{{ item.lawyer.user.last_name.0 }}</div>
-                    {% endif %}
-                    {% if item.lawyer.is_verified %}
-                    <span class="verified-badge" title="محامي موثق">✓</span>
-                    {% endif %}
+                <div class="card-header">
+                    <div class="lawyer-avatar">
+                        {% if lawyer.user.profile.avatar %}
+                        <img src="{{ lawyer.user.profile.avatar.url }}" alt="">
+                        {% else %}<span class="avatar-initials">⚖️</span>{% endif %}
+                    </div>
+                    <div class="lawyer-header-info">
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="lawyer-name">
+                            {{ lawyer.user.get_full_name|default:lawyer.user.username }}
+                        </a>
+                        <div class="spec-badges">
+                            <span class="spec-badge">{{ lawyer.get_specialization_display }}</span>
+                        </div>
+                    </div>
+                    <div class="distance-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        {{ item.distance }} كم
+                    </div>
                 </div>
 
-                <div class="lawyer-info">
-                    <h3>
-                        <a href="{% url 'lawyer_detail' item.lawyer.id %}">
-                            {{ item.lawyer.user.get_full_name|default:item.lawyer.user.username }}
-                        </a>
-                    </h3>
-                    
-                    <div class="lawyer-meta">
-                        <span class="specialization">{{ item.lawyer.get_specialization_display }}</span>
-                        <span class="experience">{{ item.lawyer.experience_years }} سنة خبرة</span>
-                    </div>
-
-                    <div class="rating-stars">
+                <div class="card-rating">
+                    <div class="stars">
                         {% for i in "12345" %}
-                            <span class="star {% if forloop.counter <= item.lawyer.rating %}filled{% endif %}">★</span>
+                        <span class="star {% if forloop.counter <= lawyer.rating %}filled{% endif %}">★</span>
                         {% endfor %}
-                        <span class="rating-number">{{ item.lawyer.rating|floatformat:1 }}</span>
-                        <span class="reviews-count">({{ item.lawyer.total_reviews }} تقييم)</span>
                     </div>
+                    <span class="rating-num">{{ lawyer.rating|floatformat:1 }}</span>
+                    <span class="rating-count">({{ lawyer.total_reviews }} تقييم)</span>
+                </div>
 
-                    <p class="lawyer-description">
-                        {{ item.lawyer.description|truncatewords:20 }}
-                    </p>
+                {% if lawyer.description %}
+                <p class="card-desc">{{ lawyer.description|truncatewords:18 }}</p>
+                {% endif %}
 
-                    <div class="lawyer-location">
-                        <i class="icon-location"></i>
-                        <span>{{ item.distance }} كم</span>
-                    </div>
+                {% if lawyer.office_city %}
+                <div class="meta-pill" style="font-size:12px;color:var(--ink-3);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {{ lawyer.office_city }}
+                </div>
+                {% endif %}
 
-                    <div class="lawyer-actions">
-                        <a href="{% url 'lawyer_detail' item.lawyer.id %}" class="btn btn-primary">
-                            عرض الملف
-                        </a>
-                        <span class="consultation-fee">{{ item.lawyer.consultation_fee }} ل.س</span>
+                <div class="card-footer">
+                    <div style="display:flex;gap:8px;">
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn-profile">الملف</a>
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn-consult">💬 طلب استشارة</a>
                     </div>
                 </div>
             </div>
+            {% endwith %}
             {% endfor %}
+
         {% else %}
-            <!-- نتائج البحث العادية -->
             {% for lawyer in lawyers %}
             <div class="lawyer-card">
-                <div class="lawyer-avatar">
-                    {% if lawyer.user.profile.avatar %}
-                    <img src="{{ lawyer.user.profile.avatar.url }}" alt="{{ lawyer.user.get_full_name }}">
-                    {% else %}
-                    <div class="avatar-placeholder">{{ lawyer.user.first_name.0 }}{{ lawyer.user.last_name.0 }}</div>
-                    {% endif %}
-                    {% if lawyer.is_verified %}
-                    <span class="verified-badge" title="محامي موثق">✓</span>
-                    {% endif %}
-                </div>
-
-                <div class="lawyer-info">
-                    <h3>
-                        <a href="{% url 'lawyer_detail' lawyer.id %}">
+                <div class="card-header">
+                    <div class="lawyer-avatar">
+                        {% if lawyer.user.profile.avatar %}
+                        <img src="{{ lawyer.user.profile.avatar.url }}" alt="">
+                        {% else %}<span class="avatar-initials">⚖️</span>{% endif %}
+                    </div>
+                    <div class="lawyer-header-info">
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="lawyer-name">
                             {{ lawyer.user.get_full_name|default:lawyer.user.username }}
                         </a>
-                    </h3>
-                    
-                    <div class="lawyer-meta">
-                        <span class="specialization">{{ lawyer.get_specialization_display }}</span>
-                        <span class="experience">{{ lawyer.experience_years }} سنة خبرة</span>
+                        <div class="spec-badges">
+                            <span class="spec-badge">{{ lawyer.get_specialization_display }}</span>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="rating-stars">
+                <div class="card-rating">
+                    <div class="stars">
                         {% for i in "12345" %}
-                            <span class="star {% if forloop.counter <= lawyer.rating %}filled{% endif %}">★</span>
+                        <span class="star {% if forloop.counter <= lawyer.rating %}filled{% endif %}">★</span>
                         {% endfor %}
-                        <span class="rating-number">{{ lawyer.rating|floatformat:1 }}</span>
-                        <span class="reviews-count">({{ lawyer.total_reviews }} تقييم)</span>
                     </div>
+                    <span class="rating-num">{{ lawyer.rating|floatformat:1 }}</span>
+                    <span class="rating-count">({{ lawyer.total_reviews }} تقييم)</span>
+                </div>
 
-                    <p class="lawyer-description">
-                        {{ lawyer.description|truncatewords:20 }}
-                    </p>
+                {% if lawyer.description %}
+                <p class="card-desc">{{ lawyer.description|truncatewords:18 }}</p>
+                {% endif %}
 
-                    <div class="lawyer-actions">
-                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn btn-primary">
-                            عرض الملف
-                        </a>
-                        <span class="consultation-fee">{{ lawyer.consultation_fee }} ل.س</span>
+                {% if lawyer.office_city %}
+                <div class="meta-pill" style="font-size:12px;color:var(--ink-3);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    {{ lawyer.office_city }}
+                </div>
+                {% endif %}
+
+                <div class="card-footer">
+                    <div style="display:flex;gap:8px;">
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn-profile">الملف</a>
+                        <a href="{% url 'lawyer_detail' lawyer.id %}" class="btn-consult">💬 طلب استشارة</a>
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="no-results">
-                <p>لم يتم العثور على محامين مطابقين للبحث</p>
+                <div class="no-results-icon">
+                    <svg viewBox="0 0 28 28" fill="none">
+                        <path d="M14 3L6 7v7c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7L14 3z" stroke="#b8965a" stroke-width="1.6" fill="rgba(184,150,90,0.12)"/>
+                    </svg>
+                </div>
+                <h3>لم يُعثر على محامين</h3>
+                <p>جرّب تغيير معايير البحث أو إزالة الفلاتر</p>
             </div>
             {% endfor %}
         {% endif %}
@@ -188,66 +673,65 @@
     {% if lawyers.has_other_pages %}
     <div class="pagination">
         {% if lawyers.has_previous %}
-        <a href="?page={{ lawyers.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">السابق</a>
+        <a href="?page={{ lawyers.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">← السابق</a>
         {% endif %}
-
-        <span class="current-page">صفحة {{ lawyers.number }} من {{ lawyers.paginator.num_pages }}</span>
-
+        <span class="page-current">{{ lawyers.number }} / {{ lawyers.paginator.num_pages }}</span>
         {% if lawyers.has_next %}
-        <a href="?page={{ lawyers.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">التالي</a>
+        <a href="?page={{ lawyers.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="page-link">التالي →</a>
         {% endif %}
     </div>
     {% endif %}
-</div>
+
+</div><!-- end page-wrap -->
+
 
 <script>
-// البحث الجغرافي
-function searchNearby() {
-    if (!navigator.geolocation) {
-        alert('المتصفح لا يدعم تحديد الموقع');
-        return;
-    }
+/* User dropdown */
+function toggleUserMenu(e) {
+    e.stopPropagation();
+    document.getElementById('userMenu').classList.toggle('open');
+}
+document.addEventListener('click', function() {
+    const m = document.getElementById('userMenu');
+    if (m) m.classList.remove('open');
+});
 
+/* Mobile menu */
+function toggleMobileMenu() {
+    document.getElementById('mobileNav').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('active');
+}
+
+/* Geolocation search */
+function searchNearby() {
+    if (!navigator.geolocation) { alert('المتصفح لا يدعم تحديد الموقع'); return; }
     const btn = document.getElementById('nearby-btn');
     btn.disabled = true;
-    btn.innerHTML = '<i class="icon-loading"></i> جارٍ تحديد الموقع...';
-
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> جارٍ...`;
     navigator.geolocation.getCurrentPosition(
-        function(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            // إضافة الإحداثيات للبحث
+        function(pos) {
             const form = document.getElementById('search-form');
-            
-            // إزالة حقول الموقع القديمة
-            const oldLat = form.querySelector('input[name="lat"]');
-            const oldLng = form.querySelector('input[name="lng"]');
-            if (oldLat) oldLat.remove();
-            if (oldLng) oldLng.remove();
-            
-            // إضافة حقول جديدة
-            const latInput = document.createElement('input');
-            latInput.type = 'hidden';
-            latInput.name = 'lat';
-            latInput.value = lat;
-            form.appendChild(latInput);
-            
-            const lngInput = document.createElement('input');
-            lngInput.type = 'hidden';
-            lngInput.name = 'lng';
-            lngInput.value = lng;
-            form.appendChild(lngInput);
-            
-            // إرسال النموذج
+            ['lat','lng'].forEach(n => { const el = form.querySelector(`input[name="${n}"]`); if(el) el.remove(); });
+            ['lat','lng'].forEach((n, i) => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = n;
+                inp.value = i === 0 ? pos.coords.latitude : pos.coords.longitude;
+                form.appendChild(inp);
+            });
             form.submit();
         },
-        function(error) {
-            alert('فشل تحديد الموقع: ' + error.message);
+        function(err) {
+            alert('فشل تحديد الموقع: ' + err.message);
             btn.disabled = false;
-            btn.innerHTML = '<i class="icon-location"></i> قريب مني';
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> قريب مني`;
         }
     );
 }
+
+/* Spin keyframe */
+const style = document.createElement('style');
+style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+document.head.appendChild(style);
 </script>
-{% endblock %}
+</body>
+</html>

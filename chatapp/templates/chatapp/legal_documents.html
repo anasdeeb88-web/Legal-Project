@@ -1,0 +1,2388 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منشئ الوثائق القانونية — المستشار القانوني السوري</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --navy:#0b1628;--navy-2:#111f38;--navy-3:#162240;
+  --gold:#b8965a;--gold-lt:#d4b07a;--gold-dim:rgba(184,150,90,.13);--gold-line:rgba(184,150,90,.28);
+  --cream:#f5f2eb;--cream-2:#ece8df;--white:#ffffff;
+  --ink:#1a1a2a;--ink-2:#3d3d52;--ink-3:#7a7a94;
+  --border:rgba(0,0,0,.09);--success:#16a34a;--danger:#dc2626;
+  --warn:#d97706;--info:#2563eb;--page-bg:#f0f2f7;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Tajawal',sans-serif;background:var(--page-bg);color:var(--ink);min-height:100dvh;overflow-x:hidden;}
+
+/* ─── NAVBAR ─── */
+.navbar{position:sticky;top:0;z-index:300;background:var(--navy);border-bottom:1px solid var(--gold-line);transition:box-shadow .3s;}
+.navbar.scrolled{box-shadow:0 4px 24px rgba(0,0,0,.35);}
+.nav-inner{max-width:1300px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.nav-emblem{width:36px;height:36px;border-radius:9px;background:var(--gold-dim);border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;}
+.nav-emblem svg{width:18px;height:18px;}
+.nav-brand-text{font-family:'Amiri',serif;font-size:15px;color:var(--gold-lt);font-weight:700;}
+.nav-links{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;}
+.nav-link{font-size:14px;font-weight:500;color:rgba(255,255,255,.7);text-decoration:none;padding:7px 14px;border-radius:8px;transition:background .2s,color .2s;white-space:nowrap;}
+.nav-link:hover{background:rgba(255,255,255,.08);color;}
+.nav-link.active{color:var(--white);}
+.nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.btn-nav-ghost{padding:8px 18px;border-radius:10px;border:1.5px solid var(--gold-line);background:none;color:var(--gold-lt);font-size:13px;font-family:'Tajawal',sans-serif;font-weight:600;cursor:pointer;text-decoration:none;transition:background .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.btn-nav-ghost:hover{background:var(--gold-dim);}
+.btn-nav-gold{padding:8px 18px;border-radius:10px;background:linear-gradient(135deg,#8a6d38,var(--gold),var(--gold-lt));color:#1a0f00;font-size:13px;font-family:'Tajawal',sans-serif;font-weight:700;cursor:pointer;text-decoration:none;transition:box-shadow .2s,transform .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;border:none;box-shadow:0 4px 14px rgba(184,150,90,.3);}
+.btn-nav-gold:hover{box-shadow:0 6px 20px rgba(184,150,90,.45);transform:translateY(-1px);}
+.user-menu{position:relative;}
+.user-btn{display:flex;align-items:center;gap:9px;background:none;border:1.5px solid var(--gold-line);border-radius:10px;padding:6px 14px 6px 10px;cursor:pointer;color:var(--gold-lt);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;transition:background .2s;}
+.user-btn:hover{background:var(--gold-dim);}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#8a6d38,var(--gold));color:#1a0f00;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chevron{font-size:10px;color:var(--ink-3);margin-right:2px;transition:transform .2s;}
+.user-menu.open .chevron{transform:rotate(180deg);}
+.user-dropdown{position:absolute;top:calc(100% + 8px);left:0;background:var(--navy-2);border:1px solid var(--gold-line);border-radius:12px;min-width:180px;box-shadow:0 16px 40px rgba(0,0,0,.4);overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-6px);transition:all .2s;z-index:200;}
+.user-menu.open .user-dropdown{opacity:1;pointer-events:auto;transform:translateY(0);}
+.user-dropdown a,.user-dropdown button{display:flex;align-items:center;gap:8px;padding:11px 16px;text-decoration:none;color:rgba(255,255,255,.8);font-size:13px;font-family:'Tajawal',sans-serif;font-weight:500;transition:background .15s,color .15s;border:none;background:none;width:100%;cursor:pointer;text-align:right;}
+.user-dropdown a:hover,.user-dropdown button:hover{background:rgba(255,255,255,.06);color:#fff;}
+.dropdown-divider{height:1px;background:var(--gold-line);margin:4px 0;}
+.hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;background:none;border:none;padding:6px;cursor:pointer;width:36px;height:36px;}
+.hamburger span{display:block;height:2px;background:var(--gold-lt);border-radius:2px;transition:all .25s;}
+.hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.mobile-nav{display:none;flex-direction:column;background:var(--navy-2);border-top:1px solid var(--gold-line);padding:12px 0;}
+.mobile-nav.open{display:flex;}
+.mobile-link{padding:12px 24px;color:rgba(255,255,255,.8);text-decoration:none;font-size:14px;font-weight:500;transition:background .15s;border:none;background:none;font-family:'Tajawal',sans-serif;cursor:pointer;text-align:right;width:100%;display:flex;align-items:center;gap:8px;}
+.mobile-link:hover{background:rgba(255,255,255,.06);color:#fff;}
+.mobile-divider{height:1px;background:var(--gold-line);margin:6px 24px;}
+@media(max-width:768px){.nav-links{display:none;}.hamburger{display:flex;}}
+
+/* ─── HERO ─── */
+.page-hero{background:linear-gradient(160deg,var(--navy) 0%,#0d1e3a 100%);padding:44px 24px 48px;text-align:center;position:relative;overflow:hidden;}
+.page-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(184,150,90,.06) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
+.page-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(184,150,90,.1);border:1px solid var(--gold-line);border-radius:30px;padding:5px 16px;font-size:12px;color:var(--gold);font-weight:600;margin-bottom:18px;position:relative;z-index:1;}
+.page-hero h1{font-family:'Amiri',serif;font-size:clamp(26px,4.5vw,44px);font-weight:700;color:#fff;margin-bottom:10px;position:relative;z-index:1;line-height:1.3;}
+.page-hero h1 span{color:var(--gold);}
+.page-hero p{font-size:14px;color:rgba(255,255,255,.55);max-width:560px;margin:0 auto 20px;position:relative;z-index:1;line-height:1.8;}
+.hero-stats{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;position:relative;z-index:1;}
+.hero-stat{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:5px 14px;}
+.hero-stat .hs-num{font-family:'Amiri',serif;font-size:16px;font-weight:700;color:var(--gold-lt);}
+.hero-stat .hs-lbl{font-size:11px;color:rgba(255,255,255,.5);}
+
+/* ─── LAYOUT ─── */
+.app-wrap{max-width:1380px;margin:0 auto;padding:24px 18px 60px;display:grid;grid-template-columns:1fr 380px;gap:18px;align-items:start;}
+@media(max-width:1150px){.app-wrap{grid-template-columns:1fr;}.preview-col{display:none;}}
+
+/* ─── SIDEBAR TOGGLE BUTTON ─── */
+.sidebar-toggle{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+  z-index:500;
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,#0b1628 0%,#162240 100%);
+  border:1px solid var(--gold-line);
+  border-radius:14px;
+  padding:12px 22px;
+  cursor:pointer;
+  box-shadow:0 8px 28px rgba(11,22,40,.45),0 0 0 1px rgba(184,150,90,.12);
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  white-space:nowrap;
+}
+.sidebar-toggle:hover{
+  box-shadow:0 12px 36px rgba(184,150,90,.28),0 0 0 1px var(--gold-line);
+  transform:translateX(-50%) translateY(-2px);
+  border-color:var(--gold);
+}
+.sidebar-toggle::before{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  background:linear-gradient(135deg,rgba(184,150,90,.1),transparent);
+  opacity:0;transition:opacity .25s;
+}
+.sidebar-toggle:hover::before{opacity:1;}
+.st-icon{
+  width:32px;height:32px;border-radius:9px;
+  background:rgba(184,150,90,.15);border:1px solid var(--gold-line);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.st-icon svg{width:15px;height:15px;color:var(--gold-lt);}
+.st-text{display:flex;flex-direction:column;align-items:flex-start;}
+.st-title{font-size:13px;font-weight:800;color:var(--gold-lt);font-family:'Tajawal',sans-serif;line-height:1;}
+.st-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;font-family:'Tajawal',sans-serif;}
+.st-arrow{font-size:14px;color:var(--gold);margin-right:2px;transition:transform .2s;}
+.sidebar-toggle:hover .st-arrow{transform:translateX(-3px);}
+
+/* ─── SIDEBAR DRAWER ─── */
+.sidebar-col{position:fixed;top:0;right:0;height:100dvh;width:320px;background:var(--white);border-left:1px solid var(--border);box-shadow:-6px 0 32px rgba(0,0,0,.18);z-index:600;display:flex;flex-direction:column;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(0);}
+.sidebar-col.closed{transform:translateX(100%);}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:590;backdrop-filter:blur(3px);}
+.sidebar-backdrop.open{display:block;}
+
+/* Header */
+.sidebar-header{background:linear-gradient(135deg,var(--navy) 0%,#162240 100%);padding:0;border-bottom:2px solid var(--gold);flex-shrink:0;position:relative;overflow:hidden;}
+.sidebar-header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(184,150,90,.07) 1px,transparent 1px);background-size:20px 20px;pointer-events:none;}
+.sb-head-top{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px;position:relative;z-index:1;}
+.sb-brand{display:flex;align-items:center;gap:9px;}
+.sb-brand-icon{width:34px;height:34px;border-radius:10px;background:rgba(184,150,90,.15);border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.sb-brand-text{font-family:'Amiri',serif;font-size:15px;color:var(--gold-lt);font-weight:700;line-height:1;}
+.sb-brand-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px;}
+.sidebar-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.7);cursor:pointer;padding:6px;border-radius:9px;transition:all .2s;display:flex;flex-shrink:0;}
+.sidebar-close:hover{background:rgba(255,255,255,.15);color:#fff;}
+.sidebar-close svg{width:16px;height:16px;}
+
+/* Tabs */
+.sidebar-tabs{display:grid;grid-template-columns:1fr 1fr;padding:0 12px 12px;gap:6px;position:relative;z-index:1;}
+.stab{padding:9px 6px;font-size:12px;font-weight:700;font-family:'Tajawal',sans-serif;color:rgba(255,255,255,.5);background:rgba(255,255,255,.06);cursor:pointer;border:1px solid rgba(255,255,255,.08);border-radius:10px;text-align:center;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.stab.active{background:var(--gold);color:#1a0f00;border-color:var(--gold);box-shadow:0 3px 10px rgba(184,150,90,.35);}
+.stab:not(.active):hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);}
+.stab-badge{background:rgba(0,0,0,.15);border-radius:8px;padding:1px 6px;font-size:10px;font-weight:800;}
+.stab:not(.active) .stab-badge{background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);}
+
+/* Search */
+.sidebar-search{padding:12px 12px 8px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.si-wrap{position:relative;}
+.si-wrap svg{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink-3);pointer-events:none;}
+.sidebar-search input{width:100%;padding:9px 34px 9px 32px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'Tajawal',sans-serif;background:#f8f9fc;color:var(--ink);outline:none;transition:all .2s;}
+.sidebar-search input:focus{border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px rgba(184,150,90,.1);}
+.si-clear{position:absolute;left:9px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--ink-3);cursor:pointer;padding:2px;border-radius:4px;display:none;font-size:13px;}
+.si-clear.show{display:block;}
+
+/* Category filter pills */
+.cat-filter-bar{display:flex;gap:5px;padding:8px 12px;overflow-x:auto;flex-shrink:0;border-bottom:1px solid var(--border);}
+.cat-filter-bar::-webkit-scrollbar{height:0;}
+.cat-pill{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink-3);white-space:nowrap;transition:all .18s;flex-shrink:0;}
+.cat-pill:hover{border-color:var(--gold-line);color:var(--navy);background:var(--gold-dim);}
+.cat-pill.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+/* Templates grid */
+.doc-cats{flex:1;overflow-y:auto;padding:10px 10px 16px;}
+.doc-cats::-webkit-scrollbar{width:3px;}
+.doc-cats::-webkit-scrollbar-thumb{background:var(--cream-2);border-radius:2px;}
+
+.cat-section{margin-bottom:16px;}
+.cat-section-head{display:flex;align-items:center;gap:7px;padding:4px 4px 8px;font-size:10.5px;font-weight:800;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;}
+.cat-section-head::after{content:'';flex:1;height:1px;background:var(--border);}
+.cat-section-icon{font-size:12px;}
+
+.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.doc-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 10px;cursor:pointer;border:1.5px solid var(--border);border-radius:12px;background:var(--white);font-family:'Tajawal',sans-serif;transition:all .18s;position:relative;overflow:hidden;text-align:center;}
+.doc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-dim),transparent);opacity:0;transition:opacity .2s;}
+.doc-card:hover{border-color:var(--gold-line);transform:translateY(-1px);box-shadow:0 4px 12px rgba(184,150,90,.14);}
+.doc-card:hover::before{opacity:1;}
+.doc-card.active{border-color:var(--gold);background:linear-gradient(135deg,var(--gold-dim),rgba(184,150,90,.06));box-shadow:0 4px 14px rgba(184,150,90,.2);}
+.doc-card.active::before{opacity:1;}
+.doc-card-icon{width:40px;height:40px;border-radius:11px;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;transition:all .2s;position:relative;z-index:1;}
+.doc-card.active .doc-card-icon{background:var(--gold-dim);border-color:var(--gold-line);}
+.doc-card-name{font-size:11.5px;font-weight:700;color:var(--ink-2);line-height:1.3;position:relative;z-index:1;}
+.doc-card.active .doc-card-name{color:var(--navy);}
+.doc-card-tag{font-size:9.5px;color:var(--ink-3);position:relative;z-index:1;}
+.doc-card.active .doc-card-tag{color:var(--gold);}
+.doc-card-cplx{position:absolute;top:6px;left:6px;font-size:8.5px;font-weight:800;padding:2px 5px;border-radius:6px;z-index:1;}
+.cplx-high{background:rgba(220,38,38,.1);color:#dc2626;}
+.cplx-med{background:rgba(245,158,11,.1);color:#d97706;}
+.cplx-low{background:rgba(22,163,74,.1);color:#16a34a;}
+
+/* No results */
+.no-results{text-align:center;padding:32px 16px;color:var(--ink-3);font-size:13px;}
+.no-results .nr-icon{font-size:28px;margin-bottom:10px;opacity:.4;}
+
+/* Saved docs panel */
+#savedDocsPanel{flex:1;overflow-y:auto;padding:8px;}
+#savedDocsPanel::-webkit-scrollbar{width:3px;}
+#savedDocsPanel::-webkit-scrollbar-thumb{background:var(--cream-2);border-radius:2px;}
+.saved-empty{text-align:center;padding:40px 16px;color:var(--ink-3);font-size:13px;line-height:1.8;}
+.saved-empty .se-icon{font-size:36px;margin-bottom:12px;opacity:.35;}
+.saved-doc-item{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:12px;background:var(--white);transition:all .15s;margin-bottom:7px;}
+.saved-doc-item:hover{border-color:var(--gold-line);background:var(--gold-dim);transform:translateX(-2px);}
+.saved-doc-item .sdi-icon{width:36px;height:36px;border-radius:10px;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.saved-doc-item .sdi-info{flex:1;min-width:0;}
+.saved-doc-item .sdi-title{font-size:12px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.saved-doc-item .sdi-date{font-size:10px;color:var(--ink-3);margin-top:2px;display:flex;align-items:center;gap:4px;}
+.saved-doc-item .sdi-del{background:none;border:none;color:var(--ink-3);cursor:pointer;padding:5px;border-radius:7px;transition:all .2s;flex-shrink:0;font-size:13px;}
+.saved-doc-item .sdi-del:hover{background:rgba(220,38,38,.1);color:var(--danger);}
+.login-nudge{margin:8px;padding:16px 14px;background:linear-gradient(135deg,var(--gold-dim),rgba(184,150,90,.06));border:1px solid var(--gold-line);border-radius:12px;text-align:center;font-size:12.5px;color:var(--ink-2);line-height:1.8;}
+.login-nudge .ln-icon{font-size:26px;margin-bottom:8px;}
+.login-nudge a{display:inline-block;margin-top:10px;padding:8px 20px;background:var(--gold);color:#1a0f00;border-radius:9px;font-weight:800;font-size:13px;text-decoration:none;transition:all .2s;}
+.login-nudge a:hover{background:var(--gold-lt);}
+
+/* ─── FORM AREA ─── */
+.form-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+
+/* ─── WELCOME / TEMPLATE BROWSER ─── */
+.welcome-state{background:var(--white);border-radius:18px;border:1px solid var(--border);box-shadow:0 2px 20px rgba(0,0,0,.07);overflow:hidden;}
+
+/* Hero strip */
+.ws-hero{background:linear-gradient(135deg,var(--navy) 0%,#0f2240 60%,#162440 100%);padding:28px 28px 24px;position:relative;overflow:hidden;}
+.ws-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(184,150,90,.07) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;}
+.ws-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),var(--gold-lt),var(--gold),transparent);}
+.ws-hero-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.ws-hero-left h2{font-family:'Amiri',serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:5px;}
+.ws-hero-left p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;}
+.ws-stats{display:flex;gap:14px;flex-wrap:wrap;}
+.ws-stat{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;}
+.ws-stat-num{font-family:'Amiri',serif;font-size:20px;font-weight:700;color:var(--gold-lt);}
+.ws-stat-lbl{font-size:11px;color:rgba(255,255,255,.45);}
+
+/* Search & filter bar */
+.ws-toolbar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.ws-search-wrap{position:relative;flex:1;min-width:160px;}
+.ws-search-wrap svg{position:absolute;right:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--ink-3);pointer-events:none;}
+.ws-search{width:100%;padding:9px 34px 9px 10px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:'Tajawal',sans-serif;background:#f8f9fc;color:var(--ink);outline:none;transition:all .2s;}
+.ws-search:focus{border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px rgba(184,150,90,.1);}
+.ws-pills{display:flex;gap:5px;overflow-x:auto;flex-shrink:0;}
+.ws-pills::-webkit-scrollbar{height:0;}
+.ws-pill{padding:6px 13px;border-radius:20px;font-size:11.5px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink-3);white-space:nowrap;transition:all .18s;flex-shrink:0;}
+.ws-pill:hover{border-color:var(--gold-line);color:var(--navy);background:var(--gold-dim);}
+.ws-pill.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+/* Template grid */
+.ws-body{padding:18px 18px 22px;}
+.ws-cat-section{margin-bottom:20px;}
+.ws-cat-head{display:flex;align-items:center;gap:8px;margin-bottom:11px;}
+.ws-cat-head-icon{width:26px;height:26px;border-radius:7px;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ws-cat-head-title{font-size:12px;font-weight:800;color:var(--navy);letter-spacing:.3px;}
+.ws-cat-head::after{content:'';flex:1;height:1px;background:var(--border);}
+.ws-cat-count{font-size:10.5px;font-weight:700;color:var(--ink-3);background:var(--page-bg);border:1px solid var(--border);border-radius:10px;padding:1px 7px;flex-shrink:0;}
+
+.ws-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;}
+.ws-card{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 10px 12px;cursor:pointer;border:1.5px solid var(--border);border-radius:14px;background:var(--white);font-family:'Tajawal',sans-serif;transition:all .2s;position:relative;overflow:hidden;text-align:center;}
+.ws-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-dim),transparent);opacity:0;transition:opacity .2s;}
+.ws-card:hover{border-color:var(--gold-line);transform:translateY(-2px);box-shadow:0 6px 18px rgba(184,150,90,.16);}
+.ws-card:hover::before{opacity:1;}
+.ws-card.active{border-color:var(--gold);background:linear-gradient(135deg,rgba(184,150,90,.08),rgba(184,150,90,.02));box-shadow:0 6px 20px rgba(184,150,90,.22);}
+.ws-card.active::before{opacity:1;}
+.ws-card-icon{width:44px;height:44px;border-radius:12px;background:var(--cream);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;transition:all .2s;position:relative;z-index:1;}
+.ws-card:hover .ws-card-icon{background:var(--gold-dim);border-color:var(--gold-line);}
+.ws-card.active .ws-card-icon{background:var(--gold-dim);border-color:var(--gold-line);}
+.ws-card-name{font-size:12px;font-weight:700;color:var(--ink-2);line-height:1.3;position:relative;z-index:1;}
+.ws-card.active .ws-card-name{color:var(--navy);}
+.ws-card-tag{font-size:10px;color:var(--ink-3);position:relative;z-index:1;}
+.ws-card.active .ws-card-tag{color:var(--gold);}
+.ws-card-cplx{position:absolute;top:7px;left:7px;font-size:8px;font-weight:800;padding:2px 5px;border-radius:5px;z-index:1;}
+
+.ws-no-results{text-align:center;padding:36px 16px;color:var(--ink-3);}
+.ws-no-results .nr-icon{font-size:32px;margin-bottom:10px;opacity:.35;}
+
+.form-card{background:var(--white);border-radius:16px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.07);overflow:hidden;}
+
+/* form card header */
+.form-card-head{background:linear-gradient(135deg,var(--navy) 0%,#0e2244 100%);padding:20px 22px;display:flex;align-items:center;gap:14px;border-bottom:2px solid var(--gold);}
+.fch-icon{width:50px;height:50px;border-radius:14px;background:rgba(184,150,90,.12);border:1px solid var(--gold-line);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.fch-meta{flex:1;}
+.fch-meta h2{font-family:'Amiri',serif;font-size:20px;color:#fff;margin-bottom:3px;}
+.fch-meta p{font-size:11.5px;color:rgba(255,255,255,.45);}
+.fch-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;}
+.fch-badge.high{background:rgba(220,38,38,.18);color:#fca5a5;border:1px solid rgba(220,38,38,.3);}
+.fch-badge.med{background:rgba(245,158,11,.18);color:#fcd34d;border:1px solid rgba(245,158,11,.3);}
+.fch-badge.low{background:rgba(22,163,74,.18);color:#86efac;border:1px solid rgba(22,163,74,.3);}
+
+/* requirements */
+.req-panel{padding:14px 22px 2px;border-bottom:1px solid var(--border);}
+.req-panel-title{font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;}
+.req-alert{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:10px;margin-bottom:8px;font-size:12.5px;line-height:1.65;}
+.req-alert.mandatory{background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);color:#b91c1c;}
+.req-alert.warning{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.22);color:#92400e;}
+.req-alert.info{background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.18);color:#1e40af;}
+.req-alert.new-law{background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.2);color:#065f46;}
+.req-alert-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+
+/* form body */
+.form-body{padding:22px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-2);margin-bottom:5px;}
+.fg label .req{color:var(--danger);margin-right:2px;}
+.fg label .opt{font-size:10.5px;font-weight:400;color:var(--ink-3);}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:'Tajawal',sans-serif;font-size:13.5px;color:var(--ink);background:var(--cream);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-webkit-appearance:none;}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--ink-3);opacity:.55;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold);background:#fff;box-shadow:0 0 0 3px rgba(184,150,90,.1);}
+.fg textarea{resize:vertical;min-height:78px;}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='.5.5l5 5 5-5' stroke='%237a7a94' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-left:32px;}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.field-hint{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.5;}
+@media(max-width:580px){.fg-row,.fg-row-3{grid-template-columns:1fr;}}
+
+.section-divider{display:flex;align-items:center;gap:10px;margin:20px 0 14px;}
+.section-divider span{font-size:11.5px;font-weight:700;color:var(--gold);white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--gold-line);}
+
+/* action bar */
+.action-bar{display:flex;gap:5px;flex-wrap:wrap;padding:8px 12px;background:linear-gradient(135deg,var(--cream) 0%,var(--cream-2) 100%);border-top:1px solid var(--border);}
+.btn-generate{flex:0 1 auto;min-width:90px;padding:6px 10px;border:none;border-radius:8px;background:linear-gradient(135deg,#7a5e2a,var(--gold),var(--gold-lt));color:#1a0f00;font-size:11px;font-weight:800;font-family:'Tajawal',sans-serif;cursor:pointer;box-shadow:0 2px 8px rgba(184,150,90,.25);display:flex;align-items:center;justify-content:center;gap:4px;transition:all .25s;}
+.btn-generate:hover{box-shadow:0 4px 12px rgba(184,150,90,.4);transform:translateY(-1px);}
+.btn-save{padding:6px 10px;border-radius:8px;border:1.5px solid rgba(22,163,74,.4);background:rgba(22,163,74,.08);color:#065f46;font-size:11px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;}
+.btn-save:hover{background:rgba(22,163,74,.15);border-color:#16a34a;}
+.btn-save:disabled{opacity:.45;cursor:not-allowed;}
+.btn-print{padding:6px 10px;border-radius:8px;border:1.5px solid var(--navy-2);background:var(--navy-2);color:#fff;font-size:11px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;}
+.btn-print:hover{background:var(--navy);}
+.btn-download{padding:6px 9px;border-radius:8px;border:1.5px solid var(--gold-line);background:var(--gold-dim);color:var(--navy);font-size:11px;font-weight:700;font-family:'Tajawal',sans-serif;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .2s;}
+.btn-download:hover{background:rgba(184,150,90,.22);}
+.btn-reset{padding:6px 9px;border-radius:8px;border:1.5px solid var(--border);background:none;color:var(--ink-3);font-size:10.5px;font-weight:600;font-family:'Tajawal',sans-serif;cursor:pointer;transition:all .2s;}
+.btn-reset:hover{border-color:var(--danger);color:var(--danger);}
+.btn-icon svg{width:12px;height:12px;}
+
+/* ─── PREVIEW ─── */
+.preview-col{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto;}
+.preview-col::-webkit-scrollbar{width:3px;}
+.preview-col::-webkit-scrollbar-thumb{background:var(--cream-2);border-radius:2px;}
+.preview-card{background:var(--white);border-radius:16px;border:1px solid var(--border);box-shadow:0 2px 16px rgba(0,0,0,.07);overflow:hidden;}
+.preview-head{background:var(--navy);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);}
+.preview-head span{font-size:13px;font-weight:700;color:var(--gold-lt);font-family:'Amiri',serif;}
+.preview-live-badge{font-size:10.5px;background:rgba(22,163,74,.15);color:#4ade80;border:1px solid rgba(22,163,74,.3);border-radius:20px;padding:3px 9px;font-weight:600;display:flex;align-items:center;gap:4px;}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#4ade80;animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.preview-empty{text-align:center;padding:48px 18px;color:var(--ink-3);}
+.preview-empty .pe-icon{font-size:34px;margin-bottom:10px;opacity:.4;}
+.preview-empty p{font-size:12.5px;line-height:1.9;}
+
+/* A4 paper simulation in preview */
+.paper-wrap{padding:16px;background:#e8eaf0;}
+#doc-output{background:#fff;padding:28px 26px;font-family:'Amiri',serif;font-size:13.5px;color:#1a1a2a;line-height:1.9;direction:rtl;text-align:right;box-shadow:0 2px 12px rgba(0,0,0,.12);border:1px solid #ddd;min-height:400px;}
+#doc-output .doc-stamp{text-align:center;border:2px solid #1a1a2a;border-radius:10px;padding:14px 18px;margin-bottom:20px;position:relative;}
+#doc-output .doc-stamp::before{content:'';position:absolute;inset:4px;border:1px solid rgba(0,0,0,.1);border-radius:6px;pointer-events:none;}
+#doc-output .doc-stamp .country{font-size:12px;letter-spacing:2px;margin-bottom:3px;}
+#doc-output .doc-stamp .doc-name{font-size:21px;font-weight:700;margin-bottom:3px;}
+#doc-output .doc-stamp .doc-sub{font-size:12px;color:#555;}
+#doc-output .doc-date{text-align:left;font-size:12px;color:#555;margin-bottom:16px;}
+#doc-output .doc-section-title{font-size:14px;font-weight:700;border-bottom:1px solid #ccc;padding-bottom:5px;margin:16px 0 10px;}
+#doc-output .clause{margin-bottom:9px;padding-right:14px;border-right:3px solid #b8965a;}
+#doc-output .clause-num{font-weight:700;color:#0b1628;font-size:12px;margin-bottom:2px;}
+#doc-output .clause-text{font-size:13px;}
+#doc-output .blank{border-bottom:1px solid #555;display:inline-block;min-width:90px;}
+#doc-output .sig-area{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;}
+#doc-output .sig-box{text-align:center;padding-top:14px;border-top:1px solid #aaa;}
+#doc-output .sig-box .sig-label{font-size:12px;font-weight:700;margin-bottom:3px;}
+#doc-output .sig-box .sig-name{font-size:13px;color:#555;}
+#doc-output .doc-note{margin-top:18px;padding:10px 14px;background:#f9f7f0;border-right:4px solid #b8965a;border-radius:6px;font-size:11.5px;color:#666;line-height:1.7;}
+
+/* ─── TOAST ─── */
+#toast-container{position:fixed;bottom:24px;left:24px;z-index:9999;display:flex;flex-direction:column-reverse;gap:8px;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:600;font-family:'Tajawal',sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.2);min-width:220px;animation:slideIn .3s ease;pointer-events:none;}
+.toast.success{background:#065f46;color:#d1fae5;border:1px solid rgba(52,211,153,.3);}
+.toast.error{background:#7f1d1d;color:#fee2e2;border:1px solid rgba(252,165,165,.3);}
+.toast.info{background:#1e3a5f;color:#bfdbfe;border:1px solid rgba(147,197,253,.3);}
+@keyframes slideIn{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-12px)}}
+.toast.hiding{animation:fadeOut .3s ease forwards;}
+
+/* ─── MOBILE PREVIEW ─── */
+#mobilePreview{display:none;background:var(--white);border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.07);}
+.mp-head{background:var(--navy);padding:13px 18px;border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;}
+.mp-head span{font-family:'Amiri',serif;font-size:13px;color:var(--gold-lt);}
+#mobileDocOutput{padding:20px;font-family:'Amiri',serif;font-size:13px;color:#1a1a2a;line-height:1.9;direction:rtl;}
+
+@media print{
+  body{background:white !important;}
+  .navbar,.page-hero,.sidebar-col,.sidebar-toggle,.sidebar-backdrop,.form-col,.preview-head,.action-bar,.req-panel,.preview-card>*:not(.paper-wrap),.mp-head,#mobilePreview,#toast-container{display:none !important;}
+  .app-wrap{display:block !important;padding:0 !important;margin:0 !important;}
+  .preview-col{display:block !important;position:static !important;max-height:none !important;overflow:visible !important;}
+  .preview-card{box-shadow:none !important;border:none !important;border-radius:0 !important;}
+  .paper-wrap{display:block !important;padding:0 !important;background:none !important;}
+  #paperWrap{display:block !important;}
+  #previewEmpty{display:none !important;}
+  #doc-output{display:block !important;padding:0 !important;font-size:13pt !important;box-shadow:none !important;border:none !important;min-height:unset !important;}
+  @page{margin:2cm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="{% url 'index' %}" class="nav-brand">
+      <div class="nav-emblem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#b8965a" stroke-width="1.8">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <span class="nav-brand-text">المستشار القانوني السوري</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="{% url 'index' %}"        class="nav-link">الرئيسية</a>
+      <a href="{% url 'chat_new' %}"     class="nav-link">المستشار الذكي</a>
+      <a href="{% url 'lawyers_list' %}" class="nav-link">دليل المحامين</a>
+      <a href="{% url 'lawyers_map' %}"  class="nav-link">خريطة المحامين</a>
+      {% if is_admin %}
+      <a href="{% url 'admin_dashboard' %}" class="nav-link">الإدارة</a>
+      {% elif is_lawyer %}
+      <a href="{% url 'lawyer_dashboard' %}" class="nav-link">لوحتي</a>
+      {% else %}
+      <a href="{% url 'my_consultations' %}" class="nav-link active">استشاراتي</a>
+      {% endif %}
+    </div>
+
+    <div class="nav-actions">
+      {% if request.user.is_authenticated %}
+      <div class="user-menu" id="userMenu">
+        <button class="user-btn" onclick="toggleUserMenu()">
+          <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+          <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="user-dropdown">
+          <a href="{% url 'index' %}">🏠 الرئيسية</a>
+          {% if is_lawyer %}
+          <a href="{% url 'lawyer_dashboard' %}">⚖️ لوحة المحامي</a>
+          {% endif %}
+          {% if is_admin %}
+          <a href="{% url 'admin_dashboard' %}">🛡️ لوحة الإدارة</a>
+          {% endif %}
+          <div class="dropdown-divider"></div>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">🚪 تسجيل الخروج</button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" class="btn-nav-gold">تسجيل الدخول</a>
+      {% endif %}
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="{% url 'index' %}"        class="mobile-link">🏠 الرئيسية</a>
+    <a href="{% url 'chat_new' %}"     class="mobile-link">🤖 المستشار الذكي</a>
+    <a href="{% url 'lawyers_list' %}" class="mobile-link">📋 دليل المحامين</a>
+    <a href="{% url 'lawyers_map' %}"  class="mobile-link">🗺️ خريطة المحامين</a>
+    <a href="{% url 'legal_documents' %}" class="mobile-link">📄 الوثائق القانونية</a>
+    {% if is_lawyer %}
+    <a href="{% url 'consultations' %}" class="mobile-link">استشاراتي</a>
+    {% endif %}
+    {% if is_admin %}
+    <div class="mobile-divider"></div>
+    <a href="{% url 'admin_dashboard' %}" class="mobile-link">🛡️ الإدارة</a>
+    {% endif %}
+    <div class="mobile-divider"></div>
+    {% if request.user.is_authenticated %}
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="mobile-link">🚪 تسجيل الخروج</button>
+    </form>
+    {% else %}
+    <a href="{% url 'login' %}" class="mobile-link">🔑 تسجيل الدخول</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="hero-badge">📄 منشئ الوثائق القانونية السورية</div>
+  <h1>أنشئ <span>وثائقك القانونية</span> باحترافية</h1>
+  <p>19 قالب قانوني جاهز — أدخل البيانات واحصل على وثيقة مكتملة مع تنبيهات بمتطلبات التوثيق والتسجيل الرسمي</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="hs-num">19</span><span class="hs-lbl">قالب قانوني</span></div>
+    <div class="hero-stat"><span class="hs-num">5</span><span class="hs-lbl">تصنيف</span></div>
+    <div class="hero-stat"><span class="hs-num">طباعة</span><span class="hs-lbl">جاهز للطباعة</span></div>
+    {% if request.user.is_authenticated %}
+    <div class="hero-stat"><span class="hs-num">حفظ</span><span class="hs-lbl">حفظ في حسابك</span></div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- Sidebar backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
+<!-- Sidebar toggle (shown only after template selected) -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="openSidebar()" style="display:none;">
+  <div class="st-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+  </div>
+  <div class="st-text">
+    <span class="st-title">تغيير القالب</span>
+    <span class="st-sub">19 وثيقة جاهزة</span>
+  </div>
+  <span class="st-arrow">←</span>
+</button>
+
+<div class="app-wrap">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar-col closed" id="sidebarCol">
+
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="sb-head-top">
+      <div class="sb-brand">
+        <div class="sb-brand-icon">📝</div>
+        <div>
+          <div class="sb-brand-text">القوالب القانونية</div>
+          <div class="sb-brand-sub">19 وثيقة جاهزة</div>
+        </div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()" title="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sidebar-tabs">
+      <button class="stab active" id="tabTemplates" onclick="switchTab('templates')">
+        📋 القوالب <span class="stab-badge">19</span>
+      </button>
+      <button class="stab" id="tabSaved" onclick="switchTab('saved')">
+        💾 وثائقي <span class="stab-badge" id="savedCount">0</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Templates panel -->
+  <div id="templatesPanel" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+
+    <!-- Search -->
+    <div class="sidebar-search">
+      <div class="si-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="docSearchInput" placeholder="بحث في القوالب..." oninput="filterDocs(this.value)">
+        <button class="si-clear" id="siClear" onclick="clearSearch()">✕</button>
+      </div>
+    </div>
+
+    <!-- Category filter pills -->
+    <div class="cat-filter-bar" id="catFilterBar">
+      <button class="cat-pill active" data-cat="all" onclick="filterByCat('all',this)">الكل</button>
+      <button class="cat-pill" data-cat="sale" onclick="filterByCat('sale',this)">🛒 البيع</button>
+      <button class="cat-pill" data-cat="rent" onclick="filterByCat('rent',this)">🏠 الإيجار</button>
+      <button class="cat-pill" data-cat="work" onclick="filterByCat('work',this)">💼 العمل</button>
+      <button class="cat-pill" data-cat="finance" onclick="filterByCat('finance',this)">💰 المالية</button>
+      <button class="cat-pill" data-cat="personal" onclick="filterByCat('personal',this)">⚖️ الشخصية</button>
+      <button class="cat-pill" data-cat="commercial" onclick="filterByCat('commercial',this)">🏪 التجارية</button>
+    </div>
+
+    <!-- Grid of template cards -->
+    <div class="doc-cats" id="docCats">
+
+      <div class="cat-section" data-cat="sale">
+        <div class="cat-section-head"><span class="cat-section-icon">🛒</span> البيع والشراء</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="sale_property" data-cat="sale" onclick="loadDoc('sale_property')">
+            <span class="doc-card-cplx cplx-high">عالي</span>
+            <div class="doc-card-icon">🏠</div>
+            <div class="doc-card-name">بيع عقار</div>
+            <div class="doc-card-tag">قانون مدني</div>
+          </button>
+          <button class="doc-card" data-doc="sale_vehicle" data-cat="sale" onclick="loadDoc('sale_vehicle')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🚗</div>
+            <div class="doc-card-name">بيع سيارة</div>
+            <div class="doc-card-tag">منقولات</div>
+          </button>
+          <button class="doc-card" data-doc="sale_goods" data-cat="sale" onclick="loadDoc('sale_goods')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">📦</div>
+            <div class="doc-card-name">بيع بضاعة</div>
+            <div class="doc-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-section" data-cat="rent">
+        <div class="cat-section-head"><span class="cat-section-icon">🏠</span> الإيجار</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="rent_residential" data-cat="rent" onclick="loadDoc('rent_residential')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🏡</div>
+            <div class="doc-card-name">إيجار سكني</div>
+            <div class="doc-card-tag">قانون الإيجار</div>
+          </button>
+          <button class="doc-card" data-doc="rent_commercial" data-cat="rent" onclick="loadDoc('rent_commercial')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🏢</div>
+            <div class="doc-card-name">إيجار تجاري</div>
+            <div class="doc-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-section" data-cat="work">
+        <div class="cat-section-head"><span class="cat-section-icon">💼</span> العمل والخدمات</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="employment" data-cat="work" onclick="loadDoc('employment')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">💼</div>
+            <div class="doc-card-name">عقد عمل</div>
+            <div class="doc-card-tag">قانون العمل</div>
+          </button>
+          <button class="doc-card" data-doc="services" data-cat="work" onclick="loadDoc('services')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">🔧</div>
+            <div class="doc-card-name">عقد خدمات</div>
+            <div class="doc-card-tag">خدمات مهنية</div>
+          </button>
+          <button class="doc-card" data-doc="contractor" data-cat="work" onclick="loadDoc('contractor')">
+            <span class="doc-card-cplx cplx-high">عالي</span>
+            <div class="doc-card-icon">🏗️</div>
+            <div class="doc-card-name">عقد مقاولة</div>
+            <div class="doc-card-tag">إنشاء وبناء</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-section" data-cat="finance">
+        <div class="cat-section-head"><span class="cat-section-icon">💰</span> الوثائق المالية</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="loan" data-cat="finance" onclick="loadDoc('loan')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">💰</div>
+            <div class="doc-card-name">عقد قرض</div>
+            <div class="doc-card-tag">مالي</div>
+          </button>
+          <button class="doc-card" data-doc="mortgage" data-cat="finance" onclick="loadDoc('mortgage')">
+            <span class="doc-card-cplx cplx-high">عالي</span>
+            <div class="doc-card-icon">🏦</div>
+            <div class="doc-card-name">رهن عقاري</div>
+            <div class="doc-card-tag">مدني — رهون</div>
+          </button>
+          <button class="doc-card" data-doc="partnership" data-cat="finance" onclick="loadDoc('partnership')">
+            <span class="doc-card-cplx cplx-high">عالي</span>
+            <div class="doc-card-icon">🤝</div>
+            <div class="doc-card-name">شراكة تجارية</div>
+            <div class="doc-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-section" data-cat="personal">
+        <div class="cat-section-head"><span class="cat-section-icon">⚖️</span> الأحوال الشخصية</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="power_of_attorney" data-cat="personal" onclick="loadDoc('power_of_attorney')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">📜</div>
+            <div class="doc-card-name">وكالة عامة</div>
+            <div class="doc-card-tag">أحوال شخصية</div>
+          </button>
+          <button class="doc-card" data-doc="power_of_attorney_special" data-cat="personal" onclick="loadDoc('power_of_attorney_special')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">📋</div>
+            <div class="doc-card-name">وكالة خاصة</div>
+            <div class="doc-card-tag">أحوال شخصية</div>
+          </button>
+          <button class="doc-card" data-doc="inheritance_acknowledgment" data-cat="personal" onclick="loadDoc('inheritance_acknowledgment')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">⚖️</div>
+            <div class="doc-card-name">إقرار بالإرث</div>
+            <div class="doc-card-tag">محكمة شرعية</div>
+          </button>
+          <button class="doc-card" data-doc="debt_acknowledgment" data-cat="personal" onclick="loadDoc('debt_acknowledgment')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">💳</div>
+            <div class="doc-card-name">إقرار بالدين</div>
+            <div class="doc-card-tag">مالي</div>
+          </button>
+          <button class="doc-card" data-doc="court_settlement" data-cat="personal" onclick="loadDoc('court_settlement')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🔨</div>
+            <div class="doc-card-name">صلح قضائي</div>
+            <div class="doc-card-tag">قضائي</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="cat-section" data-cat="commercial">
+        <div class="cat-section-head"><span class="cat-section-icon">🏪</span> التجارية</div>
+        <div class="doc-grid">
+          <button class="doc-card" data-doc="agency_commercial" data-cat="commercial" onclick="loadDoc('agency_commercial')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🏪</div>
+            <div class="doc-card-name">وكالة تجارية</div>
+            <div class="doc-card-tag">تجاري</div>
+          </button>
+          <button class="doc-card" data-doc="nda" data-cat="commercial" onclick="loadDoc('nda')">
+            <span class="doc-card-cplx cplx-low">منخفض</span>
+            <div class="doc-card-icon">🔒</div>
+            <div class="doc-card-name">اتفاقية سرية NDA</div>
+            <div class="doc-card-tag">سرية</div>
+          </button>
+          <button class="doc-card" data-doc="supply" data-cat="commercial" onclick="loadDoc('supply')">
+            <span class="doc-card-cplx cplx-med">متوسط</span>
+            <div class="doc-card-icon">🚚</div>
+            <div class="doc-card-name">عقد توريد</div>
+            <div class="doc-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="no-results" id="noResults" style="display:none;">
+        <div class="nr-icon">🔍</div>
+        <p>لا توجد نتائج للبحث</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved docs panel -->
+  <div id="savedDocsPanel" style="display:none;flex:1;overflow-y:auto;"></div>
+</aside>
+
+<!-- ══ FORM COLUMN ══ -->
+<div class="form-col" id="formCol">
+
+  <!-- Template browser (welcome state) -->
+  <div class="welcome-state" id="welcomeState">
+
+    <!-- Hero -->
+    <div class="ws-hero">
+      <div class="ws-hero-inner">
+        <div class="ws-hero-left">
+          <h2>📝 منشئ الوثائق القانونية</h2>
+          <p>اختر نوع الوثيقة لبدء التعبئة الفورية</p>
+        </div>
+        <div class="ws-stats">
+          <div class="ws-stat">
+            <span class="ws-stat-num">19</span>
+            <span class="ws-stat-lbl">قالب جاهز</span>
+          </div>
+          <div class="ws-stat">
+            <span class="ws-stat-num">6</span>
+            <span class="ws-stat-lbl">فئة قانونية</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search + category pills -->
+    <div class="ws-toolbar">
+      <div class="ws-search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="ws-search" id="wsSearch" placeholder="ابحث عن وثيقة..." oninput="wsFilter(this.value)">
+      </div>
+      <div class="ws-pills">
+        <button class="ws-pill active" data-cat="all" onclick="wsFilterCat('all',this)">الكل</button>
+        <button class="ws-pill" data-cat="sale" onclick="wsFilterCat('sale',this)">🛒 البيع</button>
+        <button class="ws-pill" data-cat="rent" onclick="wsFilterCat('rent',this)">🏠 الإيجار</button>
+        <button class="ws-pill" data-cat="work" onclick="wsFilterCat('work',this)">💼 العمل</button>
+        <button class="ws-pill" data-cat="finance" onclick="wsFilterCat('finance',this)">💰 المالية</button>
+        <button class="ws-pill" data-cat="personal" onclick="wsFilterCat('personal',this)">⚖️ الشخصية</button>
+        <button class="ws-pill" data-cat="commercial" onclick="wsFilterCat('commercial',this)">🏪 التجارية</button>
+      </div>
+    </div>
+
+    <!-- Template grid -->
+    <div class="ws-body" id="wsBody">
+
+      <div class="ws-cat-section" data-cat="sale">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">🛒</div>
+          <span class="ws-cat-head-title">البيع والشراء</span>
+          <span class="ws-cat-count">3</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="sale_property" data-name="بيع عقار" data-tag="قانون مدني" onclick="loadDoc('sale_property')">
+            <span class="ws-card-cplx cplx-high">عالي</span>
+            <div class="ws-card-icon">🏠</div>
+            <div class="ws-card-name">بيع عقار</div>
+            <div class="ws-card-tag">قانون مدني</div>
+          </button>
+          <button class="ws-card" data-doc="sale_vehicle" data-name="بيع سيارة" data-tag="منقولات" onclick="loadDoc('sale_vehicle')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🚗</div>
+            <div class="ws-card-name">بيع سيارة</div>
+            <div class="ws-card-tag">منقولات</div>
+          </button>
+          <button class="ws-card" data-doc="sale_goods" data-name="بيع بضاعة" data-tag="تجاري" onclick="loadDoc('sale_goods')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">📦</div>
+            <div class="ws-card-name">بيع بضاعة</div>
+            <div class="ws-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-cat-section" data-cat="rent">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">🏠</div>
+          <span class="ws-cat-head-title">الإيجار</span>
+          <span class="ws-cat-count">2</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="rent_residential" data-name="إيجار سكني" data-tag="قانون الإيجار" onclick="loadDoc('rent_residential')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🏡</div>
+            <div class="ws-card-name">إيجار سكني</div>
+            <div class="ws-card-tag">قانون الإيجار</div>
+          </button>
+          <button class="ws-card" data-doc="rent_commercial" data-name="إيجار تجاري" data-tag="تجاري" onclick="loadDoc('rent_commercial')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🏢</div>
+            <div class="ws-card-name">إيجار تجاري</div>
+            <div class="ws-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-cat-section" data-cat="work">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">💼</div>
+          <span class="ws-cat-head-title">العمل والخدمات</span>
+          <span class="ws-cat-count">3</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="employment" data-name="عقد عمل" data-tag="قانون العمل" onclick="loadDoc('employment')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">💼</div>
+            <div class="ws-card-name">عقد عمل</div>
+            <div class="ws-card-tag">قانون العمل</div>
+          </button>
+          <button class="ws-card" data-doc="services" data-name="عقد خدمات" data-tag="خدمات مهنية" onclick="loadDoc('services')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">🔧</div>
+            <div class="ws-card-name">عقد خدمات</div>
+            <div class="ws-card-tag">خدمات مهنية</div>
+          </button>
+          <button class="ws-card" data-doc="contractor" data-name="عقد مقاولة" data-tag="إنشاء وبناء" onclick="loadDoc('contractor')">
+            <span class="ws-card-cplx cplx-high">عالي</span>
+            <div class="ws-card-icon">🏗️</div>
+            <div class="ws-card-name">عقد مقاولة</div>
+            <div class="ws-card-tag">إنشاء وبناء</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-cat-section" data-cat="finance">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">💰</div>
+          <span class="ws-cat-head-title">الوثائق المالية</span>
+          <span class="ws-cat-count">3</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="loan" data-name="عقد قرض" data-tag="مالي" onclick="loadDoc('loan')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">💰</div>
+            <div class="ws-card-name">عقد قرض</div>
+            <div class="ws-card-tag">مالي</div>
+          </button>
+          <button class="ws-card" data-doc="mortgage" data-name="رهن عقاري" data-tag="مدني — رهون" onclick="loadDoc('mortgage')">
+            <span class="ws-card-cplx cplx-high">عالي</span>
+            <div class="ws-card-icon">🏦</div>
+            <div class="ws-card-name">رهن عقاري</div>
+            <div class="ws-card-tag">مدني — رهون</div>
+          </button>
+          <button class="ws-card" data-doc="partnership" data-name="شراكة تجارية" data-tag="تجاري" onclick="loadDoc('partnership')">
+            <span class="ws-card-cplx cplx-high">عالي</span>
+            <div class="ws-card-icon">🤝</div>
+            <div class="ws-card-name">شراكة تجارية</div>
+            <div class="ws-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-cat-section" data-cat="personal">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">⚖️</div>
+          <span class="ws-cat-head-title">الأحوال الشخصية</span>
+          <span class="ws-cat-count">5</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="power_of_attorney" data-name="وكالة عامة" data-tag="أحوال شخصية" onclick="loadDoc('power_of_attorney')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">📜</div>
+            <div class="ws-card-name">وكالة عامة</div>
+            <div class="ws-card-tag">أحوال شخصية</div>
+          </button>
+          <button class="ws-card" data-doc="power_of_attorney_special" data-name="وكالة خاصة" data-tag="أحوال شخصية" onclick="loadDoc('power_of_attorney_special')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">📋</div>
+            <div class="ws-card-name">وكالة خاصة</div>
+            <div class="ws-card-tag">أحوال شخصية</div>
+          </button>
+          <button class="ws-card" data-doc="inheritance_acknowledgment" data-name="إقرار بالإرث" data-tag="محكمة شرعية" onclick="loadDoc('inheritance_acknowledgment')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">⚖️</div>
+            <div class="ws-card-name">إقرار بالإرث</div>
+            <div class="ws-card-tag">محكمة شرعية</div>
+          </button>
+          <button class="ws-card" data-doc="debt_acknowledgment" data-name="إقرار بالدين" data-tag="مالي" onclick="loadDoc('debt_acknowledgment')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">💳</div>
+            <div class="ws-card-name">إقرار بالدين</div>
+            <div class="ws-card-tag">مالي</div>
+          </button>
+          <button class="ws-card" data-doc="court_settlement" data-name="صلح قضائي" data-tag="قضائي" onclick="loadDoc('court_settlement')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🔨</div>
+            <div class="ws-card-name">صلح قضائي</div>
+            <div class="ws-card-tag">قضائي</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-cat-section" data-cat="commercial">
+        <div class="ws-cat-head">
+          <div class="ws-cat-head-icon">🏪</div>
+          <span class="ws-cat-head-title">التجارية</span>
+          <span class="ws-cat-count">3</span>
+        </div>
+        <div class="ws-grid">
+          <button class="ws-card" data-doc="agency_commercial" data-name="وكالة تجارية" data-tag="تجاري" onclick="loadDoc('agency_commercial')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🏪</div>
+            <div class="ws-card-name">وكالة تجارية</div>
+            <div class="ws-card-tag">تجاري</div>
+          </button>
+          <button class="ws-card" data-doc="nda" data-name="اتفاقية سرية NDA" data-tag="سرية" onclick="loadDoc('nda')">
+            <span class="ws-card-cplx cplx-low">منخفض</span>
+            <div class="ws-card-icon">🔒</div>
+            <div class="ws-card-name">اتفاقية سرية NDA</div>
+            <div class="ws-card-tag">سرية</div>
+          </button>
+          <button class="ws-card" data-doc="supply" data-name="عقد توريد" data-tag="تجاري" onclick="loadDoc('supply')">
+            <span class="ws-card-cplx cplx-med">متوسط</span>
+            <div class="ws-card-icon">🚚</div>
+            <div class="ws-card-name">عقد توريد</div>
+            <div class="ws-card-tag">تجاري</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="ws-no-results" id="wsNoResults" style="display:none;">
+        <div class="nr-icon">🔍</div>
+        <p>لا توجد نتائج للبحث</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card" id="formCard" style="display:none;">
+    <div class="form-card-head">
+      <div class="fch-icon" id="formIcon">📄</div>
+      <div class="fch-meta">
+        <h2 id="formTitle">العنوان</h2>
+        <p id="formDesc">الوصف</p>
+      </div>
+      <span class="fch-badge" id="formComplexBadge"></span>
+    </div>
+    <div class="req-panel" id="reqPanel"></div>
+    <div class="form-body" id="formBody"></div>
+    <div class="action-bar">
+      <button class="btn-generate" onclick="generateDocument()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        إنشاء الوثيقة
+      </button>
+      {% if request.user.is_authenticated %}
+      <button class="btn-save" id="btnSave" onclick="saveDocument()" disabled>
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        حفظ
+      </button>
+      {% endif %}
+      <button class="btn-print" id="btnPrint" onclick="printDocument()" style="display:none;">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        طباعة
+      </button>
+      <button class="btn-download" id="btnDownload" onclick="downloadHTML()" style="display:none;">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        HTML
+      </button>
+      <button class="btn-reset" onclick="resetForm()">مسح</button>
+    </div>
+  </div>
+
+  <div id="mobilePreview">
+    <div class="mp-head">
+      <span>معاينة الوثيقة</span>
+      <div class="preview-live-badge"><div class="live-dot"></div> مباشر</div>
+    </div>
+    <div id="mobileDocOutput"></div>
+  </div>
+</div>
+
+<!-- ══ PREVIEW COLUMN ══ -->
+<div class="preview-col">
+  <div class="preview-card">
+    <div class="preview-head">
+      <span>معاينة الوثيقة</span>
+      <div class="preview-live-badge"><div class="live-dot"></div> مباشر</div>
+    </div>
+    <div id="previewEmpty" class="preview-empty">
+      <div class="pe-icon">📄</div>
+      <p>ستظهر الوثيقة هنا<br>بعد الضغط على<br>"إنشاء الوثيقة"</p>
+    </div>
+    <div class="paper-wrap" id="paperWrap" style="display:none;">
+      <div id="doc-output"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app-wrap -->
+<script>
+/* ─── Navbar ─── */
+window.addEventListener('scroll', function() {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+});
+function toggleUserMenu() {
+  document.getElementById('userMenu').classList.toggle('open');
+}
+function toggleMobileMenu() {
+  document.getElementById('hamburger').classList.toggle('active');
+  document.getElementById('mobileNav').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  var um = document.getElementById('userMenu');
+  if (um && !um.contains(e.target)) um.classList.remove('open');
+});
+
+/* ════════════════════════════════════════════
+   DOCUMENT DEFINITIONS
+════════════════════════════════════════════ */
+const DOCS = {
+
+sale_property: {
+    icon:'🏠', title:'عقد بيع عقار', desc:'عقد نقل ملكية عقار وفق القانون المدني السوري',
+    fields:[
+        {type:'section', label:'بيانات البائع'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم البائع كاملاً',req:true,placeholder:'محمد أحمد الخطيب'},
+            {id:'seller_id',label:'رقم الهوية / السجل المدني',req:true,placeholder:'012345678'},
+        ]},
+        {id:'seller_address',label:'عنوان البائع',req:true,placeholder:'دمشق — المزة — شارع اليرموك'},
+        {type:'row', cols:[
+            {id:'seller_phone',label:'رقم الهاتف',req:false,placeholder:'0911 000 000'},
+            {id:'seller_nationality',label:'الجنسية',req:false,placeholder:'سوري'},
+        ]},
+        {type:'section', label:'بيانات المشتري'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المشتري كاملاً',req:true,placeholder:'خالد إبراهيم الحلبي'},
+            {id:'buyer_id',label:'رقم الهوية / السجل المدني',req:true,placeholder:'987654321'},
+        ]},
+        {id:'buyer_address',label:'عنوان المشتري',req:true,placeholder:'حلب — الأشرفية'},
+        {type:'section', label:'وصف العقار'},
+        {id:'property_type',label:'نوع العقار',type:'select',options:['شقة سكنية','منزل مستقل','أرض سكنية','محل تجاري','مستودع','أرض زراعية'],req:true},
+        {id:'property_address',label:'موقع العقار',req:true,placeholder:'دمشق — كفر سوسة — المبنى رقم 12'},
+        {type:'row', cols:[
+            {id:'property_area',label:'المساحة (م²)',req:true,placeholder:'120'},
+            {id:'property_floor',label:'الطابق',req:false,placeholder:'الثالث'},
+        ]},
+        {id:'property_desc',label:'الوصف التفصيلي للعقار',type:'textarea',req:false,placeholder:'شقة مؤلفة من ثلاث غرف وصالون ومطبخ وحمامين، بني عام 1995...'},
+        {id:'title_deed',label:'رقم سند الملكية / السجل العقاري',req:false,placeholder:'محافظة دمشق — منطقة كفر سوسة — قطعة رقم 245'},
+        {type:'section', label:'الثمن وشروط الدفع'},
+        {type:'row', cols:[
+            {id:'price_total',label:'الثمن الإجمالي (ل.س أو $)',req:true,placeholder:'50,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي','يورو'],req:true},
+        ]},
+        {id:'price_advance',label:'المبلغ المدفوع مقدماً',req:false,placeholder:'10,000,000 ليرة سورية'},
+        {id:'payment_terms',label:'طريقة وشروط الدفع',type:'textarea',req:false,placeholder:'يُدفع المبلغ المتبقي خلال 30 يوماً من تاريخ توقيع العقد...'},
+        {type:'section', label:'بيانات العقد'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ العقد',type:'date',req:true},
+            {id:'contract_city',label:'مكان إبرام العقد',req:true,placeholder:'دمشق'},
+        ]},
+        {id:'delivery_date',label:'تاريخ التسليم',type:'date',req:false},
+        {id:'special_conditions',label:'شروط خاصة إضافية',type:'textarea',req:false,placeholder:'أي شروط إضافية يتفق عليها الطرفان...'},
+    ],
+    generate(d) { return generateSaleProperty(d); }
+},
+
+sale_vehicle: {
+    icon:'🚗', title:'عقد بيع سيارة', desc:'عقد بيع وشراء مركبة بين طرفين',
+    fields:[
+        {type:'section', label:'بيانات البائع'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم البائع',req:true,placeholder:'أحمد محمود الدوسري'},
+            {id:'seller_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات المشتري'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المشتري',req:true,placeholder:'عمر يوسف الراشد'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {type:'section', label:'بيانات المركبة'},
+        {type:'row', cols:[
+            {id:'car_type',label:'نوع المركبة',req:true,placeholder:'تويوتا كامري'},
+            {id:'car_year',label:'سنة الصنع',req:true,placeholder:'2018'},
+        ]},
+        {type:'row', cols:[
+            {id:'car_color',label:'اللون',req:false,placeholder:'أبيض'},
+            {id:'car_plate',label:'رقم اللوحة',req:false,placeholder:'دمشق أ 12345'},
+        ]},
+        {id:'car_chassis',label:'رقم الشاصي',req:false,placeholder:'JT2BF12K1X0123456'},
+        {type:'row', cols:[
+            {id:'price_total',label:'الثمن الإجمالي',req:true,placeholder:'5,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ العقد',type:'date',req:true},
+            {id:'contract_city',label:'مكان الإبرام',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return generateSaleVehicle(d); }
+},
+
+sale_goods: {
+    icon:'📦', title:'عقد بيع بضاعة', desc:'عقد بيع وشراء بضاعة أو منتجات تجارية',
+    fields:[
+        {type:'section', label:'بيانات البائع'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم البائع / الشركة',req:true,placeholder:'مؤسسة النور التجارية'},
+            {id:'seller_id',label:'رقم السجل التجاري',req:true,placeholder:'123456'},
+        ]},
+        {type:'section', label:'بيانات المشتري'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المشتري / الشركة',req:true,placeholder:'شركة البيان للتوزيع'},
+            {id:'buyer_id',label:'رقم السجل التجاري',req:true,placeholder:'654321'},
+        ]},
+        {type:'section', label:'تفاصيل البضاعة'},
+        {id:'goods_desc',label:'وصف البضاعة',type:'textarea',req:true,placeholder:'أقمشة قطنية مستوردة من تركيا — 500 رولة...'},
+        {type:'row', cols:[
+            {id:'goods_qty',label:'الكمية',req:true,placeholder:'500 رولة'},
+            {id:'goods_unit_price',label:'سعر الوحدة',req:false,placeholder:'50,000 ل.س'},
+        ]},
+        {type:'row', cols:[
+            {id:'price_total',label:'الثمن الإجمالي',req:true,placeholder:'25,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'delivery_terms',label:'شروط التسليم',type:'textarea',req:false,placeholder:'يُسلّم البائع البضاعة في مستودع المشتري...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ العقد',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'حلب'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('بيع بضاعة', d, [
+        `يبيع الطرف الأول ويشتري الطرف الثاني البضاعة الآتية: ${d.goods_desc || '——'}`,
+        `الكمية: ${d.goods_qty || '——'} — سعر الوحدة: ${d.goods_unit_price || '——'}`,
+        `يُلتزم الطرف الأول بتسليم البضاعة وفق الشروط التالية: ${d.delivery_terms || 'حسب الاتفاق'}`,
+        `الثمن الإجمالي ${d.price_total || '——'} ${d.price_currency || ''} يُدفع لدى التسليم`,
+    ]); }
+},
+
+rent_residential: {
+    icon:'🏡', title:'عقد إيجار سكني', desc:'عقد إيجار وحدة سكنية وفق قانون الإيجار السوري',
+    fields:[
+        {type:'section', label:'بيانات المؤجِّر (صاحب العقار)'},
+        {type:'row', cols:[
+            {id:'landlord_name',label:'اسم المؤجِّر كاملاً',req:true,placeholder:'سعيد إبراهيم النجار'},
+            {id:'landlord_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {id:'landlord_address',label:'عنوان المؤجِّر',req:false,placeholder:'دمشق — المالكي'},
+        {type:'section', label:'بيانات المستأجر'},
+        {type:'row', cols:[
+            {id:'tenant_name',label:'اسم المستأجر كاملاً',req:true,placeholder:'ربيع حسن العلي'},
+            {id:'tenant_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {id:'tenant_address',label:'عنوان المستأجر الحالي',req:false,placeholder:'حلب — صلاح الدين'},
+        {type:'section', label:'بيانات الوحدة السكنية'},
+        {id:'property_address',label:'عنوان الشقة / الوحدة',req:true,placeholder:'دمشق — الشاغور — بناء رقم 5، طابق 2، شقة 3'},
+        {type:'row', cols:[
+            {id:'property_area',label:'المساحة (م²)',req:false,placeholder:'80'},
+            {id:'property_floor',label:'الطابق',req:false,placeholder:'الثاني'},
+        ]},
+        {id:'property_desc',label:'وصف الوحدة',type:'textarea',req:false,placeholder:'شقة مؤلفة من غرفتين وصالون ومطبخ وحمام...'},
+        {type:'section', label:'بنود الإيجار'},
+        {type:'row', cols:[
+            {id:'rent_amount',label:'الأجرة الشهرية',req:true,placeholder:'500,000'},
+            {id:'rent_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ بداية العقد',type:'date',req:true},
+            {id:'contract_duration',label:'مدة العقد',type:'select',options:['سنة واحدة','سنتان','ثلاث سنوات','خمس سنوات','غير محدد'],req:true},
+        ]},
+        {id:'deposit',label:'مبلغ التأمين',req:false,placeholder:'مليون ليرة سورية'},
+        {id:'payment_day',label:'موعد دفع الأجرة',req:false,placeholder:'أول كل شهر'},
+        {id:'special_conditions',label:'شروط خاصة',type:'textarea',req:false,placeholder:'يُمنع التدخين داخل الشقة، يُمنع تربية الحيوانات الأليفة...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ توقيع العقد',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return generateRentResidential(d); }
+},
+
+rent_commercial: {
+    icon:'🏢', title:'عقد إيجار تجاري', desc:'عقد إيجار محل أو مكتب تجاري',
+    fields:[
+        {type:'section', label:'بيانات المؤجِّر'},
+        {type:'row', cols:[
+            {id:'landlord_name',label:'اسم المؤجِّر',req:true,placeholder:'حسن محمد الأسمر'},
+            {id:'landlord_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات المستأجر'},
+        {type:'row', cols:[
+            {id:'tenant_name',label:'اسم المستأجر / الشركة',req:true,placeholder:'شركة المستقبل التجارية'},
+            {id:'tenant_id',label:'رقم السجل التجاري',req:true,placeholder:'654321'},
+        ]},
+        {type:'section', label:'بيانات المحل التجاري'},
+        {id:'property_address',label:'موقع المحل',req:true,placeholder:'دمشق — الميدان — سوق الخجا'},
+        {type:'row', cols:[
+            {id:'property_area',label:'المساحة (م²)',req:false,placeholder:'50'},
+            {id:'property_type',label:'نوع النشاط المسموح',req:false,placeholder:'تجزئة ملابس'},
+        ]},
+        {type:'row', cols:[
+            {id:'rent_amount',label:'الأجرة الشهرية',req:true,placeholder:'1,000,000'},
+            {id:'rent_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ البداية',type:'date',req:true},
+            {id:'contract_duration',label:'مدة العقد',type:'select',options:['سنة واحدة','سنتان','ثلاث سنوات','خمس سنوات'],req:true},
+        ]},
+        {id:'deposit',label:'التأمين',req:false,placeholder:'3 أشهر مقدماً'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('إيجار تجاري', d, [
+        `يُؤجّر الطرف الأول الطرفَ الثاني المحل الواقع في: ${d.property_address || '——'} بمساحة ${d.property_area || '——'} م²`,
+        `الأجرة الشهرية: ${d.rent_amount || '——'} ${d.rent_currency || ''} تُدفع في أول كل شهر`,
+        `مدة الإيجار: ${d.contract_duration || '——'} تبدأ من ${d.contract_start || '——'}`,
+        `التأمين: ${d.deposit || 'غير محدد'}`,
+        `يلتزم المستأجر بمزاولة النشاط التجاري التالي فقط: ${d.property_type || 'حسب الاتفاق'}`,
+        'لا يحق للمستأجر التنازل عن الإيجار أو التأجير من الباطن دون إذن خطي مسبق من المؤجر',
+        'يُسلَّم المحل بحالته الراهنة ويتعهد المستأجر بإعادته بالحالة ذاتها',
+    ]); }
+},
+
+employment: {
+    icon:'💼', title:'عقد عمل', desc:'عقد عمل وفق قانون العمل السوري رقم 17 لعام 2010',
+    fields:[
+        {type:'section', label:'بيانات صاحب العمل'},
+        {type:'row', cols:[
+            {id:'employer_name',label:'اسم صاحب العمل / المنشأة',req:true,placeholder:'شركة الفرات للبناء'},
+            {id:'employer_id',label:'رقم السجل التجاري',req:true,placeholder:'987654'},
+        ]},
+        {id:'employer_address',label:'عنوان المنشأة',req:true,placeholder:'دمشق — البرامكة'},
+        {type:'section', label:'بيانات العامل'},
+        {type:'row', cols:[
+            {id:'employee_name',label:'اسم العامل كاملاً',req:true,placeholder:'ياسر حسن محمود'},
+            {id:'employee_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'row', cols:[
+            {id:'employee_birth',label:'تاريخ الميلاد',type:'date',req:false},
+            {id:'employee_nationality',label:'الجنسية',req:false,placeholder:'سوري'},
+        ]},
+        {id:'employee_address',label:'عنوان إقامة العامل',req:false,placeholder:'ريف دمشق — قدسيا'},
+        {id:'employee_qualification',label:'المؤهل العلمي',req:false,placeholder:'بكالوريوس هندسة مدنية'},
+        {type:'section', label:'بنود العقد'},
+        {id:'job_title',label:'المسمى الوظيفي',req:true,placeholder:'مهندس مدني'},
+        {id:'job_duties',label:'طبيعة العمل والمهام',type:'textarea',req:true,placeholder:'الإشراف على المشاريع الإنشائية، متابعة تنفيذ الأعمال المدنية...'},
+        {type:'row', cols:[
+            {id:'salary',label:'الراتب الشهري (ل.س)',req:true,placeholder:'3,000,000'},
+            {id:'salary_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'allowances',label:'البدلات والمزايا',req:false,placeholder:'بدل انتقال، بدل هاتف، تأمين صحي...'},
+        {type:'row', cols:[
+            {id:'work_hours',label:'ساعات العمل اليومية',req:false,placeholder:'8 ساعات'},
+            {id:'work_days',label:'أيام العمل الأسبوعية',req:false,placeholder:'6 أيام'},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ بداية العمل',type:'date',req:true},
+            {id:'contract_type',label:'نوع العقد',type:'select',options:['محدد المدة — سنة','محدد المدة — سنتان','غير محدد المدة','تجريبي — 3 أشهر'],req:true},
+        ]},
+        {id:'probation',label:'فترة التجربة',req:false,placeholder:'ثلاثة أشهر'},
+        {id:'annual_leave',label:'الإجازة السنوية',req:false,placeholder:'15 يوماً في السنة الأولى'},
+        {id:'special_conditions',label:'شروط وبنود إضافية',type:'textarea',req:false,placeholder:'التزامات السرية، الحظر من المنافسة...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return generateEmployment(d); }
+},
+
+services: {
+    icon:'🔧', title:'عقد تقديم خدمات', desc:'عقد لأعمال الخدمات المهنية والتقنية',
+    fields:[
+        {type:'section', label:'بيانات مقدّم الخدمة (الطرف الأول)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم مقدم الخدمة',req:true,placeholder:'محمد علي المهندس'},
+            {id:'seller_id',label:'رقم الهوية / السجل',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات طالب الخدمة (الطرف الثاني)'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم طالب الخدمة',req:true,placeholder:'شركة البناء الحديث'},
+            {id:'buyer_id',label:'رقم الهوية / السجل',req:true,placeholder:'987654'},
+        ]},
+        {type:'section', label:'تفاصيل الخدمة'},
+        {id:'service_desc',label:'وصف الخدمة المطلوبة',type:'textarea',req:true,placeholder:'تصميم وبرمجة موقع إلكتروني، تنفيذ نظام محاسبي...'},
+        {id:'deliverables',label:'المخرجات المتوقعة',type:'textarea',req:false,placeholder:'ملف تصميم، كود مصدري، توثيق...'},
+        {type:'row', cols:[
+            {id:'price_total',label:'قيمة العقد الإجمالية',req:true,placeholder:'2,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'payment_terms',label:'شروط الدفع',req:false,placeholder:'50% مقدماً، 50% عند التسليم'},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ البداية',type:'date',req:true},
+            {id:'delivery_date',label:'تاريخ التسليم المتوقع',type:'date',req:false},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('تقديم خدمات', d, [
+        `يتعهد الطرف الأول بتقديم الخدمات الآتية: ${d.service_desc || '——'}`,
+        `المخرجات المتفق عليها: ${d.deliverables || 'حسب الاتفاق'}`,
+        `قيمة العقد: ${d.price_total || '——'} ${d.price_currency || ''}`,
+        `شروط الدفع: ${d.payment_terms || 'حسب الاتفاق'}`,
+        `تبدأ الأعمال في ${d.contract_start || '——'} ويُسلَّم العمل بتاريخ ${d.delivery_date || 'حسب الاتفاق'}`,
+        'يلتزم الطرف الأول بسرية جميع المعلومات التي يطلع عليها خلال تنفيذ العقد',
+        'في حال التأخير غير المبرر يتحمل الطرف الأول غرامة تأخير يتفق عليها الطرفان',
+    ]); }
+},
+
+contractor: {
+    icon:'🏗️', title:'عقد مقاولة', desc:'عقد مقاولة وأعمال بناء وإنشاء',
+    fields:[
+        {type:'section', label:'بيانات صاحب العمل'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم صاحب المشروع',req:true,placeholder:'رائد سليمان الشيخ'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {id:'buyer_address',label:'عنوان صاحب المشروع',req:false,placeholder:'دمشق — المزة'},
+        {type:'section', label:'بيانات المقاول'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم المقاول / الشركة',req:true,placeholder:'مؤسسة المتقن للإنشاء'},
+            {id:'seller_id',label:'رقم السجل التجاري',req:true,placeholder:'111222'},
+        ]},
+        {type:'section', label:'تفاصيل المشروع'},
+        {id:'project_desc',label:'وصف المشروع',type:'textarea',req:true,placeholder:'بناء منزل مستقل من طابقين على قطعة أرض...'},
+        {id:'project_location',label:'موقع المشروع',req:true,placeholder:'ريف دمشق — قدسيا — المخطط التنظيمي رقم 3'},
+        {type:'row', cols:[
+            {id:'price_total',label:'قيمة المقاولة الإجمالية',req:true,placeholder:'200,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'payment_terms',label:'جدول الدفعات',req:false,placeholder:'25% عند التوقيع، 50% عند الهيكل، 25% عند الإنهاء'},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ بدء الأعمال',type:'date',req:true},
+            {id:'delivery_date',label:'تاريخ التسليم',type:'date',req:true},
+        ]},
+        {id:'special_conditions',label:'مواصفات وشروط خاصة',type:'textarea',req:false,placeholder:'نوع الخرسانة، عيار الحديد، جودة مواد البناء...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('مقاولة', d, [
+        `يتعهد الطرف الأول (المقاول) بتنفيذ الأعمال الآتية: ${d.project_desc || '——'}`,
+        `موقع المشروع: ${d.project_location || '——'}`,
+        `تبدأ الأعمال في ${d.contract_start || '——'} وتُسلَّم بتاريخ ${d.delivery_date || '——'}`,
+        `قيمة المقاولة: ${d.price_total || '——'} ${d.price_currency || ''}`,
+        `جدول الدفعات: ${d.payment_terms || 'حسب الاتفاق'}`,
+        `المواصفات والشروط التقنية: ${d.special_conditions || 'وفق الفن المعماري المتعارف عليه'}`,
+        'يتحمل المقاول غرامة تأخير عن كل أسبوع تأخير لا مبرر له بنسبة 0.5% من قيمة العقد',
+        'يلتزم المقاول بالحصول على جميع التراخيص اللازمة للبناء',
+    ]); }
+},
+
+loan: {
+    icon:'💰', title:'عقد قرض مالي', desc:'اتفاقية إقراض مال بين طرفين',
+    fields:[
+        {type:'section', label:'بيانات المُقرِض (الطرف الأول)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم المُقرِض',req:true,placeholder:'سامر خالد البيطار'},
+            {id:'seller_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات المُقترِض (الطرف الثاني)'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المُقترِض',req:true,placeholder:'فراس إبراهيم الطحان'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {id:'buyer_address',label:'عنوان إقامة المُقترِض',req:false,placeholder:'دمشق — ركن الدين'},
+        {type:'section', label:'بنود القرض'},
+        {type:'row', cols:[
+            {id:'price_total',label:'مبلغ القرض',req:true,placeholder:'50,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'loan_purpose',label:'الغرض من القرض',req:false,placeholder:'تأمين مسكن، إقامة مشروع تجاري...'},
+        {id:'repayment_terms',label:'شروط السداد',type:'textarea',req:true,placeholder:'يُسدَّد المبلغ على 24 قسطاً شهرياً متساوياً...'},
+        {id:'interest',label:'الفائدة إن وجدت',req:false,placeholder:'بدون فائدة / 5% سنوياً'},
+        {id:'guarantee',label:'الضمانات المقدمة',req:false,placeholder:'شيك مصرفي، عقار، ضامن شخصي...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الإقراض',type:'date',req:true},
+            {id:'repay_date',label:'تاريخ السداد النهائي',type:'date',req:false},
+        ]},
+        {id:'contract_city',label:'مكان الإبرام',req:true,placeholder:'دمشق'},
+    ],
+    generate(d) { return genericTwoPartyContract('قرض مالي', d, [
+        `يُقرض الطرف الأول الطرفَ الثاني مبلغاً وقدره: ${d.price_total || '——'} ${d.price_currency || ''}`,
+        `الغرض من القرض: ${d.loan_purpose || 'حسب الاتفاق'}`,
+        `شروط السداد: ${d.repayment_terms || '——'}`,
+        `الفائدة: ${d.interest || 'بدون فائدة'}`,
+        `تاريخ آخر سداد: ${d.repay_date || 'حسب الاتفاق'}`,
+        `الضمانات: ${d.guarantee || 'لا توجد ضمانات'}`,
+        'في حال التخلف عن السداد يحق للطرف الأول اتخاذ الإجراءات القانونية اللازمة',
+    ]); }
+},
+
+partnership: {
+    icon:'🤝', title:'عقد شراكة تجارية', desc:'اتفاقية شراكة لإنشاء مشروع تجاري مشترك',
+    fields:[
+        {type:'section', label:'بيانات الشريك الأول'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم الشريك الأول',req:true,placeholder:'علاء الدين يوسف الحمدان'},
+            {id:'seller_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات الشريك الثاني'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم الشريك الثاني',req:true,placeholder:'لينا محمد الأحمد'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {type:'section', label:'بيانات المشروع'},
+        {id:'project_name',label:'اسم المشروع / الشركة',req:true,placeholder:'مطعم الوليمة الدمشقي'},
+        {id:'project_desc',label:'طبيعة النشاط',type:'textarea',req:true,placeholder:'تقديم الطعام والمشروبات، المطاعم الدمشقية الأصيلة...'},
+        {id:'project_location',label:'مقر المشروع',req:false,placeholder:'دمشق — شارع بغداد'},
+        {type:'row', cols:[
+            {id:'total_capital',label:'رأس المال الإجمالي',req:true,placeholder:'100,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'share_p1',label:'حصة الشريك الأول (%)',req:true,placeholder:'60'},
+            {id:'share_p2',label:'حصة الشريك الثاني (%)',req:true,placeholder:'40'},
+        ]},
+        {id:'profit_distribution',label:'توزيع الأرباح والخسائر',req:false,placeholder:'بنسبة الحصص المذكورة / ربع سنوياً...'},
+        {id:'management',label:'إدارة المشروع',req:false,placeholder:'يتولى الشريك الأول الإدارة اليومية...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('شراكة تجارية', d, [
+        `يتفق الطرفان على إنشاء مشروع تجاري مشترك باسم: ${d.project_name || '——'}`,
+        `طبيعة النشاط: ${d.project_desc || '——'}`,
+        `مقر المشروع: ${d.project_location || 'حسب الاتفاق'}`,
+        `رأس المال الإجمالي: ${d.total_capital || '——'} ${d.price_currency || ''}`,
+        `حصة الطرف الأول: ${d.share_p1 || '——'}% — حصة الطرف الثاني: ${d.share_p2 || '——'}%`,
+        `توزيع الأرباح والخسائر: ${d.profit_distribution || 'بنسبة الحصص'}`,
+        `إدارة المشروع: ${d.management || 'بالاتفاق المشترك'}`,
+        'لا يحق لأي من الشريكين التنازل عن حصته لطرف ثالث دون موافقة الشريك الآخر',
+    ]); }
+},
+
+power_of_attorney: {
+    icon:'📜', title:'وكالة قانونية عامة', desc:'تفويض قانوني عام لممارسة التصرفات القانونية',
+    fields:[
+        {type:'section', label:'بيانات الموكِّل'},
+        {type:'row', cols:[
+            {id:'principal_name',label:'اسم الموكِّل كاملاً',req:true,placeholder:'عدنان محمود العريضة'},
+            {id:'principal_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'row', cols:[
+            {id:'principal_address',label:'عنوان الإقامة',req:true,placeholder:'دمشق — المزة — حي الأسد'},
+            {id:'principal_nationality',label:'الجنسية',req:false,placeholder:'سوري'},
+        ]},
+        {type:'section', label:'بيانات الوكيل'},
+        {type:'row', cols:[
+            {id:'agent_name',label:'اسم الوكيل كاملاً',req:true,placeholder:'ريم خالد العيسى'},
+            {id:'agent_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {type:'row', cols:[
+            {id:'agent_address',label:'عنوان الوكيل',req:true,placeholder:'دمشق — كفر سوسة'},
+            {id:'agent_relation',label:'صلة القرابة (اختياري)',req:false,placeholder:'ابنة عم'},
+        ]},
+        {type:'section', label:'نطاق الوكالة'},
+        {id:'poa_scope',label:'صلاحيات الوكالة',type:'textarea',req:true,placeholder:'البيع والشراء والإيجار وإدارة العقارات وتوقيع العقود وتسوية الديون والتقاضي...'},
+        {id:'poa_limitations',label:'قيود وحدود الوكالة',type:'textarea',req:false,placeholder:'باستثناء البيع بأقل من سعر السوق...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الوكالة',type:'date',req:true},
+            {id:'poa_expiry',label:'تاريخ انتهاء الوكالة',type:'date',req:false},
+        ]},
+        {id:'contract_city',label:'مكان الإبرام',req:true,placeholder:'دمشق'},
+        {id:'notary',label:'الجهة المصدِّقة',req:false,placeholder:'كاتب العدل — محكمة البداءة بدمشق'},
+    ],
+    generate(d) { return generatePOA(d, false); }
+},
+
+power_of_attorney_special: {
+    icon:'📋', title:'وكالة خاصة', desc:'تفويض لعمل قانوني محدد وبعينه',
+    fields:[
+        {type:'section', label:'بيانات الموكِّل'},
+        {type:'row', cols:[
+            {id:'principal_name',label:'اسم الموكِّل',req:true,placeholder:'منير إبراهيم الشرقي'},
+            {id:'principal_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {id:'principal_address',label:'عنوان الموكِّل',req:true,placeholder:'حلب — السكري'},
+        {type:'section', label:'بيانات الوكيل'},
+        {type:'row', cols:[
+            {id:'agent_name',label:'اسم الوكيل',req:true,placeholder:'نادر كمال الطرابلسي'},
+            {id:'agent_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {id:'agent_address',label:'عنوان الوكيل',req:true,placeholder:'حلب — الأشرفية'},
+        {type:'section', label:'موضوع الوكالة الخاصة'},
+        {id:'poa_scope',label:'العمل القانوني المفوَّض به تحديداً',type:'textarea',req:true,placeholder:'استلام مبلغ معين من بنك معين، تسجيل سيارة محددة، تحصيل إيجار شقة محددة...'},
+        {id:'property_desc',label:'وصف الموضوع (عقار / مركبة / غيره)',req:false,placeholder:'الشقة الواقعة في... أو السيارة ذات اللوحة...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الوكالة',type:'date',req:true},
+            {id:'poa_expiry',label:'تاريخ الانتهاء',type:'date',req:false},
+        ]},
+        {id:'contract_city',label:'مكان الإبرام',req:true,placeholder:'حلب'},
+    ],
+    generate(d) { return generatePOA(d, true); }
+},
+
+inheritance_acknowledgment: {
+    icon:'⚖️', title:'إقرار بالإرث', desc:'وثيقة إقرار رسمية بالورثة والتركة',
+    fields:[
+        {type:'section', label:'بيانات المتوفى'},
+        {type:'row', cols:[
+            {id:'deceased_name',label:'اسم المتوفى كاملاً',req:true,placeholder:'حسن أحمد الدريبي'},
+            {id:'deceased_id',label:'رقم سجله المدني',req:false,placeholder:'012345678'},
+        ]},
+        {type:'row', cols:[
+            {id:'deceased_birth',label:'تاريخ الولادة',type:'date',req:false},
+            {id:'deceased_death',label:'تاريخ الوفاة',type:'date',req:true},
+        ]},
+        {id:'deceased_address',label:'مكان الإقامة الأخير',req:false,placeholder:'دمشق — باب مصلى'},
+        {id:'deceased_relation',label:'علاقة المُقِرّ بالمتوفى',req:true,placeholder:'ابن المتوفى'},
+        {type:'section', label:'بيانات المُقِرّ'},
+        {type:'row', cols:[
+            {id:'principal_name',label:'اسم المُقِرّ',req:true,placeholder:'وليد حسن الدريبي'},
+            {id:'principal_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {type:'section', label:'قائمة الورثة والتركة'},
+        {id:'heirs_list',label:'قائمة الورثة الشرعيين',type:'textarea',req:true,placeholder:'1- وليد حسن الدريبي (ابن) — 2- سمر حسن الدريبي (بنت) — 3- زهرة محمود (زوجة)...'},
+        {id:'estate_desc',label:'وصف التركة',type:'textarea',req:false,placeholder:'شقة في دمشق، سيارة، حساب مصرفي...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الإقرار',type:'date',req:true},
+            {id:'contract_city',label:'مكان الإقرار',req:true,placeholder:'دمشق'},
+        ]},
+        {id:'notary',label:'الجهة المصدِّقة',req:false,placeholder:'كاتب العدل'},
+    ],
+    generate(d) { return generateInheritance(d); }
+},
+
+debt_acknowledgment: {
+    icon:'💳', title:'إقرار بالدين', desc:'وثيقة اعتراف رسمية بدين مالي',
+    fields:[
+        {type:'section', label:'بيانات الدائن (صاحب الدين)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم الدائن',req:true,placeholder:'عمار سليم الرشيد'},
+            {id:'seller_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'بيانات المدين (مُصدِر الإقرار)'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المدين',req:true,placeholder:'فادي جمال المطلق'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'987654321'},
+        ]},
+        {id:'buyer_address',label:'عنوان المدين',req:false,placeholder:'دمشق — الميدان'},
+        {type:'section', label:'تفاصيل الدين'},
+        {type:'row', cols:[
+            {id:'price_total',label:'مبلغ الدين',req:true,placeholder:'20,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'debt_reason',label:'سبب نشأة الدين',req:false,placeholder:'ثمن بضاعة مستلمة، قرض نقدي، خدمات مقدمة...'},
+        {id:'repayment_terms',label:'موعد ومواعيد السداد',req:true,placeholder:'يُسدَّد كاملاً بتاريخ... / على أقساط شهرية...'},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الإقرار',type:'date',req:true},
+            {id:'contract_city',label:'مكان الإقرار',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return generateDebtAck(d); }
+},
+
+agency_commercial: {
+    icon:'🏪', title:'عقد وكالة تجارية', desc:'عقد تعيين وكيل تجاري لتوزيع المنتجات',
+    fields:[
+        {type:'section', label:'بيانات الموكِّل (المُنتِج / المورِّد)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم الموكِّل / الشركة',req:true,placeholder:'شركة الأمل للصناعات الغذائية'},
+            {id:'seller_id',label:'رقم السجل التجاري',req:true,placeholder:'111222'},
+        ]},
+        {type:'section', label:'بيانات الوكيل التجاري'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم الوكيل / الشركة',req:true,placeholder:'مؤسسة البركة للتوزيع'},
+            {id:'buyer_id',label:'رقم السجل التجاري',req:true,placeholder:'333444'},
+        ]},
+        {type:'section', label:'بنود الوكالة'},
+        {id:'products',label:'المنتجات / الخدمات موضوع الوكالة',type:'textarea',req:true,placeholder:'جميع منتجات الشركة من المواد الغذائية المعلبة...'},
+        {id:'territory',label:'المنطقة الجغرافية',req:true,placeholder:'محافظة حلب وريفها'},
+        {id:'commission',label:'العمولة والمكافأة',req:false,placeholder:'5% من قيمة المبيعات المحققة'},
+        {id:'targets',label:'الأهداف البيعية',req:false,placeholder:'تحقيق مبيعات لا تقل عن...'},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ البداية',type:'date',req:true},
+            {id:'contract_duration',label:'مدة العقد',type:'select',options:['سنة واحدة','سنتان','ثلاث سنوات','غير محدد'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'حلب'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('وكالة تجارية', d, [
+        `يُعيّن الطرف الأول الطرفَ الثاني وكيلاً تجارياً حصرياً للمنتجات الآتية: ${d.products || '——'}`,
+        `المنطقة الجغرافية للوكالة: ${d.territory || '——'}`,
+        `مدة الوكالة: ${d.contract_duration || '——'} تبدأ من ${d.contract_start || '——'}`,
+        `العمولة: ${d.commission || 'حسب الاتفاق'}`,
+        `الأهداف المطلوبة: ${d.targets || 'حسب خطة العمل المتفق عليها'}`,
+        'يلتزم الوكيل بعدم توزيع أو تمثيل منتجات منافسة دون إذن خطي مسبق',
+        'يحق لأي طرف إنهاء العقد بإشعار خطي قبل 90 يوماً',
+    ]); }
+},
+
+nda: {
+    icon:'🔒', title:'اتفاقية عدم إفشاء السرية', desc:'Non-Disclosure Agreement (NDA) باللغة العربية',
+    fields:[
+        {type:'section', label:'الطرف المُفصِح (صاحب المعلومات)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم الطرف المُفصِح',req:true,placeholder:'شركة الابتكار التقني'},
+            {id:'seller_id',label:'رقم السجل التجاري',req:true,placeholder:'555666'},
+        ]},
+        {type:'section', label:'الطرف المُتلقِّي (الملتزم بالسرية)'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم الطرف المُتلقِّي',req:true,placeholder:'نادر محمد حجازي'},
+            {id:'buyer_id',label:'رقم الهوية',req:true,placeholder:'012345678'},
+        ]},
+        {type:'section', label:'تفاصيل الاتفاقية'},
+        {id:'purpose',label:'الغرض من الاتفاقية',type:'textarea',req:true,placeholder:'تقييم مشروع تجاري مشترك محتمل، تقديم خدمات استشارية...'},
+        {id:'confidential_info',label:'نوع المعلومات السرية',type:'textarea',req:true,placeholder:'الخطط التجارية، قواعد بيانات العملاء، الخوارزميات، المعلومات المالية...'},
+        {id:'exclusions',label:'الاستثناءات (ما لا يُعدّ سرياً)',req:false,placeholder:'المعلومات المتاحة للعموم، ما أفصح عنه الطرف الأول مسبقاً...'},
+        {type:'row', cols:[
+            {id:'contract_duration',label:'مدة الاتفاقية',type:'select',options:['سنة واحدة','سنتان','ثلاث سنوات','خمس سنوات'],req:true},
+            {id:'jurisdiction',label:'القانون الحاكم',req:false,placeholder:'المحاكم السورية — القانون السوري'},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ الاتفاقية',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('عدم إفشاء السرية (NDA)', d, [
+        `الغرض: ${d.purpose || '——'}`,
+        `تشمل المعلومات السرية: ${d.confidential_info || '——'}`,
+        `الاستثناءات: ${d.exclusions || 'لا استثناءات'}`,
+        `مدة الاتفاقية: ${d.contract_duration || '——'} من تاريخ التوقيع`,
+        'يلتزم الطرف المُتلقِّي بعدم الإفصاح أو استخدام المعلومات السرية لأي غرض غير الغرض المحدد',
+        'يتحمل المخالف المسؤولية القانونية والتعويضية كاملة عن أي ضرر ينجم عن خرق هذه الاتفاقية',
+        `القانون الحاكم والاختصاص القضائي: ${d.jurisdiction || 'المحاكم السورية المختصة'}`,
+    ]); }
+},
+
+supply: {
+    icon:'🚚', title:'عقد توريد', desc:'عقد توريد بضاعة أو خامات بصفة دورية',
+    fields:[
+        {type:'section', label:'بيانات المُوِّرد (الطرف الأول)'},
+        {type:'row', cols:[
+            {id:'seller_name',label:'اسم المورِّد / الشركة',req:true,placeholder:'مؤسسة الخير للمواد الغذائية'},
+            {id:'seller_id',label:'رقم السجل التجاري',req:true,placeholder:'100200'},
+        ]},
+        {type:'section', label:'بيانات المُشتري (الطرف الثاني)'},
+        {type:'row', cols:[
+            {id:'buyer_name',label:'اسم المشتري / الشركة',req:true,placeholder:'سلسلة مطاعم البيت الشامي'},
+            {id:'buyer_id',label:'رقم السجل التجاري',req:true,placeholder:'300400'},
+        ]},
+        {type:'section', label:'بيانات التوريد'},
+        {id:'goods_desc',label:'المواد الموردة',type:'textarea',req:true,placeholder:'مواد غذائية طازجة، زيوت نباتية، توابل...'},
+        {id:'supply_schedule',label:'جدول التوريد الدوري',req:true,placeholder:'أسبوعياً كل إثنين / شهرياً في أول كل شهر...'},
+        {type:'row', cols:[
+            {id:'price_total',label:'قيمة التوريد الشهرية',req:false,placeholder:'5,000,000'},
+            {id:'price_currency',label:'العملة',type:'select',options:['ليرة سورية','دولار أمريكي'],req:true},
+        ]},
+        {id:'quality_specs',label:'مواصفات الجودة',req:false,placeholder:'طازجة، خالية من المواد الحافظة...'},
+        {type:'row', cols:[
+            {id:'contract_start',label:'تاريخ البداية',type:'date',req:true},
+            {id:'contract_duration',label:'مدة العقد',type:'select',options:['6 أشهر','سنة واحدة','سنتان'],req:true},
+        ]},
+        {type:'row', cols:[
+            {id:'contract_date',label:'تاريخ التوقيع',type:'date',req:true},
+            {id:'contract_city',label:'المدينة',req:true,placeholder:'دمشق'},
+        ]},
+    ],
+    generate(d) { return genericTwoPartyContract('توريد', d, [
+        `يتعهد الطرف الأول بتوريد المواد الآتية: ${d.goods_desc || '——'}`,
+        `جدول التوريد: ${d.supply_schedule || '——'}`,
+        `قيمة التوريد: ${d.price_total || 'حسب الكميات'} ${d.price_currency || ''}`,
+        `مواصفات الجودة المطلوبة: ${d.quality_specs || 'وفق المواصفات القياسية السورية'}`,
+        `مدة العقد: ${d.contract_duration || '——'} تبدأ من ${d.contract_start || '——'}`,
+        'يحق للطرف الثاني رفض أي دفعة لا تطابق المواصفات المتفق عليها',
+        'يلتزم الطرف الأول بالتوريد في المواعيد المتفق عليها وإلا تحمّل غرامة التأخير',
+    ]); }
+},
+
+}; // end DOCS
+
+/* ════════════════════════════════════════════
+   GENERATE FUNCTIONS
+════════════════════════════════════════════ */
+function todayStr() {
+    return new Date().toLocaleDateString('ar-SY', {year:'numeric',month:'long',day:'numeric'});
+}
+function B(v) { return v ? `<span class="blank">${v}</span>` : `<span class="blank" style="color:#aaa;">__________</span>`; }
+function H(n,t) { return `<div class="doc-section-title">${n} — ${t}</div>`; }
+function C(num,text) { return `<div class="clause"><div class="clause-num">البند ${num}</div><div class="clause-text">${text}</div></div>`; }
+
+function docHeader(title, subtitle, date, city) {
+    return `<div class="doc-stamp">
+        <div class="country">الجمهورية العربية السورية</div>
+        <div class="doc-name">${title}</div>
+        <div class="doc-sub">${subtitle || ''}</div>
+    </div>
+    <div class="doc-date">المكان: ${B(city)} &nbsp;|&nbsp; التاريخ: ${B(date || todayStr())}</div>`;
+}
+
+function sigArea(p1name, p2name, p1title, p2title) {
+    return `<div class="sig-area">
+        <div class="sig-box"><div class="sig-label">${p1title || 'الطرف الأول'}</div><div class="sig-name">${p1name || '——————'}</div><br>التوقيع: _______________</div>
+        <div class="sig-box"><div class="sig-label">${p2title || 'الطرف الثاني'}</div><div class="sig-name">${p2name || '——————'}</div><br>التوقيع: _______________</div>
+    </div>`;
+}
+
+function legalNote() {
+    return `<div class="doc-note">⚠️ هذا العقد أُعدَّ بموجب أحكام القانون المدني السوري ويستوجب التوثيق لدى الجهات المختصة — يُنصح باستشارة محامٍ مختص قبل التوقيع.</div>`;
+}
+
+function generateSaleProperty(d) {
+    return docHeader('عقد بيع عقار','وفق أحكام القانون المدني السوري', d.contract_date, d.contract_city)
+    + H('أولاً','أطراف العقد')
+    + `<p><strong>الطرف الأول (البائع):</strong> ${B(d.seller_name)} — رقم الهوية: ${B(d.seller_id)} — العنوان: ${B(d.seller_address)}</p><br>`
+    + `<p><strong>الطرف الثاني (المشتري):</strong> ${B(d.buyer_name)} — رقم الهوية: ${B(d.buyer_id)} — العنوان: ${B(d.buyer_address)}</p><br>`
+    + H('ثانياً','المحل المبيع')
+    + C('أول', `يبيع الطرف الأول ويشتري الطرف الثاني ${B(d.property_type)} الواقع في: ${B(d.property_address)} — بمساحة: ${B(d.property_area)} م² — الطابق: ${B(d.property_floor)}`)
+    + (d.property_desc ? C('ثانياً', `وصف العقار التفصيلي: ${d.property_desc}`) : '')
+    + (d.title_deed ? C('ثالثاً', `بيانات سند الملكية: ${d.title_deed}`) : '')
+    + H('ثالثاً','الثمن وشروط الدفع')
+    + C('رابعاً', `اتفق الطرفان على الثمن الإجمالي وقدره: ${B(d.price_total)} ${d.price_currency || 'ليرة سورية'}`)
+    + (d.price_advance ? C('خامساً', `المبلغ المدفوع مقدماً: ${d.price_advance}`) : '')
+    + (d.payment_terms ? C('سادساً', `شروط الدفع: ${d.payment_terms}`) : '')
+    + H('رابعاً','التسليم والضمانات')
+    + C('سابعاً', `تاريخ التسليم: ${B(d.delivery_date || 'فور إتمام العقد')}`)
+    + C('ثامناً', 'يضمن البائع خلو العقار من أي رهن أو حجز أو حقوق للغير')
+    + C('تاسعاً', 'يتحمل البائع جميع الرسوم والضرائب المتعلقة بالعقار حتى تاريخ التوقيع')
+    + (d.special_conditions ? H('خامساً','شروط خاصة') + `<p>${d.special_conditions}</p><br>` : '')
+    + H('سادساً','أحكام عامة')
+    + C('عاشراً', 'يخضع هذا العقد لأحكام القانون المدني السوري ولا سيما المواد المتعلقة بعقد البيع')
+    + C('حادي عشر', 'يُحرَّر هذا العقد من نسختين لكل طرف نسخة وكلتاهما بقوة قانونية واحدة')
+    + sigArea(d.seller_name, d.buyer_name, 'الطرف الأول — البائع', 'الطرف الثاني — المشتري')
+    + legalNote();
+}
+
+function generateRentResidential(d) {
+    return docHeader('عقد إيجار سكني','وفق أحكام قانون الإيجار السوري', d.contract_date, d.contract_city)
+    + H('أولاً','أطراف العقد')
+    + `<p><strong>الطرف الأول (المؤجِّر):</strong> ${B(d.landlord_name)} — رقم الهوية: ${B(d.landlord_id)}</p><br>`
+    + `<p><strong>الطرف الثاني (المستأجر):</strong> ${B(d.tenant_name)} — رقم الهوية: ${B(d.tenant_id)}</p><br>`
+    + H('ثانياً','الوحدة السكنية المؤجَّرة')
+    + C('أول', `يُؤجِّر الطرف الأول للطرف الثاني الوحدة السكنية الواقعة في: ${B(d.property_address)} — المساحة: ${B(d.property_area)} م² — الطابق: ${B(d.property_floor)}`)
+    + (d.property_desc ? C('ثانياً', `وصف الوحدة: ${d.property_desc}`) : '')
+    + H('ثالثاً','بنود الإيجار')
+    + C('ثالثاً', `الأجرة الشهرية: ${B(d.rent_amount)} ${d.rent_currency || ''} — تُدفع في: ${B(d.payment_day || 'أول كل شهر')}`)
+    + C('رابعاً', `مدة الإيجار: ${B(d.contract_duration)} تبدأ من تاريخ: ${B(d.contract_start)}`)
+    + (d.deposit ? C('خامساً', `مبلغ التأمين: ${d.deposit} — يُردّ عند انتهاء العقد مع مراعاة حالة الشقة`) : '')
+    + H('رابعاً','التزامات الأطراف')
+    + C('سادساً', 'يلتزم المستأجر بالمحافظة على الوحدة وعدم إجراء أي تعديل دون إذن خطي مسبق')
+    + C('سابعاً', 'يلتزم المستأجر بدفع فواتير الكهرباء والمياه والهاتف في مواعيدها')
+    + C('ثامناً', 'لا يحق للمستأجر التأجير من الباطن دون إذن صريح من المؤجر')
+    + C('تاسعاً', 'يلتزم المؤجر بصيانة المرافق الرئيسية كالسباكة والكهرباء')
+    + (d.special_conditions ? H('خامساً','شروط خاصة') + `<p>${d.special_conditions}</p><br>` : '')
+    + C('عاشراً', 'يُحرَّر هذا العقد من نسختين لكل طرف نسخة تحمل القوة القانونية ذاتها')
+    + sigArea(d.landlord_name, d.tenant_name, 'الطرف الأول — المؤجِّر', 'الطرف الثاني — المستأجر')
+    + legalNote();
+}
+
+function generateEmployment(d) {
+    return docHeader('عقد عمل','وفق أحكام قانون العمل السوري رقم 17 لعام 2010', d.contract_date, d.contract_city)
+    + H('أولاً','أطراف العقد')
+    + `<p><strong>صاحب العمل:</strong> ${B(d.employer_name)} — رقم السجل: ${B(d.employer_id)} — العنوان: ${B(d.employer_address)}</p><br>`
+    + `<p><strong>العامل:</strong> ${B(d.employee_name)} — رقم الهوية: ${B(d.employee_id)} — المؤهل: ${B(d.employee_qualification || 'غير محدد')}</p><br>`
+    + H('ثانياً','بيانات العمل')
+    + C('أول', `يُعيَّن العامل في منصب: ${B(d.job_title)}`)
+    + C('ثانياً', `طبيعة العمل والمهام: ${B(d.job_duties)}`)
+    + C('ثالثاً', `ساعات العمل: ${B(d.work_hours || '8 ساعات يومياً')} — أيام العمل: ${B(d.work_days || '6 أيام أسبوعياً')}`)
+    + H('ثالثاً','الراتب والمزايا')
+    + C('رابعاً', `يتقاضى العامل راتباً شهرياً قدره: ${B(d.salary)} ${d.salary_currency || ''} يُدفع في نهاية كل شهر`)
+    + (d.allowances ? C('خامساً', `البدلات والمزايا الإضافية: ${d.allowances}`) : '')
+    + H('رابعاً','مدة العقد والإجازات')
+    + C('سادساً', `نوع العقد: ${B(d.contract_type)} — تاريخ البداية: ${B(d.contract_start)}`)
+    + (d.probation ? C('سابعاً', `فترة التجربة: ${d.probation}`) : '')
+    + C('ثامناً', `الإجازة السنوية: ${B(d.annual_leave || '15 يوم سنوياً')} وفق أحكام قانون العمل`)
+    + H('خامساً','أحكام عامة')
+    + C('تاسعاً', 'يلتزم العامل بالمحافظة على أسرار العمل وعدم إفشائها خلال مدة العقد وبعد انتهائه')
+    + C('عاشراً', 'يخضع العقد لأحكام قانون العمل السوري وكل ما لم يُنص عليه يُرجع إليه')
+    + (d.special_conditions ? H('سادساً','شروط إضافية') + `<p>${d.special_conditions}</p><br>` : '')
+    + C('حادي عشر', 'حُرِّر هذا العقد من نسختين وكلتاهما بقوة قانونية واحدة')
+    + sigArea(d.employer_name, d.employee_name, 'صاحب العمل / توقيع وختم', 'العامل')
+    + legalNote();
+}
+
+function generatePOA(d, isSpecial) {
+    const title = isSpecial ? 'وكالة خاصة' : 'وكالة قانونية عامة';
+    return docHeader(title, '', d.contract_date, d.contract_city)
+    + H('أولاً','بيانات الموكِّل')
+    + `<p>أنا الموقّع أدناه: ${B(d.principal_name)} — رقم الهوية: ${B(d.principal_id)} — العنوان: ${B(d.principal_address)}</p><br>`
+    + H('ثانياً','بيانات الوكيل')
+    + `<p>أُوكِّل: ${B(d.agent_name)} — رقم الهوية: ${B(d.agent_id)} — العنوان: ${B(d.agent_address)}</p><br>`
+    + H('ثالثاً','مضمون الوكالة')
+    + C('أول', `صلاحيات الوكيل: ${B(d.poa_scope)}`)
+    + (d.poa_limitations ? C('ثانياً', `القيود والحدود: ${d.poa_limitations}`) : '')
+    + (d.property_desc ? C('ثالثاً', `المتعلق بـ: ${d.property_desc}`) : '')
+    + H('رابعاً','مدة الوكالة')
+    + C('رابعاً', `تسري هذه الوكالة من تاريخ توقيعها${d.poa_expiry ? ' وحتى تاريخ: ' + d.poa_expiry : ' حتى إلغائها خطياً'}`)
+    + H('خامساً','الأحكام')
+    + C('خامساً', 'يحق للموكِّل سحب هذه الوكالة في أي وقت بإخطار خطي')
+    + C('سادساً', 'للوكيل الحق في توقيع جميع العقود والوثائق المتعلقة بصلاحياته المذكورة')
+    + (d.notary ? `<p style="margin:16px 0; font-size:13px; color:#555">مُصدَّقة من: ${d.notary}</p>` : '')
+    + `<div class="sig-area">
+        <div class="sig-box"><div class="sig-label">الموكِّل</div><div class="sig-name">${d.principal_name || '——————'}</div><br>التوقيع: _______________</div>
+        <div class="sig-box"><div class="sig-label">الوكيل (قبولاً)</div><div class="sig-name">${d.agent_name || '——————'}</div><br>التوقيع: _______________</div>
+    </div>`
+    + legalNote();
+}
+
+function generateInheritance(d) {
+    return docHeader('إقرار بالإرث', '', d.contract_date, d.contract_city)
+    + H('أولاً','بيانات المتوفى')
+    + `<p>توفي المرحوم / المرحومة: ${B(d.deceased_name)} — رقم السجل المدني: ${B(d.deceased_id)}</p>`
+    + `<p>تاريخ الوفاة: ${B(d.deceased_death)} — آخر إقامة: ${B(d.deceased_address)}</p><br>`
+    + H('ثانياً','بيانات المُقِرّ')
+    + `<p>أنا: ${B(d.principal_name)} — رقم الهوية: ${B(d.principal_id)} — صفتي: ${B(d.deceased_relation)} بالمتوفى</p><br>`
+    + H('ثالثاً','الورثة الشرعيون')
+    + C('أول', `أُقرّ بأن الورثة الشرعيين للمتوفى هم: ${B(d.heirs_list)}`)
+    + (d.estate_desc ? C('ثانياً', `التركة: ${d.estate_desc}`) : '')
+    + H('رابعاً','الإقرار')
+    + C('ثالثاً', 'أُقرّ بأن القائمة المذكورة هي كامل الورثة ولا وارث سواهم فيما يعلمه المُقِرّ')
+    + C('رابعاً', 'يُقدَّم هذا الإقرار للجهات الرسمية المختصة ويُعدّ وثيقة معتمدة')
+    + `<div class="sig-area">
+        <div class="sig-box"><div class="sig-label">المُقِرّ</div><div class="sig-name">${d.principal_name || '——————'}</div><br>التوقيع: _______________</div>
+        <div class="sig-box"><div class="sig-label">الشاهد</div><div class="sig-name">_______________</div><br>التوقيع: _______________</div>
+    </div>`
+    + legalNote();
+}
+
+function generateDebtAck(d) {
+    return docHeader('إقرار بالدين','وثيقة اعتراف رسمية', d.contract_date, d.contract_city)
+    + H('أولاً','بيانات المدين المُقِرّ')
+    + `<p>أنا: ${B(d.buyer_name)} — رقم الهوية: ${B(d.buyer_id)} — العنوان: ${B(d.buyer_address)}</p><br>`
+    + H('ثانياً','مضمون الإقرار')
+    + C('أول', `أُقرّ بأنني مديون لـ: ${B(d.seller_name)} — رقم الهوية: ${B(d.seller_id)} بمبلغ وقدره: ${B(d.price_total)} ${d.price_currency || ''}`)
+    + (d.debt_reason ? C('ثانياً', `نشأ هذا الدين عن: ${d.debt_reason}`) : '')
+    + C('ثالثاً', `يسداد المبلغ وفق: ${B(d.repayment_terms)}`)
+    + C('رابعاً', 'أُقرّ بأن الدين المذكور حق ثابت في ذمتي وأتعهد بسداده في الموعد المتفق عليه')
+    + C('خامساً', 'في حال التخلف عن السداد يحق للدائن مطالبتي قانونياً واتخاذ جميع الإجراءات اللازمة')
+    + `<div class="sig-area">
+        <div class="sig-box"><div class="sig-label">المدين / المُقِرّ</div><div class="sig-name">${d.buyer_name || '——————'}</div><br>التوقيع: _______________</div>
+        <div class="sig-box"><div class="sig-label">الدائن (اطلاعاً)</div><div class="sig-name">${d.seller_name || '——————'}</div><br>التوقيع: _______________</div>
+    </div>`
+    + legalNote();
+}
+
+function genericTwoPartyContract(type, d, clauses) {
+    let num = ['أول','ثانياً','ثالثاً','رابعاً','خامساً','سادساً','سابعاً','ثامناً','تاسعاً','عاشراً','حادي عشر','ثاني عشر'];
+    const p1name = d.seller_name || d.principal_name || d.landlord_name || '——';
+    const p2name = d.buyer_name || d.agent_name || d.tenant_name || '——';
+    const p1id = d.seller_id || d.principal_id || d.landlord_id || '——';
+    const p2id = d.buyer_id || d.agent_id || d.tenant_id || '——';
+    return docHeader(`عقد ${type}`, '', d.contract_date, d.contract_city)
+    + H('أولاً','أطراف العقد')
+    + `<p><strong>الطرف الأول:</strong> ${B(p1name)} — رقم الهوية / السجل: ${B(p1id)}</p><br>`
+    + `<p><strong>الطرف الثاني:</strong> ${B(p2name)} — رقم الهوية / السجل: ${B(p2id)}</p><br>`
+    + H('ثانياً','بنود العقد')
+    + clauses.map((c,i) => C(num[i] || (i+1), c)).join('')
+    + C(num[clauses.length] || (clauses.length+1), 'يُحرَّر هذا العقد من نسختين لكل طرف نسخة وكلتاهما بقوة قانونية واحدة')
+    + sigArea(p1name, p2name)
+    + legalNote();
+}
+
+/* ════════════════════════════════════════════
+   FORM BUILDER
+════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════
+   CONFIG & STATE
+════════════════════════════════════════════ */
+const CSRF = '{{ csrf_token }}';
+const IS_AUTH = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+const SAVE_URL = '{% url "save_generated_document" %}';
+const DEL_URL_TPL = '/api/documents/__ID__/delete/';
+const LOAD_URL_TPL = '/api/documents/__ID__/';
+
+let currentDoc = null;
+let lastGeneratedHTML = null;
+let savedDocs = JSON.parse('{{ saved_docs_json|escapejs }}');
+
+/* ════════════════════════════════════════════
+   COMPLEXITY MAP
+════════════════════════════════════════════ */
+const COMPLEXITY = {
+  sale_property:'high', sale_vehicle:'med', sale_goods:'low',
+  rent_residential:'med', rent_commercial:'med',
+  employment:'low', services:'low', contractor:'high',
+  loan:'low', mortgage:'high', partnership:'high',
+  power_of_attorney:'med', power_of_attorney_special:'med',
+  inheritance_acknowledgment:'med', debt_acknowledgment:'low',
+  court_settlement:'med', agency_commercial:'med', nda:'low', supply:'med',
+};
+const COMPLEXITY_LABEL = {high:'تعقيد عالي', med:'تعقيد متوسط', low:'تعقيد منخفض'};
+
+/* ════════════════════════════════════════════
+   REQUIREMENTS DATA
+════════════════════════════════════════════ */
+const REQUIREMENTS = {
+  sale_property:[
+    {type:'mandatory',icon:'🏛️',text:'يستلزم التوثيق الرسمي أمام كاتب العدل قبل نقل الملكية'},
+    {type:'mandatory',icon:'📑',text:'يجب تسجيل العقد في السجل العقاري لاستكمال نقل الملكية'},
+    {type:'warning',icon:'⚠️',text:'تأكد من خلوّ العقار من الرهون والديون قبل التوقيع'},
+    {type:'info',icon:'💡',text:'احتفظ بنسخة مختومة من كاتب العدل وأخرى من السجل العقاري'},
+  ],
+  sale_vehicle:[
+    {type:'mandatory',icon:'🚦',text:'يجب نقل ملكية المركبة في مديرية النقل / دائرة السير'},
+    {type:'warning',icon:'⚠️',text:'تحقق من خلوّ المركبة من المخالفات والرهون'},
+    {type:'info',icon:'💡',text:'يُنصح بإبرام العقد عند كاتب العدل لمزيد من الحماية القانونية'},
+  ],
+  sale_goods:[
+    {type:'info',icon:'💡',text:'يكفي التوقيع على الورق للعقود التجارية الصغيرة'},
+    {type:'warning',icon:'⚠️',text:'للعقود الكبيرة يُنصح بالتوثيق لدى كاتب العدل'},
+  ],
+  rent_residential:[
+    {type:'new-law',icon:'🆕',text:'قرار 2024: أصبح تسجيل عقود الإيجار في الوحدة الإدارية المختصة إلزامياً'},
+    {type:'mandatory',icon:'🏛️',text:'يُنصح بتوثيق العقد لدى كاتب العدل قبل التسليم'},
+    {type:'warning',icon:'⚠️',text:'حدد بوضوح مسؤولية الصيانة وشروط إنهاء العقد'},
+    {type:'info',icon:'💡',text:'احتفظ بإيصالات الدفع الشهري كإثبات'},
+  ],
+  rent_commercial:[
+    {type:'new-law',icon:'🆕',text:'قرار 2024: تسجيل عقد الإيجار التجاري في الوحدة الإدارية إلزامي'},
+    {type:'mandatory',icon:'🏛️',text:'وثّق العقد لدى كاتب العدل'},
+    {type:'warning',icon:'⚠️',text:'حدد النشاط التجاري المسموح به بدقة في العقد'},
+  ],
+  employment:[
+    {type:'info',icon:'💡',text:'قانون العمل رقم 17/2010: الكتابة تُثبت الحقوق ولا تسجيل رسمي مطلوب'},
+    {type:'warning',icon:'⚠️',text:'يجب تضمين الراتب وساعات العمل والإجازات صراحةً'},
+    {type:'info',icon:'💡',text:'فترة التجربة لا تتجاوز ثلاثة أشهر بموجب قانون العمل'},
+  ],
+  services:[
+    {type:'info',icon:'💡',text:'يكفي التوقيع المكتوب — لا تسجيل رسمي مطلوب'},
+    {type:'warning',icon:'⚠️',text:'حدد نطاق الخدمة والجداول الزمنية وشروط الإنهاء بدقة'},
+  ],
+  contractor:[
+    {type:'warning',icon:'⚠️',text:'عقود البناء الكبيرة تستدعي مهندساً أو محامياً متخصصاً'},
+    {type:'mandatory',icon:'🏛️',text:'يُنصح بالتوثيق لدى كاتب العدل للمشاريع الكبيرة'},
+    {type:'info',icon:'💡',text:'أرفق المخططات الهندسية والمواصفات الفنية بالعقد'},
+  ],
+  loan:[
+    {type:'warning',icon:'⚠️',text:'حدد الفائدة إن وُجدت وشروط السداد بوضوح تام'},
+    {type:'info',icon:'💡',text:'يُنصح بالتوثيق لدى كاتب العدل للمبالغ الكبيرة'},
+    {type:'info',icon:'💡',text:'يمكن إرفاق شيك أمانة أو ضامن كضمان إضافي'},
+  ],
+  mortgage:[
+    {type:'mandatory',icon:'🏛️',text:'الرهن العقاري يستلزم تدوينه في السجل العقاري للاعتداد به'},
+    {type:'mandatory',icon:'🏛️',text:'يجب توثيقه لدى كاتب العدل'},
+    {type:'warning',icon:'⚠️',text:'خطر فقدان الملكية عند التخلف عن السداد — راجع محامياً'},
+  ],
+  partnership:[
+    {type:'mandatory',icon:'🏛️',text:'يجب تسجيل الشركة في وزارة التجارة الداخلية'},
+    {type:'mandatory',icon:'🏛️',text:'التوثيق لدى كاتب العدل إلزامي'},
+    {type:'warning',icon:'⚠️',text:'حدد حصص الشركاء ومسؤولياتهم وآلية حل النزاعات بدقة'},
+    {type:'info',icon:'💡',text:'قانون الشركات رقم 42/2021 ينظم الشركات ذات المسؤولية المحدودة'},
+  ],
+  power_of_attorney:[
+    {type:'mandatory',icon:'🏛️',text:'الوكالة العامة يجب توثيقها لدى كاتب العدل لتكون نافذة'},
+    {type:'warning',icon:'⚠️',text:'الوكالة العامة تمنح صلاحيات واسعة — كن حذراً في منحها'},
+    {type:'info',icon:'💡',text:'يمكن إلغاء الوكالة في أي وقت بإشعار خطي'},
+  ],
+  power_of_attorney_special:[
+    {type:'mandatory',icon:'🏛️',text:'توثيق لدى كاتب العدل'},
+    {type:'info',icon:'💡',text:'الوكالة الخاصة تقتصر على عمل محدد فقط'},
+  ],
+  inheritance_acknowledgment:[
+    {type:'mandatory',icon:'🏛️',text:'يجب استصدار صك الإرث من المحكمة الشرعية'},
+    {type:'warning',icon:'⚠️',text:'لا يُعتد بالإقرار الخاص — المحكمة هي المرجع الرسمي الوحيد'},
+    {type:'info',icon:'💡',text:'هذا النموذج استرشادي — الإجراء الرسمي يتم أمام المحكمة'},
+  ],
+  debt_acknowledgment:[
+    {type:'info',icon:'💡',text:'الإقرار المكتوب كافٍ — التوثيق يعزز قوته القانونية'},
+    {type:'warning',icon:'⚠️',text:'حدد تاريخ الاستحقاق ومبلغ الدين بالأرقام والحروف'},
+  ],
+  court_settlement:[
+    {type:'mandatory',icon:'🏛️',text:'يجب اعتماد الصلح أمام المحكمة المختصة ليكون نهائياً'},
+    {type:'info',icon:'💡',text:'هذا النموذج لصياغة الصلح المسبق — الاعتماد يكون قضائياً'},
+  ],
+  agency_commercial:[
+    {type:'info',icon:'💡',text:'لا صيغة حكومية إلزامية — يُنظّم وفق القانون المدني التجاري'},
+    {type:'warning',icon:'⚠️',text:'حدد المنطقة الجغرافية والمنتجات والعمولة بدقة'},
+  ],
+  nda:[
+    {type:'info',icon:'💡',text:'اتفاقية السرية مستندة للقانون المدني العام وملزمة قانونياً'},
+    {type:'info',icon:'💡',text:'قانون 7/2023: التوقيع الرقمي له الأثر القانوني ذاته'},
+  ],
+  supply:[
+    {type:'warning',icon:'⚠️',text:'حدد مواصفات البضاعة وجداول التسليم وشروط القوة القاهرة'},
+    {type:'info',icon:'💡',text:'للعقود الكبيرة يُنصح بالتوثيق والحصول على ضمان بنكي'},
+  ],
+};
+
+/* ════════════════════════════════════════════
+   TAB SWITCHING
+════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   SIDEBAR DRAWER
+════════════════════════════════════════════ */
+function openSidebar() {
+  document.getElementById('sidebarCol').classList.remove('closed');
+  document.getElementById('sidebarBackdrop').classList.add('open');
+  document.getElementById('sidebarToggle').style.display = 'none';
+}
+function closeSidebar() {
+  document.getElementById('sidebarCol').classList.add('closed');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+  document.getElementById('sidebarToggle').style.display = '';
+}
+
+function switchTab(tab) {
+  const isTemplates = tab === 'templates';
+  document.getElementById('tabTemplates').classList.toggle('active', isTemplates);
+  document.getElementById('tabSaved').classList.toggle('active', !isTemplates);
+  document.getElementById('templatesPanel').style.display = isTemplates ? 'flex' : 'none';
+  document.getElementById('savedDocsPanel').style.display = isTemplates ? 'none' : 'block';
+  if (!isTemplates) renderSavedDocs();
+}
+
+/* ════════════════════════════════════════════
+   SAVED DOCS UI
+════════════════════════════════════════════ */
+const DOC_ICONS_MAP = {
+  sale_property:'🏠',sale_vehicle:'🚗',sale_goods:'📦',
+  rent_residential:'🏡',rent_commercial:'🏢',employment:'💼',
+  services:'🔧',contractor:'🏗️',loan:'💰',mortgage:'🏦',
+  partnership:'🤝',power_of_attorney:'📜',power_of_attorney_special:'📋',
+  inheritance_acknowledgment:'⚖️',debt_acknowledgment:'💳',
+  court_settlement:'🔨',agency_commercial:'🏪',nda:'🔒',supply:'🚚',
+};
+
+function renderSavedDocs() {
+  const panel = document.getElementById('savedDocsPanel');
+  document.getElementById('savedCount').textContent = savedDocs.length;
+  if (!IS_AUTH) {
+    panel.innerHTML = `<div class="login-nudge">سجّل دخولك لحفظ وثائقك واسترجاعها لاحقاً<br><a href="/login/">تسجيل الدخول ←</a></div>`;
+    return;
+  }
+  if (!savedDocs.length) {
+    panel.innerHTML = `<div class="saved-empty"><div class="se-icon">💾</div>لا توجد وثائق محفوظة بعد<br>أنشئ وثيقة واضغط "حفظ"</div>`;
+    return;
+  }
+  panel.innerHTML = savedDocs.map(d => `
+    <div class="saved-doc-item" onclick="loadSavedDoc(${d.id})">
+      <span class="sdi-icon">${DOC_ICONS_MAP[d.doc_type] || '📄'}</span>
+      <div class="sdi-info">
+        <div class="sdi-title">${d.title || d.doc_type}</div>
+        <div class="sdi-date">${d.created_at}</div>
+      </div>
+      <button class="sdi-del" onclick="event.stopPropagation();deleteSavedDoc(${d.id})" title="حذف">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════════
+   TOAST SYSTEM
+════════════════════════════════════════════ */
+function showToast(msg, type='info') {
+  const icons = {success:'✅',error:'❌',info:'ℹ️'};
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('hiding'); setTimeout(() => t.remove(), 320); }, 3200);
+}
+
+/* ════════════════════════════════════════════
+   SAVE TO DB
+════════════════════════════════════════════ */
+async function saveDocument() {
+  if (!IS_AUTH || !lastGeneratedHTML || !currentDoc) return;
+  const def = DOCS[currentDoc];
+  const formData = {};
+  document.getElementById('formBody').querySelectorAll('input,select,textarea').forEach(el => {
+    if (el.id) formData[el.id] = el.value;
+  });
+  const title = `${def.title} — ${new Date().toLocaleDateString('ar-SY')}`;
+  try {
+    const res = await fetch(SAVE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+      body: JSON.stringify({doc_type:currentDoc, title, html_content:lastGeneratedHTML, form_data:formData}),
+    });
+    const data = await res.json();
+    if (data.success) {
+      savedDocs.unshift({id:data.id, doc_type:currentDoc, title, created_at:data.created_at});
+      document.getElementById('savedCount').textContent = savedDocs.length;
+      showToast('تم حفظ الوثيقة بنجاح', 'success');
+    } else {
+      showToast(data.error || 'خطأ في الحفظ', 'error');
+    }
+  } catch(e) { showToast('تعذّر الاتصال بالخادم', 'error'); }
+}
+
+/* ════════════════════════════════════════════
+   LOAD SAVED DOC
+════════════════════════════════════════════ */
+async function loadSavedDoc(id) {
+  try {
+    const res = await fetch(LOAD_URL_TPL.replace('__ID__', id));
+    const data = await res.json();
+    if (data.error) { showToast(data.error, 'error'); return; }
+    currentDoc = data.doc_type;
+    lastGeneratedHTML = data.html_content;
+    loadDoc(data.doc_type, data.form_data);
+    setTimeout(() => {
+      const out = document.getElementById('doc-output');
+      out.innerHTML = data.html_content;
+      out.style.display = '';
+      document.getElementById('paperWrap').style.display = '';
+      document.getElementById('previewEmpty').style.display = 'none';
+      document.getElementById('mobileDocOutput').innerHTML = data.html_content;
+      document.getElementById('mobilePreview').style.display = '';
+      document.getElementById('btnPrint').style.display = 'flex';
+      document.getElementById('btnDownload').style.display = 'flex';
+      const btnSave = document.getElementById('btnSave');
+      if (btnSave) btnSave.disabled = false;
+    }, 100);
+    switchTab('templates');
+    showToast('تم تحميل الوثيقة', 'info');
+  } catch(e) { showToast('تعذّر تحميل الوثيقة', 'error'); }
+}
+
+/* ════════════════════════════════════════════
+   DELETE SAVED DOC
+════════════════════════════════════════════ */
+async function deleteSavedDoc(id) {
+  if (!confirm('حذف هذه الوثيقة نهائياً؟')) return;
+  try {
+    const res = await fetch(DEL_URL_TPL.replace('__ID__', id), {
+      method:'POST',
+      headers:{'X-CSRFToken':CSRF},
+    });
+    const data = await res.json();
+    if (data.success) {
+      savedDocs = savedDocs.filter(d => d.id !== id);
+      document.getElementById('savedCount').textContent = savedDocs.length;
+      renderSavedDocs();
+      showToast('تم حذف الوثيقة', 'success');
+    } else { showToast(data.error || 'خطأ في الحذف', 'error'); }
+  } catch(e) { showToast('تعذّر الاتصال بالخادم', 'error'); }
+}
+
+/* ════════════════════════════════════════════
+   LOAD DOC TEMPLATE
+════════════════════════════════════════════ */
+function loadDoc(key, prefill={}) {
+  const def = DOCS[key];
+  if (!def) return;
+  currentDoc = key;
+  lastGeneratedHTML = null;
+  closeSidebar();
+
+  // update sidebar + welcome grid
+  document.querySelectorAll('.doc-card,.ws-card').forEach(b => b.classList.toggle('active', b.dataset.doc === key));
+
+  // show form card, hide welcome browser
+  document.getElementById('welcomeState').style.display = 'none';
+  document.getElementById('formCard').style.display = '';
+  // show sidebar toggle now that welcome is hidden
+  const tog = document.getElementById('sidebarToggle');
+  if (tog) tog.style.display = '';
+  document.getElementById('formIcon').textContent = def.icon;
+  document.getElementById('formTitle').textContent = def.title;
+  document.getElementById('formDesc').textContent = def.desc;
+
+  // complexity badge
+  const cplx = COMPLEXITY[key] || 'low';
+  const badge = document.getElementById('formComplexBadge');
+  badge.textContent = COMPLEXITY_LABEL[cplx];
+  badge.className = `fch-badge ${cplx}`;
+
+  // requirements
+  const reqs = REQUIREMENTS[key] || [];
+  const rPanel = document.getElementById('reqPanel');
+  if (reqs.length) {
+    rPanel.style.display = '';
+    rPanel.innerHTML = `<div class="req-panel-title">⚠ متطلبات قانونية ونصائح</div>` +
+      reqs.map(r => `<div class="req-alert ${r.type}"><span class="req-alert-icon">${r.icon}</span><span>${r.text}</span></div>`).join('');
+  } else {
+    rPanel.style.display = 'none';
+  }
+
+  // render form fields
+  document.getElementById('formBody').innerHTML = renderFields(def.fields, prefill);
+
+  // reset buttons
+  document.getElementById('btnPrint').style.display = 'none';
+  document.getElementById('btnDownload').style.display = 'none';
+  const btnSave = document.getElementById('btnSave');
+  if (btnSave) btnSave.disabled = true;
+
+  clearPreview();
+  document.getElementById('formCard').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ════════════════════════════════════════════
+   RENDER FORM FIELDS
+════════════════════════════════════════════ */
+function renderFields(fields, prefill={}) {
+  return fields.map(f => {
+    if (f.type === 'section') return `<div class="section-divider"><span>${f.icon||'◆'} ${f.label}</span></div>`;
+    if (f.type === 'row') return `<div class="fg-row">${f.cols.map(c => renderField(c, prefill)).join('')}</div>`;
+    if (f.type === 'row3') return `<div class="fg-row-3">${f.cols.map(c => renderField(c, prefill)).join('')}</div>`;
+    return renderField(f, prefill);
+  }).join('');
+}
+
+function renderField(f, prefill={}) {
+  const val = prefill[f.id] || '';
+  const req = f.req ? '<span class="req">*</span>' : '<span class="opt">(اختياري)</span>';
+  const hint = f.hint ? `<div class="field-hint">${f.hint}</div>` : '';
+  if (f.type === 'select') {
+    const opts = (f.options||[]).map(o => `<option value="${o}" ${val===o?'selected':''}>${o}</option>`).join('');
+    return `<div class="fg"><label>${req}${f.label}</label><select id="${f.id}"><option value="">— اختر —</option>${opts}</select>${hint}</div>`;
+  }
+  if (f.type === 'textarea') {
+    return `<div class="fg"><label>${req}${f.label}</label><textarea id="${f.id}" placeholder="${f.placeholder||''}">${val}</textarea>${hint}</div>`;
+  }
+  const type = f.type === 'date' ? 'date' : 'text';
+  return `<div class="fg"><label>${req}${f.label}</label><input type="${type}" id="${f.id}" placeholder="${f.placeholder||''}" value="${val}">${hint}</div>`;
+}
+
+/* ════════════════════════════════════════════
+   GENERATE DOCUMENT
+════════════════════════════════════════════ */
+function generateDocument() {
+  const def = DOCS[currentDoc];
+  if (!def) return;
+  const d = {};
+  document.getElementById('formBody').querySelectorAll('input,select,textarea').forEach(el => { d[el.id] = el.value.trim(); });
+
+  const html = def.generate(d);
+  lastGeneratedHTML = html;
+
+  // desktop preview
+  const out = document.getElementById('doc-output');
+  out.innerHTML = html;
+  document.getElementById('paperWrap').style.display = '';
+  document.getElementById('previewEmpty').style.display = 'none';
+
+  // mobile preview
+  document.getElementById('mobileDocOutput').innerHTML = html;
+  document.getElementById('mobilePreview').style.display = '';
+
+  document.getElementById('btnPrint').style.display = 'flex';
+  document.getElementById('btnDownload').style.display = 'flex';
+  const btnSave = document.getElementById('btnSave');
+  if (btnSave) btnSave.disabled = false;
+
+  showToast('تم إنشاء الوثيقة بنجاح', 'success');
+  out.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function printDocument() { window.print(); }
+
+function downloadHTML() {
+  const def = DOCS[currentDoc];
+  if (!def || !lastGeneratedHTML) return;
+  const fullHTML = `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>${def.title}</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Amiri',serif;direction:rtl;text-align:right;padding:40px;max-width:800px;margin:0 auto;color:#1a1a2a;line-height:1.9;}
+.doc-stamp{text-align:center;border:2px solid #1a1a2a;border-radius:10px;padding:14px 18px;margin-bottom:20px;position:relative;}
+.doc-stamp::before{content:'';position:absolute;inset:4px;border:1px solid rgba(0,0,0,.1);border-radius:6px;}
+.doc-stamp .doc-name{font-size:21px;font-weight:700;}
+.doc-section-title{font-size:14px;font-weight:700;border-bottom:1px solid #ccc;padding-bottom:5px;margin:16px 0 10px;}
+.clause{margin-bottom:9px;padding-right:14px;border-right:3px solid #b8965a;}
+.clause-num{font-weight:700;color:#0b1628;font-size:12px;}
+.blank{border-bottom:1px solid #555;display:inline-block;min-width:90px;}
+.sig-area{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:28px;}
+.sig-box{text-align:center;padding-top:14px;border-top:1px solid #aaa;}
+.doc-note{margin-top:18px;padding:10px 14px;background:#f9f7f0;border-right:4px solid #b8965a;border-radius:6px;font-size:11.5px;color:#666;}
+@page{margin:2cm;}</style></head><body>${lastGeneratedHTML}</body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([fullHTML],{type:'text/html;charset=utf-8'}));
+  a.download = `${def.title.replace(/\s+/g,'_')}.html`;
+  a.click();
+}
+
+function clearPreview() {
+  document.getElementById('doc-output').innerHTML = '';
+  document.getElementById('paperWrap').style.display = 'none';
+  document.getElementById('previewEmpty').style.display = 'block';
+  document.getElementById('mobilePreview').style.display = 'none';
+}
+
+function resetForm() {
+  document.getElementById('formBody').querySelectorAll('input,textarea').forEach(el => el.value='');
+  document.getElementById('formBody').querySelectorAll('select').forEach(el => el.selectedIndex=0);
+  document.getElementById('btnPrint').style.display = 'none';
+  document.getElementById('btnDownload').style.display = 'none';
+  const btnSave = document.getElementById('btnSave');
+  if (btnSave) btnSave.disabled = true;
+  lastGeneratedHTML = null;
+  clearPreview();
+}
+
+function filterDocs(q) {
+  q = (q || '').trim().toLowerCase();
+  const clearBtn = document.getElementById('siClear');
+  if (clearBtn) clearBtn.classList.toggle('show', q.length > 0);
+
+  // reset category filter to "all" when searching
+  if (q) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    const allPill = document.querySelector('.cat-pill[data-cat="all"]');
+    if (allPill) allPill.classList.add('active');
+  }
+
+  let anyVisible = false;
+  document.querySelectorAll('.cat-section').forEach(section => {
+    let sectionHas = false;
+    section.querySelectorAll('.doc-card').forEach(card => {
+      const name = (card.querySelector('.doc-card-name')?.textContent || '').toLowerCase();
+      const tag  = (card.querySelector('.doc-card-tag')?.textContent || '').toLowerCase();
+      const show = !q || name.includes(q) || tag.includes(q);
+      card.style.display = show ? '' : 'none';
+      if (show) { sectionHas = true; anyVisible = true; }
+    });
+    section.style.display = (sectionHas || !q) ? '' : 'none';
+  });
+
+  const noRes = document.getElementById('noResults');
+  if (noRes) noRes.style.display = (!anyVisible && q) ? '' : 'none';
+}
+
+function clearSearch() {
+  const inp = document.getElementById('docSearchInput');
+  if (inp) { inp.value = ''; filterDocs(''); inp.focus(); }
+}
+
+function filterByCat(cat, btn) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  // clear search
+  const inp = document.getElementById('docSearchInput');
+  if (inp) inp.value = '';
+  filterDocs('');
+  // show/hide sections
+  document.querySelectorAll('.cat-section').forEach(s => {
+    s.style.display = (cat === 'all' || s.dataset.cat === cat) ? '' : 'none';
+  });
+  // show all cards in visible sections
+  document.querySelectorAll('.doc-card').forEach(c => c.style.display = '');
+}
+
+// ── Welcome-state search / filter ──
+function wsFilter(q) {
+  q = (q || '').trim().toLowerCase();
+  let any = false;
+  document.querySelectorAll('.ws-cat-section').forEach(sec => {
+    let has = false;
+    sec.querySelectorAll('.ws-card').forEach(card => {
+      const n = (card.dataset.name || '').toLowerCase();
+      const t = (card.dataset.tag  || '').toLowerCase();
+      const show = !q || n.includes(q) || t.includes(q);
+      card.style.display = show ? '' : 'none';
+      if (show) { has = true; any = true; }
+    });
+    sec.style.display = has ? '' : 'none';
+  });
+  const nr = document.getElementById('wsNoResults');
+  if (nr) nr.style.display = (!any && q) ? '' : 'none';
+}
+
+function wsFilterCat(cat, btn) {
+  document.querySelectorAll('.ws-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const inp = document.getElementById('wsSearch');
+  if (inp) inp.value = '';
+  document.querySelectorAll('.ws-card').forEach(c => c.style.display = '');
+  document.querySelectorAll('.ws-cat-section').forEach(s => {
+    s.style.display = (cat === 'all' || s.dataset.cat === cat) ? '' : 'none';
+  });
+  const nr = document.getElementById('wsNoResults');
+  if (nr) nr.style.display = 'none';
+}
+
+// init saved count
+document.getElementById('savedCount').textContent = savedDocs.length;
+</script>
+</body>
+</html>
